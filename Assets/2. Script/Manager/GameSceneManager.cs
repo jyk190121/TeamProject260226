@@ -20,36 +20,6 @@ public class GameSceneManager : MonoBehaviour
         }
     }
 
-    //void OnEnable()
-    //{
-    //    //씬 로드 완료 이벤트 구축
-    //    SceneManager.sceneLoaded += OnSceneLoaded;
-    //}
-
-    //void OnDisable()
-    //{
-    //    //이벤트 구축 해제(메모리 누수 및 에러 방지)
-    //    SceneManager.sceneLoaded -= OnSceneLoaded;
-    //}
-
-    //void InitializeBattle()
-    //{
-    //    //StageManager에서 넘겨준 스테이지 번호 확인
-    //    StageManager stageManager = FindAnyObjectByType<StageManager>();
-    //    int stage = stageManager.SelectedStage;
-    //    int round = stageManager.Round;
-
-    //    EnemyManager.Instance.SpawnEnemy(stage, round);
-    //}
-
-    //public void OnSceneLoaded(Scene scene, LoadSceneMode mode = LoadSceneMode.Single)
-    //{
-    //    if(scene.name == "BattleScene")
-    //    {
-    //        InitializeBattle();
-    //    }
-    //}
-
     // 기본 로드 방식 (동기)
     public void LoadScene(string sceneName)
     {
@@ -83,21 +53,6 @@ public class GameSceneManager : MonoBehaviour
         //float timer = 0f;
         while (!op.isDone)
         {
-            //// 진행률 계산 (0~1)
-            //LoadingProgress = Mathf.Clamp01(op.progress / 0.9f);
-            //print($"현재 씬 로드 진행률 : {LoadingProgress}");
-
-            //// 로딩 완료 조건
-            //if (op.progress >= 0.9f)
-            //{
-            //    yield return new WaitForSeconds(0.1f);
-
-            //    // 연출을 위해 약간의 지연을 주거나 바로 전환
-            //    op.allowSceneActivation = true;
-            //}
-
-            //yield return null;
-
             yield return null;
 
             // 1. 유니티의 실제 로딩 수치 (0.9가 최대)
