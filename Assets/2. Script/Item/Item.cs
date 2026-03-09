@@ -7,6 +7,7 @@ public class Item : ScriptableObject
     // 외부에서 수정 불가능하게 하되, 시리얼라이즈는 되도록 설정
     [SerializeField, HideInInspector]
     public string id;          // Apple_01_A 구분자
+    public int stageIndex;     // 스테이지 번호
     public Vector2 oriPos;     // 초기 위치
     public Vector2 changePos;  // 변경 위치
     public int color;          // 색상 인덱스

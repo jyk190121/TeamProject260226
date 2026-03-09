@@ -1,11 +1,13 @@
-using UnityEngine;
 using System.Collections.Generic;
+using System.Linq; // 리스트 필터링을 위해 추가
+using UnityEngine;
 
 public class ItemManager : MonoBehaviour
 {
     public static ItemManager Instance { get; private set; }
 
-    public List<Item> itemList;
+    [Header("모든 스테이지 아이템 데이터")]
+    public List<Item> itemData = new List<Item>();
 
     // 현재 씬에 생성된 아이템들을 추적하기 위한 딕셔너리 (ID 기반)
     private Dictionary<string, GameObject> spawnedItems = new Dictionary<string, GameObject>();
@@ -25,19 +27,65 @@ public class ItemManager : MonoBehaviour
     /// <summary>
     /// 아이템 생성 및 타입별 기능 부여
     /// </summary>
-    public void SpawnItem(Item itemData)
+    public void SpawnItem(int stageIndex)
     {
-        if (itemData == null || itemData.prefab == null) return;
-        if (spawnedItems.ContainsKey(itemData.id)) return;
 
-        // 1. 프리팹 생성
-        GameObject newItem = Instantiate(itemData.prefab, itemData.oriPos, Quaternion.identity);
-        newItem.name = itemData.id;
+        if (stageIndex <= 0)
+        {
+            print("스테이지 번호가 유효하지 않습니다.");
+            return;
+        }
 
-        // 2. 타입별 로직 처리
-        ApplyTypeLogic(newItem, itemData);
+        SaveData savedData = SaveManager.Instance.Load();
 
-        spawnedItems.Add(itemData.id, newItem);
+        // itemData 리스트에서 stageIndex가 일치하는 아이템들만 추출
+        // (Linq를 사용하거나 foreach문으로 필터링 가능)
+        foreach (Item item in itemData)
+        {
+            if (item.stageIndex == stageIndex)
+            {
+                // 저장된 위치가 있는지 검색
+                var savedInfo = savedData.itemPositions.Find(x => x.itemId == item.id);
+                Vector2 spawnPos = (savedInfo != null) ? savedInfo.savedPos : item.oriPos;
+
+                CreateItemObject(item, spawnPos);
+            }
+        }
+        //if (itemData == null || itemData.prefab == null) return;
+
+        //// 같은 아이템이 여러 개일 수 있으므로 ID 생성 방식을 보완 (예: ID_순번)
+        //string uniqueKey = itemData.id + "_" + spawnedItems.Count;
+
+        //GameObject newItem = Instantiate(itemData.prefab, itemData.oriPos, Quaternion.identity);
+        //newItem.name = uniqueKey;
+
+        //ApplyTypeLogic(newItem, itemData);
+        //spawnedItems.Add(uniqueKey, newItem);
+
+        //// 1. 프리팹 생성
+        //GameObject newItem = Instantiate(itemData.prefab, itemData.oriPos, Quaternion.identity);
+        //newItem.name = itemData.id;
+
+        //// 2. 타입별 로직 처리
+        //ApplyTypeLogic(newItem, itemData);
+
+        //spawnedItems.Add(itemData.id, newItem);
+    }
+
+    // 실제 생성 로직을 별도 메서드로 분리 (가독성)
+    private void CreateItemObject(Item data, Vector2 pos)
+    {
+        if (data.prefab == null) return;
+
+        // 생성할 때 고유 ID 부여
+        GameObject newItem = Instantiate(data.prefab, pos, Quaternion.identity);
+        newItem.name = data.id; // 나중에 위치를 업데이트할 때 찾기 위해 원본 id 사용
+
+        ApplyTypeLogic(newItem, data);
+
+        // 딕셔너리에 추가 (key: 아이템ID, value: 게임오브젝트)
+        if (!spawnedItems.ContainsKey(data.id))
+            spawnedItems.Add(data.id, newItem);
     }
 
     private void ApplyTypeLogic(GameObject obj, Item data)
@@ -92,11 +140,39 @@ public class ItemManager : MonoBehaviour
             if (item != null) Destroy(item);
         }
         spawnedItems.Clear();
-        print("모든 스테이지 아이템이 제거되었습니다.");
+        print("아이템이 파괴되었습니다");
     }
 
-    public void ChangeItemPos(Item data, Vector2 vec)
+    /// <summary>
+    /// 특정 시점에 모든 아이템의 현재 위치를 SO의 changePos에 동기화하고 저장 준비
+    /// </summary>
+    public void UpdateAllItemPositions()
     {
-        data.changePos = vec;
+        foreach (var entry in spawnedItems)
+        {
+            string id = entry.Key;
+            GameObject obj = entry.Value;
+
+            // 리스트에서 해당 ID를 가진 SO 찾기
+            Item data = itemData.Find(x => x.id == id);
+            if (data != null && obj != null)
+            {
+                // 현재 월드 위치를 SO의 changePos에 저장
+                data.changePos = obj.transform.position;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 외부(예: 드래그 종료 시)에서 특정 아이템의 위치를 업데이트할 때 호출
+    /// </summary>
+    public void ChangeItemPos(string itemId, Vector2 newPos)
+    {
+        Item data = itemData.Find(x => x.id == itemId);
+        if (data != null)
+        {
+            data.changePos = newPos;
+            print($"{itemId}의 위치가 {newPos}로 변경되었습니다.");
+        }
     }
 }
