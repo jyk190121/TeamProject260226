@@ -1,29 +1,60 @@
+using NUnit.Framework.Interfaces;
 using UnityEngine;
-using System.Collections.Generic;
 
-[System.Serializable]
-public class StageData
-{
-    public string stageName;
-    public List<Item> itemsToSpawn; // 해당 스테이지에서 생성할 SO 리스트
-}
 
 public class StageManager : MonoBehaviour
 {
-    public List<StageData> stages; // 인스펙터에서 스테이지별 아이템 설정
-    private int currentStageIndex = -1;
+    // 총 스테이지
+    public int totalStage = 5;
+    private int currentStageIndex = 1;
 
     void Start()
     {
-        // 첫 번째 스테이지 시작
-        GoToNextStage();
+        // 스테이지 값 받아오기 (SaveManager)
+
+        // 저장된 데이터 로드
+        SaveData data = SaveManager.Instance.Load();
+        currentStageIndex = data.lastUnlockedStage;
+
+        // 로드된 스테이지 시작
+        StartStage(currentStageIndex);
     }
 
-    public void GoToNextStage()
+    public void ClearStage()
     {
+        //// 1. 현재 맵에 있는 아이템들의 위치를 SO 데이터(changePos)로 동기화
+        //ItemManager.Instance.UpdateAllItemPositions();
+
+        //// 2. 저장 데이터 생성
+        //SaveData data = new SaveData();
+        //data.lastUnlockedStage = currentStageIndex + 1; // 다음 스테이지 번호
+
+        //// 3. 현재 스테이지의 아이템 위치 정보들 리스트에 담기
+        //foreach (Item item in ItemManager.Instance.itemData)
+        //{
+        //    // 위치가 변한(이동된) 아이템만 저장하거나 전체 저장
+        //    if (item.stageIndex == currentStageIndex)
+        //    {
+        //        data.itemPositions.Add(new ItemSaveInfo
+        //        {
+        //            itemId = item.id,
+        //            savedPos = item.changePos, // 업데이트된 changePos 저장
+        //            savedColor = item.color    // 업데이트된 Color 저장
+        //        });
+        //    }
+        //}
+
+        SaveData data = new SaveData();
+        data.lastUnlockedStage = currentStageIndex;
+        data.itemPositions.Clear(); // 다음 스테이지는 초기값으로 시작하도록 비움
+
+        // JSON 저장
+        SaveManager.Instance.Save(data);
+
+        // 다음 스테이지 진행
         currentStageIndex++;
 
-        if (currentStageIndex < stages.Count)
+        if (currentStageIndex < totalStage)
         {
             StartStage(currentStageIndex);
         }
@@ -33,18 +64,30 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    private void StartStage(int index)
+    // 스테이지 시작 시 
+    public void StartStage(int index)
     {
-        // 1. 기존 아이템 모두 파괴
+        currentStageIndex = index;
+
+        // 기존 존재하는 아이템 파괴
         ItemManager.Instance.ClearAllItems();
 
-        // 2. 새로운 스테이지 아이템 생성
-        StageData currentStage = stages[index];
-        foreach (Item itemSO in currentStage.itemsToSpawn)
-        {
-            ItemManager.Instance.SpawnItem(itemSO);
-        }
+        ItemManager.Instance.SpawnItem(currentStageIndex);
 
-        print($"{currentStage.stageName} 시작됨.");
+        print($"{currentStageIndex} 시작됨");
+    }
+
+    // 스테이지 리셋
+    public void ResetGame()
+    {
+        // 저장 파일 삭제 혹은 초기화 데이터 덮어쓰기
+        SaveData emptyData = new SaveData();
+        SaveManager.Instance.Save(emptyData);
+
+        // SO들의 changePos도 초기화
+        foreach (Item item in ItemManager.Instance.itemData) item.changePos = item.oriPos;
+
+        // 1스테이지부터 다시 시작
+        StartStage(1);
     }
 }
