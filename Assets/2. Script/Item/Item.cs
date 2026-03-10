@@ -5,7 +5,7 @@ public enum ItemType { A, B }
 public class Item : ScriptableObject
 {
     // 외부에서 수정 불가능하게 하되, 시리얼라이즈는 되도록 설정
-    [SerializeField, HideInInspector]
+    [SerializeField]
     public string id;          // Apple_01_A 구분자
     public int stageIndex;     // 스테이지 번호
     public Vector2 oriPos;     // 초기 위치

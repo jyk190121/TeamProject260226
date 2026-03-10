@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: Grape
   m_EditorClassIdentifier: Assembly-CSharp::Item
   id: 
-  pos: {x: 200, y: 300}
+  stageIndex: 0
+  oriPos: {x: 0, y: 15}
+  changePos: {x: 0, y: 0}
   color: 0
   type: 0
-  prefab: {fileID: 5815863799546554293, guid: 00866d60c5fb1724996829ce2e66a763, type: 3}
+  prefab: {fileID: 0}
   isGround: 0
