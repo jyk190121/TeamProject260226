@@ -567,7 +567,6 @@ MonoBehaviour:
   continueBtn: {fileID: 1778037416}
   optionBtn: {fileID: 474902890}
   exitBtn: {fileID: 1183150374}
-  targetAlpha: 0.1
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1586,12 +1585,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f48315752229a18438058c93b1250d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
-  sounds: []
+  library: {fileID: 0}
+  mixer: {fileID: 0}
   bgmSource: {fileID: 0}
   sfxSource: {fileID: 0}
-  masterVolume: 1
-  bgmVolume: 1
-  sfxVolume: 1
+  masterParam: MasterVol
+  bgmParam: BGMVol
+  sfxParam: SFXVol
+  defaultMaster: 0.8
+  defaultBgm: 0.8
+  defaultSfx: 0.8
 --- !u!114 &2037764663
 MonoBehaviour:
   m_ObjectHideFlags: 0

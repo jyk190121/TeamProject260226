@@ -30,6 +30,7 @@ public class StartController : MonoBehaviour
     void OnDisable()
     {
         startBtn.onClick.RemoveListener(OnClickStart);
+        continueBtn.onClick.RemoveListener(OnClickContinue);
         optionBtn.onClick.RemoveListener(OnClickOption);
         exitBtn.onClick.RemoveListener(OnClickExit);
     }
@@ -74,6 +75,7 @@ public class StartController : MonoBehaviour
     private void OnClickStart()
     {
         print("게임 시작 로직 실행");
+        GameSceneManager.Instance.LoadScene("GameScene_KJY");
     }
 
     private void OnClickContinue()
