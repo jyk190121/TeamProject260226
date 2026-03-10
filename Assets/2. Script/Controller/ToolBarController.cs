@@ -1,16 +1,21 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using CustomInput = Input;
+using UnityEngine.InputSystem;
+using System.Collections.Generic;
 using Key = UnityEngine.InputSystem.Key;
 
 public class ToolBarController : MonoBehaviour
 {
+    [Header("매니저 연결")]
+    public ItemManager itemManager; // 인스펙터에서 ItemManager 오브젝트를 연결해주세요.
+
     [Header("설정")]
-    // 커서의 중심점 설정 (기본은 왼쪽 상단 0,0)
     public Vector2 hotSpot = Vector2.zero;
-    public LayerMask storageLayer;
-    public LayerMask itemLayer;    // Inspector에서 "Item" 레이어를 가진 프리팹 선택
+
+    [Header("UI 레이어 이름 매칭")]
+    public string itemLayerName = "Item";
+    public string storageLayerName = "Storage"; // 또는 ItemStorage 등 인스펙터에 맞게 입력
 
     [Header("도구 버튼")]
     public Button[] toolBtns = new Button[5];
@@ -20,7 +25,7 @@ public class ToolBarController : MonoBehaviour
 
     GameObject _currentMovingItem;
     bool _isHoldingItem = false;
-    int _selectedToolIndex = -1; // 현재 어떤 도구를 선택했는지 저장
+    int _selectedToolIndex = -1;
 
     void Start()
     {
@@ -30,146 +35,204 @@ public class ToolBarController : MonoBehaviour
             Button btn = toolBtns[i];
             if (btn == null) continue;
 
-            btn.onClick.AddListener(() =>
-            {
-                _selectedToolIndex = index;
-                ChangeCursorToButtonImage(btn);
-
-                // 도구를 바꿀 때 이미 들고 있던 프리팹이 있다면 제거 (취소 처리)
-                if (_isHoldingItem && _currentMovingItem != null)
-                {
-                    // 새로 생성한 아이템인 경우에만 Destroy, 
-                    // 기존 아이템을 집은 거라면 원래 위치로 돌리는 로직이 필요할 수 있음
-                    Destroy(_currentMovingItem);
-                    _isHoldingItem = false;
-                }
-            });
+            btn.onClick.AddListener(() => SelectTool(index));
         }
     }
+
     void Update()
     {
-        // 1. 아이템을 들고 있는 상태 (이동 및 배치)
+        HandleNumericInput();
+
+        if (Mouse.current == null) return;
+
+        bool isLeftClick = Mouse.current.leftButton.wasPressedThisFrame;
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+
+        // 1. 아이템을 들고 있는 상태
         if (_isHoldingItem && _currentMovingItem != null)
         {
-            MoveItemWithMouse();
+            MoveItemWithMouse(mousePos);
 
-            if (CustomInput.GetMouseButtonDown(0))
+            if (isLeftClick)
             {
-                TryPlaceItem();
+                TryPlaceItem(mousePos);
             }
         }
-        // 2. 아이템을 안 들고 있는 상태 + 0번 도구(Hand) 활성화 + 마우스 클릭 (아이템 선택)
-        else if (!_isHoldingItem && _selectedToolIndex == 0 && CustomInput.GetMouseButtonDown(0))
+        // 2. 0번 도구(Hand) + 빈손 + 마우스 클릭
+        else if (!_isHoldingItem && _selectedToolIndex == 0 && isLeftClick)
         {
-            // UI를 클릭 중일 때는 월드 레이캐스트를 무시 (버튼 누를 때 바닥 찍히는 것 방지)
-            if (EventSystem.current.IsPointerOverGameObject()) return;
-
-            TryPickUpItem();
+            TryPickUpItem(mousePos);
         }
     }
 
-    // 기존 필드에 있는 아이템을 집어 올리는 로직
-    private void TryPickUpItem()
+    // ---------------------------------------------------
+    // UI 전용 클릭 감지 및 집기 로직
+    // ---------------------------------------------------
+    private void TryPickUpItem(Vector2 mousePos)
     {
-        Ray ray = Camera.main.ScreenPointToRay(CustomInput.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, itemLayer))
-        {
-            _currentMovingItem = hit.collider.gameObject;
+        List<RaycastResult> results = GetUIElementsAtMouse(mousePos);
 
-            // 이동 모드 활성화를 위해 레이어 변경
-            SetLayerRecursive(_currentMovingItem, LayerMask.NameToLayer("Ignore Raycast"));
-            _isHoldingItem = true;
-            Debug.Log("아이템을 집었습니다: " + _currentMovingItem.name);
+        foreach (var result in results)
+        {
+            // 클릭한 UI들 중 "Item" 레이어를 가진 녀석을 찾음
+            if (LayerMask.LayerToName(result.gameObject.layer) == itemLayerName)
+            {
+                _currentMovingItem = result.gameObject;
+                _isHoldingItem = true;
+
+                // 마우스를 가리지 않도록 Raycast Target 끄기
+                SetUIRaycastTarget(_currentMovingItem, false);
+
+                Debug.Log($"<color=lime><b>[Action]</b> Canvas 아이템 집기: {_currentMovingItem.name}</color>");
+
+                // [핵심] 사전 작업: 클릭한 아이템의 SO 데이터를 읽어옵니다.
+                ReadAndPrintItemSO(_currentMovingItem);
+
+                return; // 하나 집었으면 종료
+            }
         }
     }
-    private void MoveItemWithMouse()
-    {
-        Vector2 mPos = Input.mousePosition;
-        Ray ray = Camera.main.ScreenPointToRay(mPos);
 
-        // Storage 레이어 위에서만 좌표를 계산 (아이템이 공중에 뜨지 않게)
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, storageLayer))
+    // ---------------------------------------------------
+    // 클릭한 아이템의 SO 데이터를 읽어오는 함수 (사전 작업)
+    // ---------------------------------------------------
+    private void ReadAndPrintItemSO(GameObject targetObj)
+    {
+        if (itemManager == null)
         {
-            _currentMovingItem.transform.position = hit.point;
+            // 만약 인스펙터 연결을 깜빡했다면 싱글톤으로 대체 접근 시도
+            if (ItemManager.Instance != null) itemManager = ItemManager.Instance;
+            else
+            {
+                Debug.LogError("<color=red>[Error]</color> ToolBarController에 ItemManager가 연결되지 않았습니다!");
+                return;
+            }
+        }
+
+        // 유니티에서 생성된 프리팹의 "(Clone)" 문자열을 제거하여 순수 ID 추출
+        string searchId = targetObj.name.Replace("(Clone)", "").Trim();
+
+        // ItemManager를 통해 SO 데이터 접근
+        Item data = itemManager.GetItemDataById(searchId);
+
+        if (data != null)
+        {
+            Debug.Log($"<color=yellow><b>=== [SO 데이터 읽기 성공] ===</b></color>\n" +
+                      $" - ID: {data.id}\n" +
+                      $" - Stage Index: {data.stageIndex}\n" +
+                      $" - Type: {data.type}\n" +
+                      $" - OriPos: {data.oriPos}\n" +
+                      $" - ChangePos: {data.changePos}\n" +
+                      $" - Color: {data.color}\n" +
+                      $" - isGround: {data.isGround}\n" +
+                      $"<color=yellow>===============================</color>");
         }
         else
         {
-            // Storage 영역 밖일 때의 처리 (필요시)
-            Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(mPos.x, mPos.y, 10f));
-            _currentMovingItem.transform.position = worldPos;
+            Debug.Log($"<color=red>[SO 매핑 실패]</color> ItemManager에서 ID '{searchId}'를 찾을 수 없습니다.");
         }
     }
 
-    private void TryPlaceItem()
+    // ---------------------------------------------------
+    // 아이템 이동 및 배치
+    // ---------------------------------------------------
+    private void MoveItemWithMouse(Vector2 mousePos)
     {
+        // Canvas (Screen Space - Overlay) 환경에서는 마우스 좌표가 곧 UI 좌표입니다.
+        _currentMovingItem.transform.position = mousePos;
+    }
 
-        // 커스텀 Input의 GetMouseButtonDown(0) 사용
-        if (Input.GetMouseButtonDown(0))
+    private void TryPlaceItem(Vector2 mousePos)
+    {
+        List<RaycastResult> results = GetUIElementsAtMouse(mousePos);
+        bool canPlace = false;
+
+        foreach (var result in results)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 100f, storageLayer))
+            if (LayerMask.LayerToName(result.gameObject.layer) == storageLayerName)
             {
-                // 배치 로직 (전과 동일)
-                SetLayerRecursive(_currentMovingItem, LayerMask.NameToLayer("Item"));
-                _currentMovingItem = null;
-                _isHoldingItem = false;
-                ResetCursor();
+                canPlace = true;
+                break;
             }
         }
 
-        //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        //RaycastHit hit;
+        if (canPlace)
+        {
+            SetUIRaycastTarget(_currentMovingItem, true);
 
-        //// 1. 바닥(Storage)이 있는지 확인
-        //if (Physics.Raycast(ray, out hit, 100f, storageLayer))
-        //{
-        //    // 2. (선택 사항) 해당 위치에 이미 다른 'Item' 레이어의 오브젝트가 있는지 체크
-        //    // OverlapSphere 등을 사용하여 겹침 방지 로직을 추가할 수 있습니다.
+            // ItemManager에 위치 업데이트 요청 (필요시 활성화)
+            // if (itemManager != null) itemManager.ChangeItemPos(_currentMovingItem.name.Replace("(Clone)", "").Trim(), _currentMovingItem.transform.position);
 
-        //    Debug.Log("아이템 배치 완료");
-        //    _currentMovingItem.transform.position = hit.point;
-
-        //    // 배치가 끝났으므로 레이어를 "Item"으로 변경
-        //    SetLayerRecursive(_currentMovingItem, LayerMask.NameToLayer("Item"));
-
-        //    _currentMovingItem = null;
-        //    _isHoldingItem = false;
-        //    ResetCursor();
-        //}
+            _currentMovingItem = null;
+            _isHoldingItem = false;
+            ResetCursor();
+            Debug.Log("<color=blue>[Action] Storage UI 영역에 배치 완료</color>");
+        }
+        else
+        {
+            Debug.Log("<color=red>[Fail]</color> Storage 영역이 아닙니다.");
+        }
     }
 
-    // 자식 오브젝트까지 포함하여 레이어를 변경하는 헬퍼 함수
-    private void SetLayerRecursive(GameObject obj, int newLayer)
+    // ---------------------------------------------------
+    // UI Raycast 공통 헬퍼 함수
+    // ---------------------------------------------------
+    private List<RaycastResult> GetUIElementsAtMouse(Vector2 mousePos)
     {
-        obj.layer = newLayer;
-        foreach (Transform child in obj.transform)
+        PointerEventData pointerData = new PointerEventData(EventSystem.current) { position = mousePos };
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+        return results;
+    }
+
+    private void SetUIRaycastTarget(GameObject obj, bool state)
+    {
+        Graphic[] graphics = obj.GetComponentsInChildren<Graphic>();
+        foreach (Graphic g in graphics)
         {
-            SetLayerRecursive(child.gameObject, newLayer);
+            g.raycastTarget = state;
+        }
+    }
+
+    // ---------------------------------------------------
+    // 도구 및 커서 로직
+    // ---------------------------------------------------
+    private void HandleNumericInput()
+    {
+        if (Keyboard.current == null) return;
+
+        if (Keyboard.current[Key.Digit1].wasPressedThisFrame) SelectTool(0);
+        else if (Keyboard.current[Key.Digit2].wasPressedThisFrame) SelectTool(1);
+        else if (Keyboard.current[Key.Digit3].wasPressedThisFrame) SelectTool(2);
+        else if (Keyboard.current[Key.Digit4].wasPressedThisFrame) SelectTool(3);
+        else if (Keyboard.current[Key.Digit5].wasPressedThisFrame) SelectTool(4);
+    }
+
+    private void SelectTool(int index)
+    {
+        if (index < 0 || index >= toolBtns.Length || toolBtns[index] == null) return;
+        _selectedToolIndex = index;
+        ChangeCursorToButtonImage(toolBtns[index]);
+        Debug.Log($"<color=white><b>[Tool]</b> {index + 1}번 도구 선택됨</color>");
+
+        if (_isHoldingItem && _currentMovingItem != null)
+        {
+            Destroy(_currentMovingItem);
+            _isHoldingItem = false;
+            ResetCursor();
         }
     }
 
     public void ChangeCursorToButtonImage(Button clickedButton)
     {
         Image btnImage = clickedButton.GetComponent<Image>();
-
         if (btnImage != null && btnImage.sprite != null)
         {
             Texture2D texture = btnImage.sprite.texture;
-
-            // 에러 방지를 위한 추가 체크 (디버깅용)
-            if (!texture.isReadable)
-            {
-                Debug.LogError($"{texture.name} 이미지의 'Read/Write' 설정이 꺼져 있습니다! Inspector에서 체크해 주세요.");
-                return;
-            }
-
-            Cursor.SetCursor(texture, hotSpot, CursorMode.Auto);
+            if (texture.isReadable) Cursor.SetCursor(texture, hotSpot, CursorMode.Auto);
+            else Debug.LogError($"{texture.name} 이미지의 'Read/Write' 설정이 꺼져 있습니다!");
         }
     }
 
-    // 필요 시 커서를 다시 기본으로 되돌리는 함수
-    public void ResetCursor()
-    {
-        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-    }
+    public void ResetCursor() { Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto); }
 }

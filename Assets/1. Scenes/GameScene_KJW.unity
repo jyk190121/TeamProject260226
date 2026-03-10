@@ -149,8 +149,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 840147849}
   - {fileID: 1500074410}
+  - {fileID: 840147849}
   - {fileID: 1387182548}
   m_Father: {fileID: 1655490827}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -173,7 +173,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -618,6 +618,7 @@ GameObject:
   m_Component:
   - component: {fileID: 443295629}
   - component: {fileID: 443295628}
+  - component: {fileID: 443295630}
   m_Layer: 0
   m_Name: ToolBarController
   m_TagString: Untagged
@@ -638,19 +639,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToolBarController
   hotSpot: {x: 0, y: 0}
-  storageLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  itemLayer:
-    serializedVersion: 2
-    m_Bits: 128
+  itemLayerName: Item
+  storageLayerName: ItemStorge
   toolBtns:
   - {fileID: 469444782}
   - {fileID: 969405379}
   - {fileID: 760094174}
   - {fileID: 1283332425}
   - {fileID: 744279576}
-  itemPrefab: {fileID: 873717384}
 --- !u!4 &443295629
 Transform:
   m_ObjectHideFlags: 0
@@ -666,6 +662,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &443295630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443295627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca6745d6a6fd0cd4ea769a7313974362, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClickObjectNameTest
 --- !u!1 &469444780
 GameObject:
   m_ObjectHideFlags: 0
@@ -1052,10 +1060,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f2a226bf610e7c45adcfae6e5c57054, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemManager
-  itemList:
+  itemData:
   - {fileID: 11400000, guid: f277ca84c809edd48a310ef24ba70f28, type: 2}
   - {fileID: 11400000, guid: 189bb0e89e2a7904aa75258d1b43a1cc, type: 2}
-  - {fileID: 11400000, guid: 940eee957c1356849aee5b4ccf3ed4db, type: 2}
 --- !u!1 &744279574
 GameObject:
   m_ObjectHideFlags: 0
@@ -1350,7 +1357,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.4481132, g: 0.95148987, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1374,11 +1381,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 840147848}
   m_CullTransparentMesh: 1
---- !u!1 &873717384 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5815863799546554293, guid: 00866d60c5fb1724996829ce2e66a763, type: 3}
-  m_PrefabInstance: {fileID: 6884744199645819852}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &873717385 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6430150521446280364, guid: 00866d60c5fb1724996829ce2e66a763, type: 3}
@@ -1957,7 +1959,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2016,6 +2018,7 @@ GameObject:
   - component: {fileID: 1500074410}
   - component: {fileID: 1500074412}
   - component: {fileID: 1500074411}
+  - component: {fileID: 1500074413}
   m_Layer: 6
   m_Name: ItemStorgeImg
   m_TagString: Untagged
@@ -2080,6 +2083,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1500074409}
   m_CullTransparentMesh: 1
+--- !u!61 &1500074413
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500074409}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 200, y: 1080}
+  m_EdgeRadius: 0
 --- !u!1 &1655490823
 GameObject:
   m_ObjectHideFlags: 0
