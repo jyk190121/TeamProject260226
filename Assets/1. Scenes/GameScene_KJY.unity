@@ -2235,13 +2235,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 112b7df55431b544ba8d23555a2ea936, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToolBarController
+  itemManager: {fileID: 0}
   hotSpot: {x: 0, y: 0}
-  storageLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  itemLayer:
-    serializedVersion: 2
-    m_Bits: 128
+  itemLayerName: Item
+  storageLayerName: Storage
   toolBtns:
   - {fileID: 469444782}
   - {fileID: 969405379}
@@ -6636,8 +6633,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StoryController
   storyPrefab: {fileID: 5459140978688170202, guid: a11ef97ae853b3247bdde000b3494a07, type: 3}
   contentParent: {fileID: 2107739570}
-  startPosition: {x: 850, y: -1000}
-  finalTargetPos: {x: 850, y: 540}
+  startPosition: {x: 700, y: -1000}
+  finalTargetPos: {x: 700, y: 540}
   animationDuration: 2
 --- !u!1 &1808817365
 GameObject:
