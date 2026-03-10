@@ -162,7 +162,6 @@ public class ItemManager : MonoBehaviour
             }
         }
     }
-
     /// <summary>
     /// 외부(예: 드래그 종료 시)에서 특정 아이템의 위치를 업데이트할 때 호출
     /// </summary>
