@@ -1,211 +1,282 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-[System.Serializable]
-public class Sound
-{
-    public string name;         // 키값
-    public AudioClip clip;      // 재생할 오디오 파일
+using UnityEngine.Audio;
 
-    [Range(0f, 1f)]
-    public float volume;        // 볼륨
-    [Range(0f, 2f)]
-    public float pitch;         // 피치 (재생속도, 높낮이)
-
-    public bool loop;           // 반복 재생
-
-    [HideInInspector]
-    public AudioSource source;  // 실제 재생할 오디오소스 
-}
+/// <summary>
+/// 게임 전체 사운드를 관리하는 매니저.
+/// - BGM 재생 / 정지
+/// - SFX 재생
+/// - AudioMixer 볼륨 적용
+/// - SaveManager가 읽어갈 볼륨 키 / 현재 볼륨 값 제공
+/// </summary>
 public class SoundManager : MonoBehaviour
 {
-    public static SoundManager audioManager { get; private set; }
+    public static SoundManager Instance;
 
-    [Header("사운드 목록")]
-    [Tooltip("여기에 사운드를 추가!")]
-    public Sound[] sounds;
+    [Header("Library")]
+    [SerializeField] private SoundLibrary library;
 
-    Dictionary<string, Sound> audioDic;
+    [Header("Mixer")]
+    [SerializeField] private AudioMixer mixer;
 
-    [Header("BGM 설정")]
-    [Range(0f, 1f)]
-    public AudioSource bgmSource;
-    string currentBGM = "";
+    [Header("AudioSources")]
+    [SerializeField] private AudioSource bgmSource;
+    [SerializeField] private AudioSource sfxSource;
 
-    [Header("SFX 설정")]
-    [Range(0f, 1f)]
-    public AudioSource sfxSource;
+    [Header("Exposed Parameter Names")]
+    [SerializeField] private string masterParam = "MasterVol";
+    [SerializeField] private string bgmParam = "BGMVol";
+    [SerializeField] private string sfxParam = "SFXVol";
 
-    [Header("볼륨 설정")]
-    [Range(0f, 1f)]
-    public float masterVolume = 1f;
-    [Range(0f, 1f)]
-    public float bgmVolume = 1f;
-    [Range(0f, 1f)]
-    public float sfxVolume = 1f;
+    [Header("Default Volume (0 ~ 1)")]
+    [Range(0f, 1f)][SerializeField] private float defaultMaster = 0.8f;
+    [Range(0f, 1f)][SerializeField] private float defaultBgm = 0.8f;
+    [Range(0f, 1f)][SerializeField] private float defaultSfx = 0.8f;
 
-    void Awake()
+    private const string KEY_MASTER = "vol_master";
+    private const string KEY_BGM = "vol_bgm";
+    private const string KEY_SFX = "vol_sfx";
+
+    public event Action OnVolumeChanged;
+
+    public float Master { get; private set; }
+    public float Bgm { get; private set; }
+    public float Sfx { get; private set; }
+
+    public string MasterKey => KEY_MASTER;
+    public string BgmKey => KEY_BGM;
+    public string SfxKey => KEY_SFX;
+
+    private Dictionary<BgmId, SoundLibrary.BgmEntry> bgmMap;
+    private Dictionary<SfxId, SoundLibrary.SfxEntry> sfxMap;
+
+    private void Awake()
     {
-        // 싱글톤 초기화
-        if (audioManager == null)
-        {
-            audioManager = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        // 딕셔너리 초기화
-        audioDic = new Dictionary<string, Sound>();
-        // 모든 사운드에 AudioSource 추가
-        foreach (Sound s in sounds)
-        {
-            // 빈 사운드 오브젝트를 자식으로 생성하여 오디오소스 추가관리
-            GameObject soundObject = new GameObject(s.name);
-            soundObject.transform.SetParent(transform);
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
 
-            s.source = soundObject.AddComponent<AudioSource>();
-            s.source.clip = s.clip;
-            s.source.volume = s.volume;
-            s.source.pitch = s.pitch;
-            s.source.loop = s.loop;
+        BuildMaps();
 
-            // 딕셔너리에 추가
-            audioDic.Add(s.name, s);
-        }
+        Master = Mathf.Clamp01(defaultMaster);
+        Bgm = Mathf.Clamp01(defaultBgm);
+        Sfx = Mathf.Clamp01(defaultSfx);
 
-        // BGM 전용 오디오소스 생성
-        GameObject bgmObject = new GameObject("BGM");
-        bgmObject.transform.SetParent(transform);
-        bgmSource = bgmObject.AddComponent<AudioSource>();
-        bgmSource.loop = true;
-
-        // SFX 전용 오디오소스 생성
-        GameObject sfxObject = new GameObject("SFX");
-        sfxObject.transform.SetParent(transform);
-        sfxSource = sfxObject.AddComponent<AudioSource>();
-        sfxSource.loop = false;
+        ApplyAllToMixer();
     }
 
     /// <summary>
-    /// BGM 재생
+    /// SoundLibrary의 리스트를 ID 기반 딕셔너리로 변환한다.
     /// </summary>
-    /// <param name="name"></param>
-    public void PlayBGM(string name, float volumeScale = 1f)
+    private void BuildMaps()
     {
-        // 딕셔너리에서 사운드 찾기
-        if (!audioDic.ContainsKey(name))
+        bgmMap = new Dictionary<BgmId, SoundLibrary.BgmEntry>();
+        sfxMap = new Dictionary<SfxId, SoundLibrary.SfxEntry>();
+
+        if (library == null)
         {
-            // BGM1, bmg1, Bgm1 정확한 키값이 필요하다
-            print($"사운드 '{name}'를 찾을 수 없음");
+            Debug.LogWarning("[SoundManager] SoundLibrary가 비어 있습니다.");
             return;
         }
 
-        // 이미 같은 BGM이 재생 중이라면 리턴
-        if (currentBGM == name && bgmSource.isPlaying)
+        if (library.bgms != null)
         {
-            print($"BGM '{name}'은 이미 재생 중입니다.");
-            return;
+            foreach (var entry in library.bgms)
+            {
+                if (entry == null) continue;
+
+                if (!bgmMap.ContainsKey(entry.id))
+                    bgmMap.Add(entry.id, entry);
+                else
+                    Debug.LogWarning($"[SoundManager] Duplicate BGM id : {entry.id}");
+            }
         }
 
-        // 딕셔너리에서 키값으로 찾아서 실제 클래스를 넘겨받음
-        Sound bgm = audioDic[name];
+        if (library.sfxs != null)
+        {
+            foreach (var entry in library.sfxs)
+            {
+                if (entry == null) continue;
 
-        bgmSource.clip = bgm.clip;
-        bgmSource.volume = masterVolume * bgmVolume * bgm.volume * volumeScale;
-        bgmSource.Play();
-
-        currentBGM = name;
-        print($"BGM 재생: {name}");
+                if (!sfxMap.ContainsKey(entry.id))
+                    sfxMap.Add(entry.id, entry);
+                else
+                    Debug.LogWarning($"[SoundManager] Duplicate SFX id : {entry.id}");
+            }
+        }
     }
-
-    public void PlaySFX(string name, float volumeScale = 1f)
-    {
-        // 딕셔너리에서 사운드 찾기
-        if (!audioDic.ContainsKey(name))
-        {
-            // BGM1, bmg1, Bgm1 정확한 키값이 필요하다
-            print($"사운드 '{name}'를 찾을 수 없음");
-            return;
-        }
-
-        // 딕셔너리에서 키값으로 찾아서 실제 클래스를 넘겨받음
-        Sound sfx = audioDic[name];
-
-        sfxSource.clip = sfx.clip;
-        sfxSource.volume = masterVolume * sfxVolume * sfx.volume * volumeScale;
-        sfxSource.Play();
-
-        currentBGM = name;
-        //print($"SFX 재생: {name}");
-    }
-
 
     /// <summary>
-    /// BGM 정지
+    /// 현재 Master / BGM / SFX 볼륨을 AudioMixer에 반영한다.
     /// </summary>
-    public void StopBGM()
+    private void ApplyAllToMixer()
     {
+        ApplyToMixer(masterParam, Master);
+        ApplyToMixer(bgmParam, Bgm);
+        ApplyToMixer(sfxParam, Sfx);
+
+        OnVolumeChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 특정 Mixer 파라미터에 볼륨을 적용한다.
+    /// </summary>
+    private void ApplyToMixer(string exposedParam, float volume)
+    {
+        if (mixer == null) return;
+
+        float db = VolumeToDb(volume);
+        mixer.SetFloat(exposedParam, db);
+    }
+
+    /// <summary>
+    /// 0~1 범위의 볼륨 값을 AudioMixer용 dB 값으로 변환한다.
+    /// </summary>
+    private float VolumeToDb(float volume)
+    {
+        volume = Mathf.Clamp01(volume);
+
+        if (volume <= 0.0001f)
+            return -80f;
+
+        return Mathf.Log10(volume) * 20f;
+    }
+
+    #region Volume API
+
+    public void SetMaster(float volume)
+    {
+        Master = Mathf.Clamp01(volume);
+        ApplyToMixer(masterParam, Master);
+        OnVolumeChanged?.Invoke();
+    }
+
+    public void SetBgm(float volume)
+    {
+        Bgm = Mathf.Clamp01(volume);
+        ApplyToMixer(bgmParam, Bgm);
+        OnVolumeChanged?.Invoke();
+    }
+
+    public void SetSfx(float volume)
+    {
+        Sfx = Mathf.Clamp01(volume);
+        ApplyToMixer(sfxParam, Sfx);
+        OnVolumeChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// SaveManager가 로드한 값을 한 번에 반영할 때 사용.
+    /// </summary>
+    public void ApplyLoadedVolumes(float master, float bgm, float sfx)
+    {
+        Master = Mathf.Clamp01(master);
+        Bgm = Mathf.Clamp01(bgm);
+        Sfx = Mathf.Clamp01(sfx);
+
+        ApplyAllToMixer();
+    }
+
+    /// <summary>
+    /// SaveManager가 저장할 때 사용할 키 / 값 묶음 반환.
+    /// </summary>
+    public Dictionary<string, float> GetVolumeSaveData()
+    {
+        return new Dictionary<string, float>
+        {
+            { KEY_MASTER, Master },
+            { KEY_BGM, Bgm },
+            { KEY_SFX, Sfx }
+        };
+    }
+
+    #endregion
+
+    #region BGM
+
+    public void PlayBgm(BgmId id, bool restartIfSame = false, bool loopOverride = true)
+    {
+        if (bgmSource == null) return;
+
+        if (id == BgmId.None)
+        {
+            StopBgm();
+            return;
+        }
+
+        if (!bgmMap.TryGetValue(id, out var entry) || entry == null)
+        {
+            Debug.LogWarning($"[SoundManager] BGM entry not found : {id}");
+            return;
+        }
+
+        AudioClip clip = entry.clip;
+        if (clip == null)
+        {
+            Debug.LogWarning($"[SoundManager] BGM clip missing : {id}");
+            return;
+        }
+
+        if (!restartIfSame && bgmSource.isPlaying && bgmSource.clip == clip)
+            return;
+
         bgmSource.Stop();
-        currentBGM = "";
-        print("BGM 정지");
+        bgmSource.clip = clip;
+        bgmSource.loop = loopOverride ? entry.loop : false;
+        bgmSource.volume = Mathf.Clamp01(entry.volume);
+        bgmSource.pitch = 1f;
+        bgmSource.Play();
     }
 
-    /// <summary>
-    /// 마스터 볼륨 설정
-    /// </summary>
-    /// <param name="volume"></param>
-    public void SetMasterVolume(float volume)
+    public void StopBgm()
     {
-        masterVolume = Mathf.Clamp01(volume);
+        if (bgmSource == null) return;
 
-        if (bgmSource.isPlaying && !string.IsNullOrEmpty(currentBGM))
+        bgmSource.Stop();
+        bgmSource.clip = null;
+    }
+
+    #endregion
+
+    #region SFX
+
+    /// <summary>
+    /// 단일 SFX 소스 방식.
+    /// 현재 재생 중이면 끊고 새 SFX를 재생한다.
+    /// </summary>
+    public void PlaySfx(SfxId id, float volumeScale = 1f)
+    {
+        if (id == SfxId.None) return;
+        if (sfxSource == null) return;
+
+        if (!sfxMap.TryGetValue(id, out var entry) || entry == null)
         {
-            Sound bgm = audioDic[currentBGM];
-            bgmSource.volume = masterVolume * bgmVolume * bgm.volume;
+            Debug.LogWarning($"[SoundManager] SFX entry not found : {id}");
+            return;
         }
+
+        AudioClip clip = entry.clip;
+        if (clip == null)
+        {
+            Debug.LogWarning($"[SoundManager] SFX clip missing : {id}");
+            return;
+        }
+
+        if (sfxSource.isPlaying)
+            sfxSource.Stop();
+
+        sfxSource.clip = clip;
+        sfxSource.loop = false;
+        sfxSource.volume = Mathf.Clamp01(entry.volume) * Mathf.Clamp01(volumeScale);
+        sfxSource.pitch = 1f;
+        sfxSource.Play();
     }
 
-    public void SetBGMOnlyVol(float volume)
-    {
-        bgmSource.volume = volume;
-    }
-
-    public void SetSFXOnlyVol(float volume)
-    {
-        sfxSource.volume = volume;
-    }
-
-    ///// <summary>
-    ///// 효과음 볼륨 설정
-    ///// </summary>
-    ///// <param name="volume"></param>
-    //public void SetSFXVolume(float volume)
-    //{
-    //    sfxVolume = Mathf.Clamp01(volume);
-    //    // 효과음은 재생시 볼륨이 결정되므로 자동으로 적용된다
-    //}
-
-    /// <summary>
-    /// 사운드가 재생 중인지 확인
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    public bool IsPlaying(string name)
-    {
-        if (!audioDic.ContainsKey(name)) return false;
-
-        return audioDic[name].source.isPlaying;
-    }
-
-    /// <summary>
-    /// 현재 재생 중인 BGM 이름 반환
-    /// </summary>
-    /// <returns></returns>
-    public string GetCurrentBGM()
-    {
-        return currentBGM;
-    }
+    #endregion
 }
