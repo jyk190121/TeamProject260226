@@ -193,5 +193,15 @@ public class ItemManager : MonoBehaviour
         }
         SaveManager.Instance.Save(data);
     }
+    /// <summary>
+    /// ID를 기반으로 itemData 리스트에서 SO(ScriptableObject) 원본 데이터를 찾아 반환합니다.
+    /// ToolBarController에서 SO 데이터를 읽어올 때 사용됩니다.
+    /// </summary>
+    public Item GetItemDataById(string searchId)
+    {
+        if (itemData == null || itemData.Count == 0) return null;
 
+        // 리스트에서 id가 일치하는 항목을 찾아 반환
+        return itemData.Find(item => item.id == searchId);
+    }
 }
