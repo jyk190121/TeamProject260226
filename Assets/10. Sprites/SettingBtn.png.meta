@@ -1,28 +1,16 @@
 fileFormatVersion: 2
-guid: 87596abc40b4f8b4fb05eab7a3237400
+guid: 314556d6007e8054593730a2de8569da
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3078248751493130906
-    second: ContinueBtn 1_0
+      213: 5016145451963783150
+    second: SettingBtn_0
   - first:
-      213: -7787934904771673128
-    second: ContinueBtn 1_1
+      213: -1095490615836237403
+    second: SettingBtn_1
   - first:
-      213: -2109879123490436215
-    second: ContinueBtn 1_2
-  - first:
-      213: 6569223016562729708
-    second: ContinueBtn 1_3
-  - first:
-      213: 6789900796614513373
-    second: ContinueBtn 1_4
-  - first:
-      213: -8999014088935237567
-    second: ContinueBtn 1_5
-  - first:
-      213: 1827165155732323967
-    second: ContinueBtn 1_6
+      213: 2355045930373213839
+    second: SettingBtn_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -131,11 +119,11 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ContinueBtn 1_0
+      name: SettingBtn_0
       rect:
         serializedVersion: 2
-        x: 1161
-        y: 391
+        x: 1163
+        y: 301
         width: 200
         height: 80
       alignment: 0
@@ -146,8 +134,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 66556fcd11dd745d0800000000000000
-      internalID: -3078248751493130906
+      spriteID: ee71efd36bdec9540800000000000000
+      internalID: 5016145451963783150
       vertices: []
       indices: 
       edges: []
@@ -156,7 +144,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7941263cfb9218b44b19b6729ca64a58
+    spriteID: 120a30c7bc805144f8ab8db63bfec4fe
     internalID: 0
     vertices: []
     indices: 
@@ -166,13 +154,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ContinueBtn 1_0: -3078248751493130906
-      ContinueBtn 1_1: -7787934904771673128
-      ContinueBtn 1_2: -2109879123490436215
-      ContinueBtn 1_3: 6569223016562729708
-      ContinueBtn 1_4: 6789900796614513373
-      ContinueBtn 1_5: -8999014088935237567
-      ContinueBtn 1_6: 1827165155732323967
+      SettingBtn_0: 5016145451963783150
+      SettingBtn_1: -1095490615836237403
+      SettingBtn_2: 2355045930373213839
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

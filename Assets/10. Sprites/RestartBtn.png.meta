@@ -1,28 +1,22 @@
 fileFormatVersion: 2
-guid: 87596abc40b4f8b4fb05eab7a3237400
+guid: 91dfdfc28ae88984b854ac912bcbccfb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3078248751493130906
-    second: ContinueBtn 1_0
+      213: -5533025386904593277
+    second: RestartBtn_0
   - first:
-      213: -7787934904771673128
-    second: ContinueBtn 1_1
+      213: -3868254616374593967
+    second: RestartBtn_1
   - first:
-      213: -2109879123490436215
-    second: ContinueBtn 1_2
+      213: -1843599573950313419
+    second: RestartBtn_2
   - first:
-      213: 6569223016562729708
-    second: ContinueBtn 1_3
+      213: 7710802266780098902
+    second: RestartBtn_3
   - first:
-      213: 6789900796614513373
-    second: ContinueBtn 1_4
-  - first:
-      213: -8999014088935237567
-    second: ContinueBtn 1_5
-  - first:
-      213: 1827165155732323967
-    second: ContinueBtn 1_6
+      213: -5874068617032168287
+    second: RestartBtn_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -70,7 +64,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteBorder: {x: 1143, y: 478, z: 556, w: 509}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -131,11 +125,11 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ContinueBtn 1_0
+      name: RestartBtn_1
       rect:
         serializedVersion: 2
-        x: 1161
-        y: 391
+        x: 1159
+        y: 485
         width: 200
         height: 80
       alignment: 0
@@ -146,8 +140,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 66556fcd11dd745d0800000000000000
-      internalID: -3078248751493130906
+      spriteID: 1563a3adbe2315ac0800000000000000
+      internalID: -3868254616374593967
       vertices: []
       indices: 
       edges: []
@@ -156,8 +150,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7941263cfb9218b44b19b6729ca64a58
-    internalID: 0
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
@@ -166,13 +160,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ContinueBtn 1_0: -3078248751493130906
-      ContinueBtn 1_1: -7787934904771673128
-      ContinueBtn 1_2: -2109879123490436215
-      ContinueBtn 1_3: 6569223016562729708
-      ContinueBtn 1_4: 6789900796614513373
-      ContinueBtn 1_5: -8999014088935237567
-      ContinueBtn 1_6: 1827165155732323967
+      RestartBtn_0: -5533025386904593277
+      RestartBtn_1: -3868254616374593967
+      RestartBtn_2: -1843599573950313419
+      RestartBtn_3: 7710802266780098902
+      RestartBtn_4: -5874068617032168287
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -38,6 +38,22 @@ public class SaveManager : MonoBehaviour
         }
     }
 
+    // 존재 여부 확인
+    public bool HasSaveData()
+    {
+        return File.Exists(savePath);
+    }
+
+    // 새 게임 시작 시
+    public void DeleteSaveFile()
+    {
+        if (File.Exists(savePath))
+        {
+            File.Delete(savePath);
+            print("기존 저장 데이터 삭제 완료");
+        }
+    }
+
     public void Save(SaveData data)
     {
         string json = JsonUtility.ToJson(data, true);
