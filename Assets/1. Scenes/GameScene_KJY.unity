@@ -224,8 +224,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 840147849}
   - {fileID: 1500074410}
+  - {fileID: 840147849}
   - {fileID: 1387182548}
   m_Father: {fileID: 1703893710}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -868,8 +868,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 364361599}
   - {fileID: 1901753579}
+  - {fileID: 364361599}
   - {fileID: 2000995720}
   m_Father: {fileID: 1703893710}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6634,7 +6634,7 @@ MonoBehaviour:
   storyPrefab: {fileID: 5459140978688170202, guid: a11ef97ae853b3247bdde000b3494a07, type: 3}
   contentParent: {fileID: 2107739570}
   startPosition: {x: 700, y: -1000}
-  finalTargetPos: {x: 700, y: 700}
+  finalTargetPos: {x: 700, y: 800}
   animationDuration: 2
 --- !u!1 &1808817365
 GameObject:
@@ -7399,7 +7399,7 @@ MonoBehaviour:
   m_CellSize: {x: 300, y: 500}
   m_Spacing: {x: 50, y: 0}
   m_Constraint: 1
-  m_ConstraintCount: 10
+  m_ConstraintCount: 10000
 --- !u!224 &1060274767057379672
 RectTransform:
   m_ObjectHideFlags: 0

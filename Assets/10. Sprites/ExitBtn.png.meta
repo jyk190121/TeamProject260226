@@ -1,22 +1,25 @@
 fileFormatVersion: 2
-guid: 535341975b33d1f4e9c41ee0c12491af
+guid: 67acb8d54e3570d428472e169b2a5393
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3701607835416292126
-    second: ExitBtn_0
+      213: 3650515148120997991
+    second: ExitBtn 1_0
   - first:
-      213: -2725939029618760031
-    second: ExitBtn_1
+      213: 6849486003873699576
+    second: ExitBtn 1_1
   - first:
-      213: -3527265971819910674
-    second: ExitBtn_2
+      213: 7361266334768869616
+    second: ExitBtn 1_2
   - first:
-      213: -566318595677647006
-    second: ExitBtn_3
+      213: 4305916987699709921
+    second: ExitBtn 1_3
   - first:
-      213: 5615444584568266551
-    second: ExitBtn_4
+      213: -6987343283871978289
+    second: ExitBtn 1_4
+  - first:
+      213: -4014157748789117295
+    second: ExitBtn 1_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +52,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -58,7 +61,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -125,111 +128,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ExitBtn_0
+      name: ExitBtn 1_0
       rect:
         serializedVersion: 2
-        x: 61
-        y: 31
-        width: 32
-        height: 40
+        x: 1168
+        y: 199
+        width: 200
+        height: 80
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2e49530294f31acc0800000000000000
-      internalID: -3701607835416292126
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ExitBtn_1
-      rect:
-        serializedVersion: 2
-        x: 90
-        y: 25
-        width: 28
-        height: 53
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1a6633c25e48b2ad0800000000000000
-      internalID: -2725939029618760031
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ExitBtn_2
-      rect:
-        serializedVersion: 2
-        x: 126
-        y: 24
-        width: 64
-        height: 53
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ee9e9517942ac0fc0800000000000000
-      internalID: -3527265971819910674
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ExitBtn_3
-      rect:
-        serializedVersion: 2
-        x: 199
-        y: 31
-        width: 30
-        height: 43
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 26f8feadc380428f0800000000000000
-      internalID: -566318595677647006
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ExitBtn_4
-      rect:
-        serializedVersion: 2
-        x: 230
-        y: 22
-        width: 16
-        height: 56
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 73f151709111eed40800000000000000
-      internalID: 5615444584568266551
+      spriteID: 7604fea9f2c39a230800000000000000
+      internalID: 3650515148120997991
       vertices: []
       indices: 
       edges: []
@@ -238,7 +153,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 717445c580328e04f9e0291e17150332
     internalID: 0
     vertices: []
     indices: 
@@ -248,11 +163,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ExitBtn_0: -3701607835416292126
-      ExitBtn_1: -2725939029618760031
-      ExitBtn_2: -3527265971819910674
-      ExitBtn_3: -566318595677647006
-      ExitBtn_4: 5615444584568266551
+      ExitBtn 1_0: 3650515148120997991
+      ExitBtn 1_1: 6849486003873699576
+      ExitBtn 1_2: 7361266334768869616
+      ExitBtn 1_3: 4305916987699709921
+      ExitBtn 1_4: -6987343283871978289
+      ExitBtn 1_5: -4014157748789117295
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

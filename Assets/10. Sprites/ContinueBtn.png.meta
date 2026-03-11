@@ -1,25 +1,28 @@
 fileFormatVersion: 2
-guid: c432640d131f0b44fa08744c0477a58c
+guid: 87596abc40b4f8b4fb05eab7a3237400
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7918358979307831897
-    second: ContinueBtn_0
+      213: -3078248751493130906
+    second: ContinueBtn 1_0
   - first:
-      213: 102987107496068764
-    second: ContinueBtn_1
+      213: -7787934904771673128
+    second: ContinueBtn 1_1
   - first:
-      213: 4604458019240207233
-    second: ContinueBtn_2
+      213: -2109879123490436215
+    second: ContinueBtn 1_2
   - first:
-      213: 8242295763723309433
-    second: ContinueBtn_3
+      213: 6569223016562729708
+    second: ContinueBtn 1_3
   - first:
-      213: -4338539202319985947
-    second: ContinueBtn_4
+      213: 6789900796614513373
+    second: ContinueBtn 1_4
   - first:
-      213: 295577980563939928
-    second: ContinueBtn_5
+      213: -8999014088935237567
+    second: ContinueBtn 1_5
+  - first:
+      213: 1827165155732323967
+    second: ContinueBtn 1_6
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,7 +55,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -61,7 +64,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -128,133 +131,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ContinueBtn_0
+      name: ContinueBtn 1_0
       rect:
         serializedVersion: 2
-        x: 32
-        y: 19
-        width: 41
-        height: 45
+        x: 1161
+        y: 391
+        width: 200
+        height: 80
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9520ba5d989a3ed60800000000000000
-      internalID: 7918358979307831897
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ContinueBtn_1
-      rect:
-        serializedVersion: 2
-        x: 69
-        y: 8
-        width: 24
-        height: 65
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c968fb68a32ed6100800000000000000
-      internalID: 102987107496068764
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ContinueBtn_2
-      rect:
-        serializedVersion: 2
-        x: 93
-        y: 12
-        width: 55
-        height: 62
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 183e20c4c2256ef30800000000000000
-      internalID: 4604458019240207233
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ContinueBtn_3
-      rect:
-        serializedVersion: 2
-        x: 165
-        y: 14
-        width: 60
-        height: 60
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9715f6ad354826270800000000000000
-      internalID: 8242295763723309433
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ContinueBtn_4
-      rect:
-        serializedVersion: 2
-        x: 217
-        y: 17
-        width: 37
-        height: 50
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5e25c9105996ac3c0800000000000000
-      internalID: -4338539202319985947
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ContinueBtn_5
-      rect:
-        serializedVersion: 2
-        x: 251
-        y: 12
-        width: 16
-        height: 60
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 852e0f67b9a1a1400800000000000000
-      internalID: 295577980563939928
+      spriteID: 66556fcd11dd745d0800000000000000
+      internalID: -3078248751493130906
       vertices: []
       indices: 
       edges: []
@@ -263,7 +156,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 7941263cfb9218b44b19b6729ca64a58
     internalID: 0
     vertices: []
     indices: 
@@ -273,12 +166,13 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ContinueBtn_0: 7918358979307831897
-      ContinueBtn_1: 102987107496068764
-      ContinueBtn_2: 4604458019240207233
-      ContinueBtn_3: 8242295763723309433
-      ContinueBtn_4: -4338539202319985947
-      ContinueBtn_5: 295577980563939928
+      ContinueBtn 1_0: -3078248751493130906
+      ContinueBtn 1_1: -7787934904771673128
+      ContinueBtn 1_2: -2109879123490436215
+      ContinueBtn 1_3: 6569223016562729708
+      ContinueBtn 1_4: 6789900796614513373
+      ContinueBtn 1_5: -8999014088935237567
+      ContinueBtn 1_6: 1827165155732323967
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
