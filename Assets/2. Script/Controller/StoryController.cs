@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class StoryController : MonoBehaviour
@@ -26,9 +27,13 @@ public class StoryController : MonoBehaviour
     }
 
 
-    void Start()
+    void Update()
     {
-        StartCoroutine(StartSequence());
+        if (Keyboard.current.spaceKey.wasPressedThisFrame == true)
+        {
+            StartCoroutine(StartSequence());
+
+        }
     }
 
     private IEnumerator StartSequence()
