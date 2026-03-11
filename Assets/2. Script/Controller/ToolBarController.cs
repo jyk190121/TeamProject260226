@@ -8,219 +8,221 @@ using Key = UnityEngine.InputSystem.Key;
 public class ToolBarController : MonoBehaviour
 {
     [Header("매니저 연결")]
-    public ItemManager itemManager; // 인스펙터에서 ItemManager 오브젝트를 연결해주세요.
+    public ItemManager itemManager;
+    public ColorManager colorManager;
 
     [Header("설정")]
+    // 이제 아이템 잡을 때 레이어 이름에 의존하지 않으므로 더 안전합니다.
+    public string storageLayerName = "ItemStorge"; // 보관함(그림판) 구역 레이어명
+    public float pickupScaleMultiplier = 1.15f;
     public Vector2 hotSpot = Vector2.zero;
-
-    [Header("UI 레이어 이름 매칭")]
-    public string itemLayerName = "Item";
-    public string storageLayerName = "Storage"; // 또는 ItemStorage 등 인스펙터에 맞게 입력
 
     [Header("도구 버튼")]
     public Button[] toolBtns = new Button[5];
+    public Image bucketColorPreview;
 
-    [Header("프리팹 설정")]
-    public GameObject itemPrefab;
-
+    // 내부 상태 관리
     GameObject _currentMovingItem;
     bool _isHoldingItem = false;
-    int _selectedToolIndex = -1;
+    int _selectedToolIndex = 0;
+    int _currentHeldColor = 0;
+
+    Vector2 _originalPos;
+    Vector3 _originalScale;
 
     void Start()
     {
         for (int i = 0; i < toolBtns.Length; i++)
         {
             int index = i;
-            Button btn = toolBtns[i];
-            if (btn == null) continue;
-
-            btn.onClick.AddListener(() => SelectTool(index));
+            if (toolBtns[i] == null) continue;
+            toolBtns[i].onClick.AddListener(() => SelectTool(index));
         }
+        SelectTool(0);
     }
 
     void Update()
     {
         HandleNumericInput();
-
         if (Mouse.current == null) return;
 
-        bool isLeftClick = Mouse.current.leftButton.wasPressedThisFrame;
+        bool isLeftDown = Mouse.current.leftButton.wasPressedThisFrame;
+        bool isRightDown = Mouse.current.rightButton.wasPressedThisFrame;
         Vector2 mousePos = Mouse.current.position.ReadValue();
 
-        // 1. 아이템을 들고 있는 상태
         if (_isHoldingItem && _currentMovingItem != null)
         {
-            MoveItemWithMouse(mousePos);
-
-            if (isLeftClick)
-            {
-                TryPlaceItem(mousePos);
-            }
+            if (Mouse.current.leftButton.isPressed) MoveItemWithMouse(mousePos);
+            if (Mouse.current.leftButton.wasReleasedThisFrame) TryPlaceItem(mousePos);
         }
-        // 2. 0번 도구(Hand) + 빈손 + 마우스 클릭
-        else if (!_isHoldingItem && _selectedToolIndex == 0 && isLeftClick)
+        else if (isLeftDown)
         {
-            TryPickUpItem(mousePos);
+            ExecuteToolAction(mousePos);
+        }
+
+        if (_selectedToolIndex == 2 && isRightDown) ClearBucket();
+    }
+
+    private void ExecuteToolAction(Vector2 mousePos)
+    {
+        Item targetData = GetItemAtMouse(mousePos, out GameObject hitObject);
+        bool inStorage = IsMouseOverStorage(mousePos);
+
+        switch (_selectedToolIndex)
+        {
+            case 0: TryPickUpItem(mousePos); break;
+            case 1: // 스포이트
+                if (targetData != null)
+                {
+                    if (_currentHeldColor == 0) _currentHeldColor = targetData.color;
+                    else _currentHeldColor = colorManager.MixColor(_currentHeldColor, targetData.color);
+                    UpdateBucketUI();
+                    Debug.Log($"<color=cyan>[Spoid]</color> 조색됨: {_currentHeldColor}");
+                }
+                break;
+            case 2: // 페인트 통
+                if (targetData != null && inStorage)
+                {
+                    itemManager.UpdateItemColor(targetData.id, _currentHeldColor);
+                    Debug.Log($"<color=yellow>[Paint]</color> {targetData.id}에 색상 적용");
+                }
+                break;
+            case 3: // 지우개
+                if (targetData != null && inStorage)
+                {
+                    itemManager.UpdateItemColor(targetData.id, 0);
+                    Debug.Log($"<color=white>[Eraser]</color> {targetData.id} 색상 초기화(0)");
+                }
+                break;
         }
     }
 
+    private void ClearBucket() { _currentHeldColor = 0; UpdateBucketUI(); }
+    private void UpdateBucketUI() { if (bucketColorPreview != null) bucketColorPreview.color = colorManager.GetColor(_currentHeldColor); }
+
     // ---------------------------------------------------
-    // UI 전용 클릭 감지 및 집기 로직
+    // [기능] 마우스 포인터 아래의 아이템을 안전하게 찾는 로직
+    // ---------------------------------------------------
+    private Item GetItemAtMouse(Vector2 mousePos, out GameObject rootObject)
+    {
+        rootObject = null;
+        List<RaycastResult> results = GetUIElementsAtMouse(mousePos);
+
+        foreach (var r in results)
+        {
+            // 1. 클릭된 오브젝트 자체에서 ID 검사
+            string id = r.gameObject.name.Replace("(Clone)", "").Trim();
+            Item data = itemManager.GetItemDataById(id);
+
+            if (data != null)
+            {
+                rootObject = r.gameObject;
+                return data;
+            }
+
+            // 2. 만약 자식(Image)을 클릭했다면, 부모에서 ID 검사
+            if (r.gameObject.transform.parent != null)
+            {
+                id = r.gameObject.transform.parent.name.Replace("(Clone)", "").Trim();
+                data = itemManager.GetItemDataById(id);
+
+                if (data != null)
+                {
+                    rootObject = r.gameObject.transform.parent.gameObject;
+                    return data;
+                }
+            }
+        }
+        return null;
+    }
+
+    private bool IsMouseOverStorage(Vector2 mousePos)
+    {
+        List<RaycastResult> results = GetUIElementsAtMouse(mousePos);
+        foreach (var r in results) if (LayerMask.LayerToName(r.gameObject.layer) == storageLayerName) return true;
+        return false;
+    }
+
+    // ---------------------------------------------------
+    // [기능] 드래그 앤 드롭 (무조건 잡히고, 무조건 따라옴)
     // ---------------------------------------------------
     private void TryPickUpItem(Vector2 mousePos)
     {
-        List<RaycastResult> results = GetUIElementsAtMouse(mousePos);
+        Item data = GetItemAtMouse(mousePos, out GameObject rootObject);
 
-        foreach (var result in results)
+        if (data != null && data.type == ItemType.A && rootObject != null)
         {
-            // 클릭한 UI들 중 "Item" 레이어를 가진 녀석을 찾음
-            if (LayerMask.LayerToName(result.gameObject.layer) == itemLayerName)
-            {
-                _currentMovingItem = result.gameObject;
-                _isHoldingItem = true;
+            _currentMovingItem = rootObject;
+            _isHoldingItem = true;
+            _currentMovingItem.transform.SetAsLastSibling();
 
-                // 마우스를 가리지 않도록 Raycast Target 끄기
-                SetUIRaycastTarget(_currentMovingItem, false);
+            _originalPos = _currentMovingItem.transform.position;
+            _originalScale = _currentMovingItem.transform.localScale;
+            _currentMovingItem.transform.localScale = _originalScale * pickupScaleMultiplier;
 
-                Debug.Log($"<color=lime><b>[Action]</b> Canvas 아이템 집기: {_currentMovingItem.name}</color>");
-
-                // [핵심] 사전 작업: 클릭한 아이템의 SO 데이터를 읽어옵니다.
-                ReadAndPrintItemSO(_currentMovingItem);
-
-                return; // 하나 집었으면 종료
-            }
+            SetUIRaycastTarget(_currentMovingItem, false);
+            Debug.Log($"<color=green>[PickUp]</color> {data.id} 잡기 성공!");
         }
-    }
-
-    // ---------------------------------------------------
-    // 클릭한 아이템의 SO 데이터를 읽어오는 함수 (사전 작업)
-    // ---------------------------------------------------
-    private void ReadAndPrintItemSO(GameObject targetObj)
-    {
-        if (itemManager == null)
-        {
-            // 만약 인스펙터 연결을 깜빡했다면 싱글톤으로 대체 접근 시도
-            if (ItemManager.Instance != null) itemManager = ItemManager.Instance;
-            else
-            {
-                Debug.LogError("<color=red>[Error]</color> ToolBarController에 ItemManager가 연결되지 않았습니다!");
-                return;
-            }
-        }
-
-        // 유니티에서 생성된 프리팹의 "(Clone)" 문자열을 제거하여 순수 ID 추출
-        string searchId = targetObj.name.Replace("(Clone)", "").Trim();
-
-        // ItemManager를 통해 SO 데이터 접근
-        Item data = itemManager.GetItemDataById(searchId);
-
-        if (data != null)
-        {
-            Debug.Log($"<color=yellow><b>=== [SO 데이터 읽기 성공] ===</b></color>\n" +
-                      $" - ID: {data.id}\n" +
-                      $" - Stage Index: {data.stageIndex}\n" +
-                      $" - Type: {data.type}\n" +
-                      $" - OriPos: {data.oriPos}\n" +
-                      $" - ChangePos: {data.changePos}\n" +
-                      $" - Color: {data.color}\n" +
-                      $" - isGround: {data.isGround}\n" +
-                      $"<color=yellow>===============================</color>");
-        }
-        else
-        {
-            Debug.Log($"<color=red>[SO 매핑 실패]</color> ItemManager에서 ID '{searchId}'를 찾을 수 없습니다.");
-        }
-    }
-
-    // ---------------------------------------------------
-    // 아이템 이동 및 배치
-    // ---------------------------------------------------
-    private void MoveItemWithMouse(Vector2 mousePos)
-    {
-        // Canvas (Screen Space - Overlay) 환경에서는 마우스 좌표가 곧 UI 좌표입니다.
-        _currentMovingItem.transform.position = mousePos;
     }
 
     private void TryPlaceItem(Vector2 mousePos)
     {
-        List<RaycastResult> results = GetUIElementsAtMouse(mousePos);
-        bool canPlace = false;
+        if (_currentMovingItem == null) return;
 
-        foreach (var result in results)
+        SetUIRaycastTarget(_currentMovingItem, true);
+        if (IsMouseOverStorage(mousePos))
         {
-            if (LayerMask.LayerToName(result.gameObject.layer) == storageLayerName)
-            {
-                canPlace = true;
-                break;
-            }
-        }
-
-        if (canPlace)
-        {
-            SetUIRaycastTarget(_currentMovingItem, true);
-
-            // ItemManager에 위치 업데이트 요청 (필요시 활성화)
-            // if (itemManager != null) itemManager.ChangeItemPos(_currentMovingItem.name.Replace("(Clone)", "").Trim(), _currentMovingItem.transform.position);
-
-            _currentMovingItem = null;
-            _isHoldingItem = false;
-            ResetCursor();
-            Debug.Log("<color=blue>[Action] Storage UI 영역에 배치 완료</color>");
+            string id = _currentMovingItem.name.Replace("(Clone)", "").Trim();
+            _currentMovingItem.transform.localScale = _originalScale;
+            itemManager.UpdateItemPosition(id, _currentMovingItem.transform.position);
         }
         else
         {
-            Debug.Log("<color=red>[Fail]</color> Storage 영역이 아닙니다.");
+            _currentMovingItem.transform.position = _originalPos;
+            _currentMovingItem.transform.localScale = _originalScale;
         }
+        _currentMovingItem = null;
+        _isHoldingItem = false;
     }
 
-    // ---------------------------------------------------
-    // UI Raycast 공통 헬퍼 함수
-    // ---------------------------------------------------
-    private List<RaycastResult> GetUIElementsAtMouse(Vector2 mousePos)
+    private void MoveItemWithMouse(Vector2 mousePos)
     {
-        PointerEventData pointerData = new PointerEventData(EventSystem.current) { position = mousePos };
-        List<RaycastResult> results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointerData, results);
-        return results;
-    }
+        if (_currentMovingItem == null) return;
 
-    private void SetUIRaycastTarget(GameObject obj, bool state)
-    {
-        Graphic[] graphics = obj.GetComponentsInChildren<Graphic>();
-        foreach (Graphic g in graphics)
+        // [핵심] 캔버스 스케일러가 적용된 Overlay 모드에서도 마우스와 일치하도록 보정
+        RectTransform rt = _currentMovingItem.GetComponent<RectTransform>();
+        if (rt != null && rt.parent != null)
         {
-            g.raycastTarget = state;
+            RectTransform parentRT = rt.parent.GetComponent<RectTransform>();
+            Canvas canvas = rt.GetComponentInParent<Canvas>();
+            Camera cam = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : canvas.worldCamera;
+
+            if (RectTransformUtility.ScreenPointToWorldPointInRectangle(parentRT, mousePos, cam, out Vector3 worldPoint))
+            {
+                rt.position = worldPoint;
+            }
         }
     }
 
-    // ---------------------------------------------------
-    // 도구 및 커서 로직
-    // ---------------------------------------------------
-    private void HandleNumericInput()
-    {
-        if (Keyboard.current == null) return;
+    private List<RaycastResult> GetUIElementsAtMouse(Vector2 mousePos) { PointerEventData pd = new PointerEventData(EventSystem.current) { position = mousePos }; List<RaycastResult> rs = new List<RaycastResult>(); EventSystem.current.RaycastAll(pd, rs); return rs; }
+    private void SetUIRaycastTarget(GameObject obj, bool s) { Graphic[] gs = obj.GetComponentsInChildren<Graphic>(true); foreach (Graphic g in gs) g.raycastTarget = s; }
 
-        if (Keyboard.current[Key.Digit1].wasPressedThisFrame) SelectTool(0);
-        else if (Keyboard.current[Key.Digit2].wasPressedThisFrame) SelectTool(1);
-        else if (Keyboard.current[Key.Digit3].wasPressedThisFrame) SelectTool(2);
-        else if (Keyboard.current[Key.Digit4].wasPressedThisFrame) SelectTool(3);
-        else if (Keyboard.current[Key.Digit5].wasPressedThisFrame) SelectTool(4);
-    }
-
-    private void SelectTool(int index)
+    public void SelectTool(int index)
     {
+        // 1. [핵심 추가] 아이템을 잡고 이동 중일 때는 도구 전환 입력을 완전히 무시합니다.
+        if (_isHoldingItem)
+        {
+            Debug.Log("<color=red>[경고]</color> 아이템을 들고 있는 중에는 도구를 변경할 수 없습니다!");
+            return; // 여기서 함수를 종료해버림
+        }
+
+        // 2. 정상적인 도구 변경 로직
         if (index < 0 || index >= toolBtns.Length || toolBtns[index] == null) return;
+
         _selectedToolIndex = index;
         ChangeCursorToButtonImage(toolBtns[index]);
-        Debug.Log($"<color=white><b>[Tool]</b> {index + 1}번 도구 선택됨</color>");
 
-        if (_isHoldingItem && _currentMovingItem != null)
-        {
-            Destroy(_currentMovingItem);
-            _isHoldingItem = false;
-            ResetCursor();
-        }
+        Debug.Log($"<color=white><b>[Tool Switch]</b> {index + 1}번 도구로 변경되었습니다.</color>");
     }
 
     public void ChangeCursorToButtonImage(Button clickedButton)
@@ -228,11 +230,10 @@ public class ToolBarController : MonoBehaviour
         Image btnImage = clickedButton.GetComponent<Image>();
         if (btnImage != null && btnImage.sprite != null)
         {
-            Texture2D texture = btnImage.sprite.texture;
-            if (texture.isReadable) Cursor.SetCursor(texture, hotSpot, CursorMode.Auto);
-            else Debug.LogError($"{texture.name} 이미지의 'Read/Write' 설정이 꺼져 있습니다!");
+            Texture2D tex = btnImage.sprite.texture;
+            if (tex.isReadable) Cursor.SetCursor(tex, hotSpot, CursorMode.Auto);
         }
     }
 
-    public void ResetCursor() { Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto); }
+    private void HandleNumericInput() { if (Keyboard.current == null) return; for (int i = 0; i < 5; i++) if (Keyboard.current[Key.Digit1 + i].wasPressedThisFrame) SelectTool(i); }
 }

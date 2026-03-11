@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 188bd5cad55e9db4e99a4cf0f40c0b5e, type: 3}
-  m_Name: Apple
+  m_Name: EmptyCircle
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  id: Item1
+  id: EmptyCircle
   stageIndex: 1
-  oriPos: {x: 25, y: 20}
+  oriPos: {x: 1000, y: 600}
   originColor: 0
   type: 0
-  prefab: {fileID: 5815863799546554293, guid: 00866d60c5fb1724996829ce2e66a763, type: 3}
-  changePos: {x: 1632.6129, y: 965.4224}
+  prefab: {fileID: 3030617414520634162, guid: 78580001f75d1c9498cdb37483d6022d, type: 3}
+  changePos: {x: 1000, y: 600}
   color: 0
   isGround: 0
