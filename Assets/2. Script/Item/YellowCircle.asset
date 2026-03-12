@@ -18,6 +18,6 @@ MonoBehaviour:
   originColor: 2
   type: 1
   prefab: {fileID: 6350982847065977401, guid: 400de41e5cb529d4a85339afdb34e68c, type: 3}
-  changePos: {x: 900, y: 450}
+  changePos: {x: 600, y: 450}
   color: 2
   isGround: 0

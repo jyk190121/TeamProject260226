@@ -26,6 +26,8 @@ public class ToolBarController : MonoBehaviour
     bool _isHoldingItem = false;
     int _selectedToolIndex = 0;
     int _currentHeldColor = 0;
+    bool _isZoomActive = false;
+
 
     Vector2 _originalPos;
     Vector3 _originalScale;
@@ -94,7 +96,42 @@ public class ToolBarController : MonoBehaviour
                     Debug.Log($"<color=white>[Eraser]</color> {targetData.id} 색상 초기화(0)");
                 }
                 break;
+
+            case 4: // [추가] 돋보기 (확대/축소)
+                    // 1. 진입(ZoomIn)이 있는지 먼저 체크
+                ZoomInTrigger zoomIn = GetUIComponentAtMouse<ZoomInTrigger>(mousePos);
+                if (zoomIn != null)
+                {
+                    zoomIn.Execute(this);
+                    break;
+                }
+
+                // 2. 퇴장(ZoomOut)이 있는지 체크
+                ZoomOutTrigger zoomOut = GetUIComponentAtMouse<ZoomOutTrigger>(mousePos);
+                if (zoomOut != null)
+                {
+                    zoomOut.Execute(this);
+                    break;
+                }
+                break;
         }
+    }
+
+    public void UpdateMagnifierCursor(bool isZoomed)
+    {
+        _isZoomActive = isZoomed;
+        // 나중에 여기서 커서 이미지를 교체하면 됩니다.
+    }
+
+    private T GetUIComponentAtMouse<T>(Vector2 mousePos) where T : Component
+    {
+        List<RaycastResult> results = GetUIElementsAtMouse(mousePos);
+        foreach (var r in results)
+        {
+            T component = r.gameObject.GetComponentInParent<T>();
+            if (component != null) return component;
+        }
+        return null;
     }
 
     private void ClearBucket() { _currentHeldColor = 0; UpdateBucketUI(); }
@@ -165,22 +202,46 @@ public class ToolBarController : MonoBehaviour
         }
     }
 
+    // [수정] 아이템을 놓는 로직에 정답 판정 추가
     private void TryPlaceItem(Vector2 mousePos)
     {
         if (_currentMovingItem == null) return;
 
+        // 다시 클릭 가능하게 복구 (성공 시 다시 꺼짐)
         SetUIRaycastTarget(_currentMovingItem, true);
+
+        // [추가] 1. 마우스 아래에 정답 구역(AnswerZone)이 있는지 확인
+        AnswerZone zone = GetUIComponentAtMouse<AnswerZone>(mousePos);
+        Item data = itemManager.GetItemDataById(_currentMovingItem.name.Replace("(Clone)", "").Trim());
+
+        if (zone != null)
+        {
+            // [추가] 2. 정답 구역이 있다면 숫자 ID와 색상 대조
+            if (zone.CheckMatch(data, _currentMovingItem))
+            {
+                // 정답이면 여기서 로직 종료 (아이템은 고정됨)
+                _currentMovingItem = null;
+                _isHoldingItem = false;
+                return;
+            }
+        }
+
+        // 3. 정답이 아니거나 정답 구역이 아니면 기존 보관함 로직 수행
         if (IsMouseOverStorage(mousePos))
         {
             string id = _currentMovingItem.name.Replace("(Clone)", "").Trim();
             _currentMovingItem.transform.localScale = _originalScale;
             itemManager.UpdateItemPosition(id, _currentMovingItem.transform.position);
+
+            // [참고] 보관함으로 부모 변경 로직이 필요하다면 여기서 수행
         }
         else
         {
+            // 원래 위치로 복귀
             _currentMovingItem.transform.position = _originalPos;
             _currentMovingItem.transform.localScale = _originalScale;
         }
+
         _currentMovingItem = null;
         _isHoldingItem = false;
     }
