@@ -5,53 +5,67 @@ using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
+using static System.Net.WebRequestMethods;
 
 public class NarrationManager : MonoBehaviour
 {
+    [Header("Data Load Settings")]
     public List<NarrationData> narrationList = new List<NarrationData>();
-    public TextMeshProUGUI narrationText;
+    public bool isLoaded = false;
 
-    public bool isLoaded = false;   // 불러 왔는가?
+    [SerializeField] private string narrationSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQo_EGkH-TAJnVVeBUWpvJf7PQB5t0vSkOpQWedjPuYTLLvAHZMrA-9FkFfuDboMg/pub?gid=218350455&single=true&output=csv"; // 나레이션 시트 URL
+    [SerializeField] private string npcDialogueSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVFSzHhG97l748ccZKAiYlG5U3pvm2qO8EDR5p1bV_so7HAO9KLG16tOPUi_R3NPW2yje22WM_5ard/pub?gid=501557754&single=true&output=csv"; // NPC 대사 시트 URL
 
-    private string sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQo_EGkH-TAJnVVeBUWpvJf7PQB5t0vSkOpQWedjPuYTLLvAHZMrA-9FkFfuDboMg/pub?gid=218350455&single=true&output=csv";
+    [Header("UI Reference")]
+    public GameObject bottomPanel;    // Main, Sub용 UI
+    public GameObject bubblePanel;    // NARRATION, HINT 등 NPC 말풍선 UI
+    public TextMeshProUGUI bottomText;
+    public TextMeshProUGUI bubbleText;
 
-    void Awake() { StartCoroutine(DownloadCSV(sheetURL)); }
+    [Header("NPC Visuals")]
+    public Image npcImage;
+    public List<NPCStateSprite> npcStateSprites = new List<NPCStateSprite>();
+    private Dictionary<string, Sprite> stateDictionary = new Dictionary<string, Sprite>();
 
-    IEnumerator DownloadCSV(string url)
+    [System.Serializable]
+    public struct NPCStateSprite { public string stateName; public Sprite sprite; }
+
+    void Awake()
     {
-        isLoaded = false;  // 불러오기 시작
+        stateDictionary.Clear();
+        foreach (var item in npcStateSprites)
+            stateDictionary[item.stateName] = item.sprite;
 
+        StartCoroutine(DownloadAllData());
+    }
+
+    IEnumerator DownloadAllData()
+    {
+        isLoaded = false;
+        narrationList.Clear();
+
+        // 두 시트 순차 로드
+        yield return StartCoroutine(DownloadRoutine(narrationSheetURL, "Narration"));
+        yield return StartCoroutine(DownloadRoutine(npcDialogueSheetURL, "NPC Dialogue"));
+
+        isLoaded = true;
+        Debug.Log($"[Manager] 전체 데이터 로드 완료: {narrationList.Count}행");
+    }
+
+    IEnumerator DownloadRoutine(string url, string label)
+    {
+        if (string.IsNullOrEmpty(url)) yield break;
         using (UnityWebRequest www = UnityWebRequest.Get(url))
         {
             yield return www.SendWebRequest();
-
-            if (www.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("구글 시트에서 최신 데이터를 불러왔습니다.");
-                ParseCSV(www.downloadHandler.text);
-            }
-            else
-            {
-                Debug.LogWarning("온라인 연결 실패. 로컬 데이터를 불러옵니다: " + www.error);
-                LoadLocalCSV();
-            }
+            if (www.result == UnityWebRequest.Result.Success) ParseCSV(www.downloadHandler.text);
+            else Debug.LogError($"[Manager] {label} 로드 실패: {www.error}");
         }
-
-        isLoaded = true;  // 로드 완료
     }
 
-    // 로컬 Resources 폴더에서 불러오기 (백업용)
-    void LoadLocalCSV()
-    {
-        TextAsset csvFile = Resources.Load<TextAsset>("NarrationData");
-        if (csvFile != null) ParseCSV(csvFile.text);
-    }
-
-    // 공통 파싱 로직
     void ParseCSV(string rawText)
     {
-        narrationList.Clear(); // 리스트 초기화 후 새로 담기
-
         string csvText = rawText.Replace("\r\n", "\n");
         string[] lines = csvText.Split('\n');
         string pattern = @",(?=(?:[^""]*""[^""]*"")*[^""]*$)";
@@ -61,34 +75,36 @@ public class NarrationManager : MonoBehaviour
             if (string.IsNullOrWhiteSpace(lines[i])) continue;
             string[] fields = Regex.Split(lines[i], pattern);
 
-            if (fields.Length < 6) continue;
+            if (fields.Length < 8) continue;
 
             try
             {
                 NarrationData data = new NarrationData();
-                data.Chapter = int.Parse(fields[0].Trim());
-                data.Type = fields[1].Trim();
-                data.Stage = int.Parse(fields[2].Trim());
-                data.Sequence = int.Parse(fields[3].Trim());
+                data.DGRP = fields[1].Trim();
+                data.DialogueType = fields[2].Trim();
+                data.NpcState = fields[3].Trim();
+                data.Stage = int.Parse(fields[4].Trim());
+                data.Sequence = int.Parse(fields[5].Trim());
 
-                string cleanText = fields[4].Trim();
+                string cleanText = fields[6].Trim();
                 if (cleanText.StartsWith("\"") && cleanText.EndsWith("\""))
                     cleanText = cleanText.Substring(1, cleanText.Length - 2);
                 data.Text = cleanText.Replace("\"\"", "\"").Replace("\\n", "\n");
 
-                data.Delay = float.Parse(fields[5].Trim());
-
+                data.Delay = float.Parse(fields[7].Trim());
                 narrationList.Add(data);
             }
             catch { continue; }
         }
-        Debug.Log($"파싱 완료: {narrationList.Count}개의 문장을 로드했습니다.");
     }
 
-    public void StartNarration(int chapter, string type, int stage)
+    // DGRP, Stage, DialogueType 세 가지를 모두 체크하여 시작
+    public void StartNarration(string dgrp, int stage, string targetType)
     {
         var group = narrationList
-            .Where(x => x.Chapter == chapter && x.Type == type && x.Stage == stage)
+            .Where(x => x.DGRP == dgrp &&
+                        x.Stage == stage &&
+                        x.DialogueType.Equals(targetType, System.StringComparison.OrdinalIgnoreCase))
             .OrderBy(x => x.Sequence)
             .ToList();
 
@@ -97,22 +113,43 @@ public class NarrationManager : MonoBehaviour
             StopAllCoroutines();
             StartCoroutine(PlayAutoRoutine(group));
         }
+        else
+        {
+            Debug.LogWarning($"[Manager] 데이터를 찾을 수 없음: DGRP={dgrp}, Stage={stage}, Type={targetType}");
+        }
     }
 
     IEnumerator PlayAutoRoutine(List<NarrationData> lines)
     {
-        for (int i = 0; i < lines.Count; i++)
+        foreach (var line in lines)
         {
-            narrationText.text = lines[i].Text;
-            if (i < lines.Count - 1)
-            {
-                yield return new WaitForSeconds(lines[i].Delay);
-            }
-            else
-            {
-                yield break;
-            }
+            // 1. NPC 표정 업데이트
+            if (stateDictionary.ContainsKey(line.NpcState))
+                npcImage.sprite = stateDictionary[line.NpcState];
+
+            // 2. 타입에 따른 UI 분기 실행
+            UpdateUI(line);
+
+            if (line != lines.Last())
+                yield return new WaitForSeconds(line.Delay);
         }
     }
 
+    void UpdateUI(NarrationData line)
+    {
+        bottomPanel.SetActive(false);
+        bubblePanel.SetActive(false);
+
+        // Main/Sub은 하단, 나머지는 말풍선
+        if (line.DialogueType.Equals("Main") || line.DialogueType.Equals("Sub"))
+        {
+            bottomPanel.SetActive(true);
+            bottomText.text = line.Text;
+        }
+        else
+        {
+            bubblePanel.SetActive(true);
+            bubbleText.text = line.Text;
+        }
+    }
 }

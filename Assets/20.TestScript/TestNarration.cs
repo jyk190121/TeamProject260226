@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class TestNarration : MonoBehaviour
 {
-    public int Chapter;
-    public string Type;
+    public string DGRP;
     public int Stage;
+    public string targetType;
 
 
     private IEnumerator Start()
@@ -17,6 +17,6 @@ public class TestNarration : MonoBehaviour
             yield return null; // 데이터가 올 때까지 한 프레임씩 쉽니다.
         }
 
-        manager.StartNarration(Chapter, Type, Stage);
+        manager.StartNarration(DGRP, Stage, targetType);
     }
 }
