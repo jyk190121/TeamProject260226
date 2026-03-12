@@ -2209,9 +2209,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2037764660}
   - component: {fileID: 2037764664}
-  - component: {fileID: 2037764663}
   - component: {fileID: 2037764662}
-  - component: {fileID: 2037764661}
   - component: {fileID: 2037764665}
   - component: {fileID: 2037764666}
   m_Layer: 0
@@ -2236,19 +2234,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2037764661
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2037764659}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79d68639be9f07c4f816dae93600c7c5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StageManager
-  totalStage: 5
 --- !u!114 &2037764662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2271,20 +2256,6 @@ MonoBehaviour:
   defaultMaster: 0.8
   defaultBgm: 0.8
   defaultSfx: 0.8
---- !u!114 &2037764663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2037764659}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f2a226bf610e7c45adcfae6e5c57054, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemManager
-  itemData: []
-  itemParent: {fileID: 0}
 --- !u!114 &2037764664
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -157,7 +157,7 @@ public class StartController : MonoBehaviour
         
         
         yield return new WaitForSeconds(2f);
-        GameSceneManager.Instance.LoadScene("GameScene_KJY");
+        GameSceneManager.Instance.LoadScene("GameScene_Test1");
         CursorManager.Instance.ChangeCursor(CursorState.Normal);
     }
 
@@ -168,7 +168,7 @@ public class StartController : MonoBehaviour
         print($"이어하기 로직 실행: 스테이지 {data.lastUnlockedStage}");
 
         // 로드된 데이터를 GameScene에 전달하는 로직 필요
-        GameSceneManager.Instance.LoadScene("GameScene_KJY");
+        GameSceneManager.Instance.LoadScene("GameScene_Test1");
     }
 
     private void OnClickSetting()
@@ -189,7 +189,7 @@ public class StartController : MonoBehaviour
     private void OnClickPopupYes()
     {
         warningPopup.SetActive(false);
-        StartNewGame();
+        StartCoroutine(StartNewGame());
     }
 
     // 팝업 No: 그냥 팝업 닫기
