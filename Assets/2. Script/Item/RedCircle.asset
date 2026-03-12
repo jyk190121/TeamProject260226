@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Item
   id: RedCircle
   stageIndex: 1
-  oriPos: {x: 0, y: 0}
+  oriPos: {x: 500, y: 450}
   originColor: 1
   type: 1
   prefab: {fileID: 6294227699435169206, guid: 67a3b56d3025b30468961677a484ab62, type: 3}
-  changePos: {x: 0, y: 0}
+  changePos: {x: 500, y: 450}
   color: 1
   isGround: 0
