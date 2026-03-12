@@ -2213,6 +2213,7 @@ GameObject:
   - component: {fileID: 2037764662}
   - component: {fileID: 2037764661}
   - component: {fileID: 2037764665}
+  - component: {fileID: 2037764666}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2283,6 +2284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemManager
   itemData: []
+  itemParent: {fileID: 0}
 --- !u!114 &2037764664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2307,6 +2309,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03acd034d9b8dfd4895ccd3ae7822a93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveManager
+--- !u!114 &2037764666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037764659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e76d2c8c1ff59df438661d2c280a6ddf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CursorManager
+  cursorDataList:
+  - state: 0
+    texture: {fileID: 2800000, guid: e10e72cb2ccd1e742a9adc3d4cd1d8be, type: 3}
+    hotspot: {x: 0, y: 0}
+  - state: 1
+    texture: {fileID: 2800000, guid: ee01c554e21f0db469dac7ed7f5f4a1d, type: 3}
+    hotspot: {x: 0, y: 0}
+  - state: 2
+    texture: {fileID: 2800000, guid: 917d373d9dd5c264b8671d29a0664a01, type: 3}
+    hotspot: {x: 0, y: 0}
+  - state: 3
+    texture: {fileID: 2800000, guid: 662541e7772c635429086e8b8d1b1347, type: 3}
+    hotspot: {x: 0, y: 0}
+  - state: 4
+    texture: {fileID: 2800000, guid: 54c323813eb4d624b91bff0eb3854f9a, type: 3}
+    hotspot: {x: 0, y: 0}
+  - state: 5
+    texture: {fileID: 2800000, guid: bc21c256384ddd745b8ddb800fa88592, type: 3}
+    hotspot: {x: 0, y: 0}
+  - state: 6
+    texture: {fileID: 2800000, guid: 4e36a195e95917f40a1475300beeda5b, type: 3}
+    hotspot: {x: 0, y: 0}
+  - state: 7
+    texture: {fileID: 2800000, guid: bda2bcedc93d98545a2b71debbb262db, type: 3}
+    hotspot: {x: 0, y: 0}
+  - state: 8
+    texture: {fileID: 2800000, guid: 9e7c345c1d3243b49a03c6fd9e3902b7, type: 3}
+    hotspot: {x: 0, y: 0}
 --- !u!1 &2101959241
 GameObject:
   m_ObjectHideFlags: 0

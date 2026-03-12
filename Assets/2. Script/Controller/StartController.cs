@@ -1,6 +1,7 @@
 using UnityEngine.EventSystems;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class StartController : MonoBehaviour
 {
@@ -51,16 +52,23 @@ public class StartController : MonoBehaviour
     {
         if (SaveManager.Instance == null) return;
 
+        if (continueBtn == null) return;
+
         bool hasData = SaveManager.Instance.HasSaveData();
 
         // 이어하기 버튼: 데이터가 있을 때만 클릭 가능
         continueBtn.interactable = hasData;
 
-        print($"세이브데이터 존재여부 : {hasData}");
+        CanvasGroup cg = continueBtn.GetComponent<CanvasGroup>();
+        if (cg == null)
+        {
+            cg = continueBtn.gameObject.AddComponent<CanvasGroup>();
+        }
 
-        // 시각적으로 비활성화 느낌을 주기 위해 알파값 조절
-        CanvasGroup cg = continueBtn.GetComponent<CanvasGroup>() ?? continueBtn.gameObject.AddComponent<CanvasGroup>();
+        // 이제 안전하게 alpha 값을 조절할 수 있습니다.
         cg.alpha = hasData ? 1.0f : 0.5f;
+
+        print($"세이브데이터 존재여부 : {hasData}");
     }
 
     void OnDisable()
@@ -121,6 +129,8 @@ public class StartController : MonoBehaviour
     private void OnClickStart()
     {
         print("게임 시작 로직 실행");
+        CursorManager.Instance.ChangeCursor(CursorState.Loading);
+
         if (SaveManager.Instance.HasSaveData())
         {
             // 데이터가 있으면 팝업창 띄우기
@@ -129,15 +139,26 @@ public class StartController : MonoBehaviour
         else
         {
             //GameSceneManager.Instance.LoadScene("GameScene_KJY");
-            StartNewGame();
+            StartCoroutine( StartNewGame() );
         }
     }
 
-    void StartNewGame()
+    //void StartNewGame()
+    //{
+    //    SaveManager.Instance.DeleteSaveFile(); // 기존 데이터 삭제
+    //    print("새 게임 시작");
+    //    GameSceneManager.Instance.LoadScene("GameScene_KJY");
+    //}
+
+    IEnumerator StartNewGame()
     {
         SaveManager.Instance.DeleteSaveFile(); // 기존 데이터 삭제
         print("새 게임 시작");
+        
+        
+        yield return new WaitForSeconds(2f);
         GameSceneManager.Instance.LoadScene("GameScene_KJY");
+        CursorManager.Instance.ChangeCursor(CursorState.Normal);
     }
 
     private void OnClickContinue()
