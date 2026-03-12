@@ -1,58 +1,86 @@
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System.Text.RegularExpressions; // 정규식 사용을 위해 필요
 using System.Linq;
+using System.Text.RegularExpressions;
+using TMPro;
+using UnityEngine;
 
 public class NarrationManager : MonoBehaviour
 {
     public List<NarrationData> narrationList = new List<NarrationData>();
+    public TextMeshProUGUI narrationText;
 
-    void Awake()
-    {
-        LoadCSV();
-    }
+    void Awake() { LoadCSV(); }
 
     void LoadCSV()
     {
-        // 1. Resources 폴더의 'NarrationData.csv' 파일을 읽어옴
         TextAsset csvFile = Resources.Load<TextAsset>("NarrationData");
         if (csvFile == null) return;
 
-        // 2. 줄바꿈을 기준으로 행을 나눔
-        string[] lines = csvFile.text.Split('\n');
-
-        // 3. 정규식: 쉼표로 나누되, 큰따옴표 안의 쉼표는 구분자로 취급하지 않음
+        string csvText = csvFile.text.Replace("\r\n", "\n");
+        string[] lines = csvText.Split('\n');
         string pattern = @",(?=(?:[^""]*""[^""]*"")*[^""]*$)";
 
-        for (int i = 1; i < lines.Length; i++) // 첫 줄(헤더) 제외
+        for (int i = 1; i < lines.Length; i++)
         {
             if (string.IsNullOrWhiteSpace(lines[i])) continue;
-
             string[] fields = Regex.Split(lines[i], pattern);
 
-            NarrationData data = new NarrationData();
-            data.Chapter = int.Parse(fields[0]);
-            data.Type = fields[1];
-            data.Stage = int.Parse(fields[2]);
-            data.Sequence = int.Parse(fields[3]);
+            if (fields.Length < 6) continue; // 컬럼이 6개인지 확인
 
-            // 양 끝의 큰따옴표(") 제거 및 엑셀의 줄바꿈 문자 처리
-            string cleanText = fields[4].Trim();
-            if (cleanText.StartsWith("\"") && cleanText.EndsWith("\""))
+            try
             {
-                cleanText = cleanText.Substring(1, cleanText.Length - 2);
-            }
-            data.Text = cleanText.Replace("\"\"", "\""); // 연속된 큰따옴표 치환
+                NarrationData data = new NarrationData();
+                data.Chapter = int.Parse(fields[0].Trim());
+                data.Type = fields[1].Trim();
+                data.Stage = int.Parse(fields[2].Trim());
+                data.Sequence = int.Parse(fields[3].Trim());
 
-            narrationList.Add(data);
+                string cleanText = fields[4].Trim();
+                if (cleanText.StartsWith("\"") && cleanText.EndsWith("\""))
+                    cleanText = cleanText.Substring(1, cleanText.Length - 2);
+                data.Text = cleanText.Replace("\"\"", "\"").Replace("\\n", "\n");
+
+                // 추가: Delay 컬럼 읽기
+                data.Delay = float.Parse(fields[5].Trim());
+
+                narrationList.Add(data);
+            }
+            catch { continue; }
         }
     }
 
-    // 특정 상황의 데이터만 뽑아오는 함수
-    public List<NarrationData> GetNarrationGroup(int id, string type, int subStage)
+    public void StartNarration(int chapter, string type, int stage)
     {
-        return narrationList.Where(x => x.Chapter == id && x.Type == type && x.Stage == subStage)
-                            .OrderBy(x => x.Sequence)
-                            .ToList();
+        var group = narrationList
+            .Where(x => x.Chapter == chapter && x.Type == type && x.Stage == stage)
+            .OrderBy(x => x.Sequence)
+            .ToList();
+
+        if (group.Count > 0)
+        {
+            StopAllCoroutines();
+            StartCoroutine(PlayAutoRoutine(group));
+        }
+    }
+
+    IEnumerator PlayAutoRoutine(List<NarrationData> lines)
+    {
+        for (int i = 0; i < lines.Count; i++)
+        {
+            narrationText.text = lines[i].Text;
+
+            // 마지막 문장이 아닐 때만 해당 대사의 Delay만큼 대기
+            if (i < lines.Count - 1)
+            {
+                // 각 대사 데이터에 저장된 개별 Delay 값을 사용합니다.
+                yield return new WaitForSeconds(lines[i].Delay);
+            }
+            else
+            {
+                // 마지막 문장은 고정
+                yield break;
+            }
+        }
     }
 }
