@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4892460002462439891}
   - component: {fileID: 8365996905913276399}
   - component: {fileID: 532469952694840743}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: "Txt_\uC77D\uAE30\uC0C1\uD0DC"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 9008727687693418116}
   - component: {fileID: 456698142094188395}
   - component: {fileID: 3979239150761198993}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: "Txt_\uC774\uB984"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -288,7 +288,7 @@ GameObject:
   - component: {fileID: 1467787851503785438}
   - component: {fileID: 224503705648473122}
   - component: {fileID: -6778522014660726198}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Btn_SubBook
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -449,7 +449,7 @@ GameObject:
   - component: {fileID: 1396242670280329292}
   - component: {fileID: 1408798603557125394}
   - component: {fileID: 3890081984227535151}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: "Img_\uD45C\uC9C0"
   m_TagString: Untagged
   m_Icon: {fileID: 0}

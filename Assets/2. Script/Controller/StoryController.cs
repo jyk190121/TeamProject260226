@@ -59,62 +59,121 @@ public class StoryController : MonoBehaviour
 
     private IEnumerator AnimatesubFromScreenToContent(GameObject sub)
     {
+        //RectTransform rect = sub.GetComponent<RectTransform>();
+
+        //// 유니티 스타일의 Null 체크 및 컴포넌트 추가
+        //CanvasGroup group = sub.GetComponent<CanvasGroup>();
+        //if (group == null)
+        //{
+        //    group = sub.AddComponent<CanvasGroup>();
+        //}
+
+        //// 1. 빈 게임오브젝트 생성 (Content 맨 앞에)
+        //GameObject spacer = new GameObject("Spacer", typeof(RectTransform));
+        //spacer.transform.SetParent(contentParent);
+        //spacer.transform.SetAsFirstSibling();
+        //RectTransform spacerRect = spacer.GetComponent<RectTransform>();
+
+        //float targetWidth = sub.GetComponent<RectTransform>().rect.width;
+
+        //// 2. 애니메이션 루프
+        //float elapsedTime = 0f;
+        //while (elapsedTime < animationDuration)
+        //{
+        //    elapsedTime += Time.deltaTime;
+        //    float t = Mathf.SmoothStep(0, 1, elapsedTime / animationDuration);
+
+        //    // [핵심] 빈 칸의 넓이를 줄여나감 -> 기존 스토리들이 왼쪽으로 딸려옴
+        //    spacerRect.sizeDelta = new Vector2(Mathf.Lerp(targetWidth, 0, t), 0);
+
+        //    // 새 스토리 이동
+        //    rect.anchoredPosition = Vector2.Lerp(startPosition, finalTargetPos, t);
+        //    group.alpha = t;
+
+        //    // 실시간 레이아웃 갱신
+        //    LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
+
+        //    yield return null;
+        //}
+
+        //Destroy(spacer);
+        //sub.transform.SetParent(contentParent);
+        //sub.transform.SetAsFirstSibling();
+
+        //// 최종 위치 및 알파값 강제 고정
+        //rect.anchoredPosition = Vector2.zero;
+        //group.alpha = 1f;
+
+        //LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
+
+
         RectTransform rect = sub.GetComponent<RectTransform>();
 
-        // 유니티 스타일의 Null 체크 및 컴포넌트 추가
+        // [1] CanvasGroup 체크 및 추가
         CanvasGroup group = sub.GetComponent<CanvasGroup>();
         if (group == null)
         {
             group = sub.AddComponent<CanvasGroup>();
+            // 중요: AddComponent 직후에 즉시 접근하면 에러가 날 수 있으므로 한 프레임 대기
+            yield return null;
         }
 
-        // 1. 빈 게임오브젝트 생성 (Content 맨 앞에)
+        // 코루틴 내부 수정 버전
+        float targetWidth = 300f; // 정확히 300으로 고정
+
+        // Spacer 설정 부분
         GameObject spacer = new GameObject("Spacer", typeof(RectTransform));
         spacer.transform.SetParent(contentParent);
         spacer.transform.SetAsFirstSibling();
+
+        // 레이아웃 엔진에 크기를 전달할 컴포넌트 추가
+        LayoutElement le = spacer.AddComponent<LayoutElement>();
+        le.preferredWidth = 0; // 시작은 0
+        le.flexibleWidth = 0;  // 300 이상으로 늘어나지 않게 방지
+
         RectTransform spacerRect = spacer.GetComponent<RectTransform>();
 
-        float targetWidth = sub.GetComponent<RectTransform>().rect.width;
+        // [3] LayoutElement 추가 (LayoutGroup이 Spacer의 크기를 무시하지 않도록)
+        LayoutElement spacerLayout = spacer.AddComponent<LayoutElement>();
 
-        // 2. 애니메이션 루프
+        // 초기 상태 설정
+        group.alpha = 0;
+        rect.anchoredPosition = startPosition;
+
         float elapsedTime = 0f;
         while (elapsedTime < animationDuration)
         {
             elapsedTime += Time.deltaTime;
             float t = Mathf.SmoothStep(0, 1, elapsedTime / animationDuration);
 
-            // [핵심] 빈 칸의 넓이를 줄여나감 -> 기존 스토리들이 왼쪽으로 딸려옴
-            spacerRect.sizeDelta = new Vector2(Mathf.Lerp(targetWidth, 0, t), 0);
+            float currentWidth = Mathf.Lerp(0, targetWidth, t);
 
-            // 새 스토리 이동
+            // 둘 다 적용해야 레이아웃 그룹이 정확히 반응합니다.
+            spacerRect.sizeDelta = new Vector2(currentWidth, 0);
+            le.preferredWidth = currentWidth;
+
+            // 애니메이션 (날아오기)
             rect.anchoredPosition = Vector2.Lerp(startPosition, finalTargetPos, t);
             group.alpha = t;
 
-            // 실시간 레이아웃 갱신
             LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
-
             yield return null;
         }
 
+        // [4] 최종 정착 부분 수정
         Destroy(spacer);
-        sub.transform.SetParent(contentParent);
+
+        // 부모를 옮기되, 현재 월드 위치를 유지하도록 true 설정
+        sub.transform.SetParent(contentParent, true);
         sub.transform.SetAsFirstSibling();
 
-        // 최종 위치 및 알파값 강제 고정
-        rect.anchoredPosition = Vector2.zero;
-        group.alpha = 1f;
-
+        // 레이아웃이 즉시 계산되도록 호출
         LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
 
+        // 이제 레이아웃이 잡은 위치로 부드럽게 넘어가도록 함
+        // 만약 여전히 튄다면 아래 한 줄은 주석 처리하거나 0 대신 여백값을 넣으세요.
+        // rect.anchoredPosition = Vector2.zero; 
 
-        //// --- [최종 정착] ---
-        //layoutGroup.padding.left = originalTopPadding;
-        //sub.transform.SetParent(contentParent);
-        //sub.transform.SetAsFirstSibling(); // 리스트의 가장 처음에 배치
-
-        //rect.anchoredPosition = Vector2.zero;
-        //group.alpha = 1f;
-
-        //LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
+        group.alpha = 1f;
     }
 }
