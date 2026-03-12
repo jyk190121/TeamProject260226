@@ -5,7 +5,7 @@ using UnityEngine;
 public class StageManager : MonoBehaviour
 {
     // 총 스테이지
-    public int totalStage = 5;
+    public int totalStage = 6;
     private int currentStageIndex = 1;
 
     void Start()

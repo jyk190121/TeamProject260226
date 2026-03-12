@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class StoryConversionController : MonoBehaviour
@@ -17,9 +19,53 @@ public class StoryConversionController : MonoBehaviour
 
     public Button[] exitBtns = new Button[2];
 
+
     void Start()
     {
         ExitStory();
+    }
+
+    void Update()
+    {
+        // stagePanel이 꺼져있을 때 (= 서재 상태일 때)만 레이캐스트 작동
+        if (stagePanel != null && !stagePanel.activeSelf)
+        {
+            CheckWorldObjectHover();
+        }
+    }
+
+    void CheckWorldObjectHover()
+    {
+        if (CursorManager.Instance == null) return;
+
+        // 1. 마우스 위치에 있는 UI 요소를 탐색하기 위한 설정
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = Input.mousePosition;
+
+        // 2. 마우스 아래에 있는 모든 UI를 담을 리스트
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        CursorState targetState = CursorState.Normal;
+
+        if (results.Count > 0)
+        {
+            // 첫 번째로 잡힌 UI의 레이어 확인
+            GameObject hoveredObj = results[0].gameObject;
+            int studyLayerIndex = LayerMask.NameToLayer("Study");
+
+            // [핵심] 만약 잡힌 UI가 'Study' 레이어가 아니라면 (예: 책, 아이템) HandOpen
+            if (hoveredObj.layer != studyLayerIndex)
+            {
+                targetState = CursorState.HandOpen;
+            }
+        }
+
+        // 마우스 커서 적용
+        if (CursorManager.Instance.GetCurrentState() != targetState)
+        {
+            CursorManager.Instance.ChangeCursor(targetState);
+        }
     }
 
     void OnEnable()
@@ -51,6 +97,7 @@ public class StoryConversionController : MonoBehaviour
         mainStoryPanel.SetActive(true);
         subStoryPanel.SetActive(false);
         blockImg.SetActive(false);
+        EnterStory();
     }
 
     public void SubStorySelect()
@@ -59,6 +106,15 @@ public class StoryConversionController : MonoBehaviour
         mainStoryPanel.SetActive(false);
         subStoryPanel.SetActive(true);
         blockImg.SetActive(false);
+        EnterStory();
+    }
+
+    void EnterStory()
+    {
+        if (CursorManager.Instance != null)
+        {
+            CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
+        }
     }
 
     // 메인 or 서브 스토리에서 나가기 버튼 선택 시 (서재가 Default)

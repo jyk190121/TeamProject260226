@@ -2209,10 +2209,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2037764660}
   - component: {fileID: 2037764664}
-  - component: {fileID: 2037764663}
   - component: {fileID: 2037764662}
-  - component: {fileID: 2037764661}
   - component: {fileID: 2037764665}
+  - component: {fileID: 2037764666}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2235,19 +2234,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2037764661
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2037764659}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79d68639be9f07c4f816dae93600c7c5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StageManager
-  totalStage: 5
 --- !u!114 &2037764662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2270,19 +2256,6 @@ MonoBehaviour:
   defaultMaster: 0.8
   defaultBgm: 0.8
   defaultSfx: 0.8
---- !u!114 &2037764663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2037764659}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f2a226bf610e7c45adcfae6e5c57054, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemManager
-  itemData: []
 --- !u!114 &2037764664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2307,6 +2280,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03acd034d9b8dfd4895ccd3ae7822a93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveManager
+--- !u!114 &2037764666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037764659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e76d2c8c1ff59df438661d2c280a6ddf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CursorManager
+  cursorDataList:
+  - state: 0
+    texture: {fileID: 2800000, guid: e10e72cb2ccd1e742a9adc3d4cd1d8be, type: 3}
+    hotspot: {x: -1, y: 1}
+  - state: 1
+    texture: {fileID: 2800000, guid: ee01c554e21f0db469dac7ed7f5f4a1d, type: 3}
+    hotspot: {x: -1, y: 1}
+  - state: 2
+    texture: {fileID: 2800000, guid: dc9f05de80760064f8fbc4ff9c3a4483, type: 3}
+    hotspot: {x: -1, y: 1}
+  - state: 3
+    texture: {fileID: 2800000, guid: 5ddb14f8a723d7e43b524fdc4210bf32, type: 3}
+    hotspot: {x: -1, y: 1}
+  - state: 4
+    texture: {fileID: 2800000, guid: 2fa6f68eacabbc249813eb46038ea157, type: 3}
+    hotspot: {x: -1, y: 1}
+  - state: 5
+    texture: {fileID: 2800000, guid: bc21c256384ddd745b8ddb800fa88592, type: 3}
+    hotspot: {x: -1, y: 1}
+  - state: 6
+    texture: {fileID: 2800000, guid: 4e36a195e95917f40a1475300beeda5b, type: 3}
+    hotspot: {x: -1, y: 1}
+  - state: 7
+    texture: {fileID: 2800000, guid: bda2bcedc93d98545a2b71debbb262db, type: 3}
+    hotspot: {x: -1, y: 1}
+  - state: 8
+    texture: {fileID: 2800000, guid: 9e7c345c1d3243b49a03c6fd9e3902b7, type: 3}
+    hotspot: {x: -1, y: 1}
 --- !u!1 &2101959241
 GameObject:
   m_ObjectHideFlags: 0
