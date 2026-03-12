@@ -1,14 +1,22 @@
+using System.Collections;
 using UnityEngine;
 
 public class TestNarration : MonoBehaviour
 {
-    public int Chapter;
-    public string Type;
+    public string DGRP;
     public int Stage;
+    public string targetType;
 
 
-    private void Start()
+    private IEnumerator Start()
     {
-        FindAnyObjectByType<NarrationManager>().StartNarration(Chapter, Type, Stage);
+        NarrationManager manager = FindAnyObjectByType<NarrationManager>();
+
+        while (manager == null || !manager.isLoaded)
+        {
+            yield return null; // 데이터가 올 때까지 한 프레임씩 쉽니다.
+        }
+
+        manager.StartNarration(DGRP, Stage, targetType);
     }
 }
