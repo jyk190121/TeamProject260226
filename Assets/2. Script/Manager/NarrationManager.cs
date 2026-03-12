@@ -4,20 +4,55 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class NarrationManager : MonoBehaviour
 {
     public List<NarrationData> narrationList = new List<NarrationData>();
     public TextMeshProUGUI narrationText;
 
-    void Awake() { LoadCSV(); }
+    public bool isLoaded = false;   // 불러 왔는가?
 
-    void LoadCSV()
+    private string sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQo_EGkH-TAJnVVeBUWpvJf7PQB5t0vSkOpQWedjPuYTLLvAHZMrA-9FkFfuDboMg/pub?gid=218350455&single=true&output=csv";
+
+    void Awake() { StartCoroutine(DownloadCSV(sheetURL)); }
+
+    IEnumerator DownloadCSV(string url)
+    {
+        isLoaded = false;  // 불러오기 시작
+
+        using (UnityWebRequest www = UnityWebRequest.Get(url))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log("구글 시트에서 최신 데이터를 불러왔습니다.");
+                ParseCSV(www.downloadHandler.text);
+            }
+            else
+            {
+                Debug.LogWarning("온라인 연결 실패. 로컬 데이터를 불러옵니다: " + www.error);
+                LoadLocalCSV();
+            }
+        }
+
+        isLoaded = true;  // 로드 완료
+    }
+
+    // 로컬 Resources 폴더에서 불러오기 (백업용)
+    void LoadLocalCSV()
     {
         TextAsset csvFile = Resources.Load<TextAsset>("NarrationData");
-        if (csvFile == null) return;
+        if (csvFile != null) ParseCSV(csvFile.text);
+    }
 
-        string csvText = csvFile.text.Replace("\r\n", "\n");
+    // 공통 파싱 로직
+    void ParseCSV(string rawText)
+    {
+        narrationList.Clear(); // 리스트 초기화 후 새로 담기
+
+        string csvText = rawText.Replace("\r\n", "\n");
         string[] lines = csvText.Split('\n');
         string pattern = @",(?=(?:[^""]*""[^""]*"")*[^""]*$)";
 
@@ -26,7 +61,7 @@ public class NarrationManager : MonoBehaviour
             if (string.IsNullOrWhiteSpace(lines[i])) continue;
             string[] fields = Regex.Split(lines[i], pattern);
 
-            if (fields.Length < 6) continue; // 컬럼이 6개인지 확인
+            if (fields.Length < 6) continue;
 
             try
             {
@@ -41,13 +76,13 @@ public class NarrationManager : MonoBehaviour
                     cleanText = cleanText.Substring(1, cleanText.Length - 2);
                 data.Text = cleanText.Replace("\"\"", "\"").Replace("\\n", "\n");
 
-                // 추가: Delay 컬럼 읽기
                 data.Delay = float.Parse(fields[5].Trim());
 
                 narrationList.Add(data);
             }
             catch { continue; }
         }
+        Debug.Log($"파싱 완료: {narrationList.Count}개의 문장을 로드했습니다.");
     }
 
     public void StartNarration(int chapter, string type, int stage)
@@ -69,18 +104,15 @@ public class NarrationManager : MonoBehaviour
         for (int i = 0; i < lines.Count; i++)
         {
             narrationText.text = lines[i].Text;
-
-            // 마지막 문장이 아닐 때만 해당 대사의 Delay만큼 대기
             if (i < lines.Count - 1)
             {
-                // 각 대사 데이터에 저장된 개별 Delay 값을 사용합니다.
                 yield return new WaitForSeconds(lines[i].Delay);
             }
             else
             {
-                // 마지막 문장은 고정
                 yield break;
             }
         }
     }
+
 }
