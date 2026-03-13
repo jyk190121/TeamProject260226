@@ -93,7 +93,12 @@ public class ToolBarController : MonoBehaviour
                         return;
                     }
 
-                  
+                    if (_currentHeldColor == 7)
+                    {
+                        Debug.Log("<color=red>색이 너무 탁해져서(검정) 칠할 수 없습니다!</color>");
+                        return;
+                    }
+
 
                     itemManager.UpdateItemColor(targetData.id, _currentHeldColor);
                     Debug.Log($"<color=yellow>[Paint]</color> {targetData.id}에 색상 적용");

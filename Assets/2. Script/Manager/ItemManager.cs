@@ -71,10 +71,8 @@ public class ItemManager : MonoBehaviour
 
     private void ApplyTypeLogic(GameObject obj, Item data, int colorIndex)
     {
-        ColorManager colorMgr = Object.FindFirstObjectByType<ColorManager>();
-        if (colorMgr == null) return;
-
-        Color targetColor = colorMgr.GetColor(colorIndex);
+        
+        Color targetColor = ColorManager.GetColor(colorIndex);
         Image uiImage = obj.GetComponentInChildren<Image>(true);
         if (uiImage != null) uiImage.color = targetColor;
     }
