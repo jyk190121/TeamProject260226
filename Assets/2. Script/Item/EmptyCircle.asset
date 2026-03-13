@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Item
   id: 111
   locationID: Main
+  chapterIndex: 1
   stageIndex: 1
   oriPos: {x: 1000, y: 600}
   originColor: 0
