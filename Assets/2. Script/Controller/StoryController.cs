@@ -20,20 +20,50 @@ public class StoryController : MonoBehaviour
     LayoutGroup layoutGroup;
     //int originalTopPadding;
 
+    // 서브 스토리가 생성 대기 중인지 확인하는 플래그 (true : 생성)
+    [SerializeField] bool _isPendingSubStory = true;
+
+    void OnEnable()
+    {
+        // 이제 StageManager를 직접 참조하지 않고 이벤트만 수신합니다.
+        StageManager.OnStageCleared += HandleStageCleared;
+    }
+
+    void OnDisable()
+    {
+        StageManager.OnStageCleared -= HandleStageCleared;
+    }
+
+    private void HandleStageCleared()
+    {
+        Debug.Log("<color=yellow>스테이지 클리어 감지: 서브 스토리 예약</color>");
+        SetPendingSubStory(true);
+    }
+
     void Awake()
     {
         layoutGroup = contentParent.GetComponent<LayoutGroup>();
         //if (layoutGroup != null) originalTopPadding = layoutGroup.padding.left;
     }
 
+    // 스테이지 클리어 시 호출하여 생성 예약
+    public void SetPendingSubStory(bool state) => _isPendingSubStory = state;
 
-    void Update()
+    // 실제로 생성을 시작하는 함수
+    public void TriggerSubStoryGeneration()
     {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame == true)
-        {
-            StartCoroutine(StartSequence());
+        // 예약된 게 없으면 나감
+        if (!_isPendingSubStory) return;
 
-        }
+        //StartCoroutine(StartSequence());
+        //_isPendingSubStory = false;
+
+        // 현재 스테이지 번호를 가져와서 이름에 활용할 수 있습니다.
+        int currentStage = SaveManager.Instance.Load().lastUnlockedStage;
+        //string storyName = $"{currentStage}장의 기록";
+
+        StartCoroutine(StartSequence());
+        _isPendingSubStory = false;
     }
 
     private IEnumerator StartSequence()

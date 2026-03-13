@@ -251,7 +251,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 504a29e8e2c31a6439280f0f484dca64, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2137965aee6008945a66afcbdcdea25c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -923,7 +923,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9a6d139a49e62f24ab11dc345125b834, type: 2}
   - {fileID: 11400000, guid: d2c0a2bfb001c294f9700c1ad95c2f25, type: 2}
   - {fileID: 11400000, guid: 4b4cb25ba3b0a8b4db17253ec02aa4e1, type: 2}
-  itemParent: {fileID: 840147849}
+  itemParent: {fileID: 882934216}
 --- !u!114 &248996478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2970,6 +2970,41 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6430150521446280364, guid: 00866d60c5fb1724996829ce2e66a763, type: 3}
   m_PrefabInstance: {fileID: 6884744199645819852}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &882934215
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 882934216}
+  m_Layer: 5
+  m_Name: ItemController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &882934216
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 882934215}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1655490827}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &897060935
 GameObject:
   m_ObjectHideFlags: 0
@@ -3221,6 +3256,7 @@ MonoBehaviour:
   - {fileID: 868409365}
   - {fileID: 1106314159}
   toolBar: {fileID: 0}
+  storyController: {fileID: 1777644968}
 --- !u!1 &1032846423
 GameObject:
   m_ObjectHideFlags: 0
@@ -4771,6 +4807,7 @@ RectTransform:
   - {fileID: 99997717}
   - {fileID: 1703893710}
   - {fileID: 116708044}
+  - {fileID: 882934216}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -5338,6 +5375,7 @@ MonoBehaviour:
   startPosition: {x: 775, y: -1000}
   finalTargetPos: {x: 775, y: 525}
   animationDuration: 1
+  _isPendingSubStory: 1
 --- !u!1 &1821903169
 GameObject:
   m_ObjectHideFlags: 0

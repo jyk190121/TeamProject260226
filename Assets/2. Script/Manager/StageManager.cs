@@ -8,6 +8,9 @@ public class StageManager : MonoBehaviour
     public int totalStage = 6;
     private int currentStageIndex = 1;
 
+    // 스테이지 클리어 시 발생하는 이벤트
+    public static System.Action OnStageCleared;
+
     void Start()
     {
         // 스테이지 값 받아오기 (SaveManager)
@@ -48,6 +51,9 @@ public class StageManager : MonoBehaviour
         data.lastUnlockedStage = currentStageIndex;
         data.itemPositions.Clear(); // 다음 스테이지는 초기값으로 시작하도록 비움
 
+        // "나 스테이지 깼어!"라고 방송함
+        OnStageCleared?.Invoke();
+
         // JSON 저장
         SaveManager.Instance.Save(data);
 
@@ -62,6 +68,8 @@ public class StageManager : MonoBehaviour
         {
             print("모든 스테이지 클리어!");
         }
+
+
     }
 
     // 스테이지 시작 시 
