@@ -1,15 +1,32 @@
-using NUnit.Framework.Interfaces;
+using NUnit.Framework;
 using UnityEngine;
-
 
 public class StageManager : MonoBehaviour
 {
-    // 총 스테이지
-    public int totalStage = 6;
-    private int currentStageIndex = 1;
+    // 메인챕터 장수
+    public int totalChapter = 6;
+    // 현재 플레이중인 챕터
+    int currentChapterIndex = 1;
+
+    // 현재 플레이중인 스테이지
+    int currentStage = 1;
 
     // 스테이지 클리어 시 발생하는 이벤트
-    public static System.Action OnStageCleared;
+    public static System.Action OnChapterCleared;
+    public static StageManager Instance { get; private set; }
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);                      // 이 객체를 씬이 바뀌어도 보존
+        }
+        else
+        {
+            Destroy(gameObject);                                // 중복 생성된 객체는 제거
+        }
+    }
 
     void Start()
     {
@@ -17,10 +34,11 @@ public class StageManager : MonoBehaviour
 
         // 저장된 데이터 로드
         SaveData data = SaveManager.Instance.Load();
-        currentStageIndex = data.lastUnlockedStage;
+        currentChapterIndex = data.lastUnlockedChapter;
+        currentStage = data.UnlockedStage;
 
         // 로드된 스테이지 시작
-        StartStage(currentStageIndex);
+        StartStage(currentChapterIndex, currentStage);
     }
 
     public void ClearStage()
@@ -48,41 +66,44 @@ public class StageManager : MonoBehaviour
         //}
 
         SaveData data = new SaveData();
-        data.lastUnlockedStage = currentStageIndex;
+        data.lastUnlockedChapter = currentChapterIndex;
+
         data.itemPositions.Clear(); // 다음 스테이지는 초기값으로 시작하도록 비움
 
-        // "나 스테이지 깼어!"라고 방송함
-        OnStageCleared?.Invoke();
+        // "나 챕터 깼어!"라고 방송함
+        OnChapterCleared?.Invoke();
 
         // JSON 저장
         SaveManager.Instance.Save(data);
 
-        // 다음 스테이지 진행
-        currentStageIndex++;
+        // 다음 챕터 진행
+        currentChapterIndex++;
 
-        if (currentStageIndex < totalStage)
+        // 스테이지 초기화
+        currentStage = 1;
+
+        if (currentChapterIndex < totalChapter)
         {
-            StartStage(currentStageIndex);
+            StartStage(currentChapterIndex, currentStage);
         }
         else
         {
-            print("모든 스테이지 클리어!");
+            print("모든 챕터 클리어!");
         }
-
-
     }
 
     // 스테이지 시작 시 
-    public void StartStage(int index)
+    public void StartStage(int main, int sub)
     {
-        currentStageIndex = index;
+        currentChapterIndex = main;
+        currentStage = sub;
 
         // 기존 존재하는 아이템 파괴
         ItemManager.Instance.ClearAllItems();
 
-        ItemManager.Instance.SpawnItem(currentStageIndex);
+        ItemManager.Instance.SpawnItem(currentChapterIndex);
 
-        print($"{currentStageIndex} 시작됨");
+        print($"{currentChapterIndex} 시작됨");
     }
 
     // 스테이지 리셋
@@ -95,7 +116,17 @@ public class StageManager : MonoBehaviour
         // SO들의 changePos도 초기화
         foreach (Item item in ItemManager.Instance.itemData) item.changePos = item.oriPos;
 
-        // 1스테이지부터 다시 시작
-        StartStage(1);
+        // 1챕터 1스테이지부터 다시 시작
+        StartStage(1, 1);
+    }
+
+    public int CurrentStage()
+    {
+        return currentStage;
+    }
+
+    public int CurrentChapter()
+    {
+        return currentChapterIndex;
     }
 }

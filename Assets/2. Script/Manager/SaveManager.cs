@@ -5,7 +5,8 @@ using UnityEngine;
 [System.Serializable]
 public class SaveData
 {
-    public int lastUnlockedStage = 1; // 마지막으로 도달한 스테이지
+    public int lastUnlockedChapter = 1; // 마지막으로 도달한 챕터 (메인)
+    public int UnlockedStage = 1;       // 플레이중인 스테이지 (서브)
     public List<ItemSaveInfo> itemPositions = new List<ItemSaveInfo>();
 }
 

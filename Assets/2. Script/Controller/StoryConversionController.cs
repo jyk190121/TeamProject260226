@@ -23,9 +23,12 @@ public class StoryConversionController : MonoBehaviour
     public ToolBarController toolBar;
     public StoryController storyController;
 
+    // 메인스토리를 진입한지 체크
+    bool enterStory = false;
+
     void Start()
     {
-        MainStorySelect();
+        ExitStory();
 
         toolBar = FindAnyObjectByType<ToolBarController>();
         storyController = FindAnyObjectByType<StoryController>();
@@ -71,6 +74,7 @@ public class StoryConversionController : MonoBehaviour
 
     public void MainStorySelect()
     {
+        enterStory = true;
         stagePanel.SetActive(true);
         mainStoryPanel.SetActive(true);
         subStoryPanel.SetActive(false);
@@ -118,7 +122,7 @@ public class StoryConversionController : MonoBehaviour
             ItemManager.Instance.UpdateStageVisibility("Library");
         }
 
-        if (storyController != null) storyController.TriggerSubStoryGeneration();
+        if (storyController != null && enterStory) storyController.TriggerSubStoryGeneration();
     }
 
     void MouseHover(string space)

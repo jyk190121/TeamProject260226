@@ -21,17 +21,17 @@ public class StoryController : MonoBehaviour
     //int originalTopPadding;
 
     // 서브 스토리가 생성 대기 중인지 확인하는 플래그 (true : 생성)
-    [SerializeField] bool _isPendingSubStory = true;
+    [SerializeField] bool _isPendingSubStory = false;
 
     void OnEnable()
     {
         // 이제 StageManager를 직접 참조하지 않고 이벤트만 수신합니다.
-        StageManager.OnStageCleared += HandleStageCleared;
+        StageManager.OnChapterCleared += HandleStageCleared;
     }
 
     void OnDisable()
     {
-        StageManager.OnStageCleared -= HandleStageCleared;
+        StageManager.OnChapterCleared -= HandleStageCleared;
     }
 
     private void HandleStageCleared()
@@ -59,7 +59,7 @@ public class StoryController : MonoBehaviour
         //_isPendingSubStory = false;
 
         // 현재 스테이지 번호를 가져와서 이름에 활용할 수 있습니다.
-        int currentStage = SaveManager.Instance.Load().lastUnlockedStage;
+        int currentStage = SaveManager.Instance.Load().lastUnlockedChapter;
         //string storyName = $"{currentStage}장의 기록";
 
         StartCoroutine(StartSequence());
