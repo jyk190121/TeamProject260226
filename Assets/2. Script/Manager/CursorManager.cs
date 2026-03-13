@@ -26,7 +26,6 @@ public class CursorManager : MonoBehaviour
     {
         public CursorState state;
         public Texture2D texture;
-        public Vector2 hotspot; // 커서의 어느 지점이 클릭 기준점인지 (예: 스포이드 끝)
     }
 
     [Header("커서 데이터 리스트")]
@@ -76,7 +75,7 @@ public class CursorManager : MonoBehaviour
 
             // 유니티 API를 사용하여 커서 변경
             // CursorMode.Auto는 시스템에 따라 하드웨어/소프트웨어 커서를 자동 선택합니다.
-            Cursor.SetCursor(data.texture, data.hotspot, CursorMode.Auto);
+            Cursor.SetCursor(data.texture, Vector2.zero, CursorMode.Auto);
 
             currentState = newState;
         }

@@ -129,7 +129,6 @@ public class StartController : MonoBehaviour
     private void OnClickStart()
     {
         print("게임 시작 로직 실행");
-        CursorManager.Instance.ChangeCursor(CursorState.Loading);
 
         if (SaveManager.Instance.HasSaveData())
         {
@@ -152,12 +151,14 @@ public class StartController : MonoBehaviour
 
     IEnumerator StartNewGame()
     {
+        CursorManager.Instance.ChangeCursor(CursorState.Loading);
+
         SaveManager.Instance.DeleteSaveFile(); // 기존 데이터 삭제
         print("새 게임 시작");
         
         
         yield return new WaitForSeconds(2f);
-        GameSceneManager.Instance.LoadScene("GameScene_Test1");
+        GameSceneManager.Instance.LoadScene("GameScene_KJY");
         CursorManager.Instance.ChangeCursor(CursorState.Normal);
     }
 
@@ -168,7 +169,7 @@ public class StartController : MonoBehaviour
         print($"이어하기 로직 실행: 스테이지 {data.lastUnlockedStage}");
 
         // 로드된 데이터를 GameScene에 전달하는 로직 필요
-        GameSceneManager.Instance.LoadScene("GameScene_Test1");
+        GameSceneManager.Instance.LoadScene("GameScene_KJY");
     }
 
     private void OnClickSetting()
