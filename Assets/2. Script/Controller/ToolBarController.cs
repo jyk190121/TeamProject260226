@@ -52,6 +52,7 @@ public class ToolBarController : MonoBehaviour
         bool isRightDown = Mouse.current.rightButton.wasPressedThisFrame;
         Vector2 mousePos = Mouse.current.position.ReadValue();
 
+
         if (_isHoldingItem && _currentMovingItem != null)
         {
             if (Mouse.current.leftButton.isPressed) MoveItemWithMouse(mousePos);
@@ -64,6 +65,7 @@ public class ToolBarController : MonoBehaviour
 
         if (_selectedToolIndex == 2 && isRightDown) ClearBucket();
     }
+
 
     private void ExecuteToolAction(Vector2 mousePos)
     {
@@ -85,6 +87,15 @@ public class ToolBarController : MonoBehaviour
             case 2: // 페인트 통
                 if (targetData != null && inStorage)
                 {
+                    //페인트 통이 비어있는 경우 (흰색)
+                    if (_currentHeldColor == 0)
+                    {
+                        Debug.Log("<color=white>통이 비어있어 색을 칠할 수 없습니다!</color>");
+                        return;
+                    }
+
+                  
+
                     itemManager.UpdateItemColor(targetData.id, _currentHeldColor);
                     Debug.Log($"<color=yellow>[Paint]</color> {targetData.id}에 색상 적용");
                 }
@@ -293,7 +304,7 @@ public class ToolBarController : MonoBehaviour
         switch (index)
         {
             case 0:
-                CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
+                UpdateHandCursorState(Mouse.current.position.ReadValue());
                 break;
             case 1:
                 CursorManager.Instance.ChangeCursor(CursorState.Spoid);
@@ -312,13 +323,47 @@ public class ToolBarController : MonoBehaviour
     {
         switch (_selectedToolIndex)
         {
-            case 0: return CursorState.HandOpen;
+            case 0:
+                {// 1. 클릭(드래그) 중이면 무조건 쥔 손
+                    if (Mouse.current.leftButton.isPressed) return CursorState.HandClosed;
+
+                    // 2. 마우스 아래 아이템이 A타입이면 반 쥔 손
+                    // (주의: 여기서 마우스 위치는 Input.mousePosition 혹은 Mouse.current 사용)
+                    Item hoverItem = GetItemAtMouse(Mouse.current.position.ReadValue(), out _);
+                    if (hoverItem != null && hoverItem.type == ItemType.A) return CursorState.HandHalf;
+
+                    // 3. 그 외에는 펴진 손
+                    return CursorState.HandOpen;
+                }
             case 1: return CursorState.Spoid;
             case 2: return CursorState.Paint;
             case 3: return CursorState.Glasses;
             default: return CursorState.Normal;
         }
     }
+    private void UpdateHandCursorState(Vector2 mousePos)
+    {
+        // 1. 클릭 중 -> 완전히 쥔 손
+        if (Mouse.current.leftButton.isPressed)
+        {
+            CursorManager.Instance.ChangeCursor(CursorState.HandClosed);
+            return;
+        }
+
+        // 2. A타입 아이템 오버 -> 반 쥔 손
+        Item hoverItem = GetItemAtMouse(mousePos, out _);
+        if (hoverItem != null && hoverItem.type == ItemType.A)
+        {
+            CursorManager.Instance.ChangeCursor(CursorState.HandHalf);
+        }
+        // 3. 평상시 -> 펴진 손
+        else
+        {
+            CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
+        }
+    }
+
+
 
     private void HandleNumericInput() { if (Keyboard.current == null) return; for (int i = 0; i < 5; i++) if (Keyboard.current[Key.Digit1 + i].wasPressedThisFrame) SelectTool(i); }
 }
