@@ -44,5 +44,7 @@ public class AnswerZone : MonoBehaviour
 
         Debug.Log($"<color=cyan>[정답]</color> ID {targetID} 매칭 성공! 기믹 해결.");
         onCorrect?.Invoke();
+
+        StageManager.Instance.ClearStage();
     }
 }
