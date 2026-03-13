@@ -9,10 +9,14 @@ public class ItemManager : MonoBehaviour
     [Header("모든 스테이지 아이템 데이터")]
     public List<Item> itemData = new List<Item>();
 
-    [Header("UI 부모 설정")]
-    public Transform itemParent; // [필수] Canvas 내부의 패널 연결
+    [Header("UI 부모 설정 (단일 대기실)")]
+    public Transform itemParent; // Canvas 내부의 Pnl_Item 연결
 
+    // 생성된 아이템들을 추적하는 딕셔너리
     private Dictionary<string, GameObject> spawnedItems = new Dictionary<string, GameObject>();
+
+    // 현재 카메라가 비추고 있는 무대 이름 (기본값: Main)
+    private string _currentLocation = "Main";
 
     private void Awake()
     {
@@ -20,9 +24,16 @@ public class ItemManager : MonoBehaviour
         else { Destroy(gameObject); }
     }
 
+    // ---------------------------------------------------
+    // [기능 1] 스테이지 시작 (아이템 일괄 생성)
+    // ---------------------------------------------------
     public void SpawnItem(int stageIndex)
     {
         if (stageIndex <= 0) return;
+
+        // 이전 스테이지 찌꺼기가 있다면 확실하게 밀어버림 (스테이지 전환 대비)
+        ClearAllItems();
+
         SaveData savedData = SaveManager.Instance.Load();
 
         foreach (Item item in itemData)
@@ -31,33 +42,29 @@ public class ItemManager : MonoBehaviour
             {
                 var savedInfo = savedData.itemPositions?.Find(x => x.itemId == item.id);
 
-                // 1. 위치: 세이브가 있으면 세이브값, 없으면 SO의 oriPos
                 Vector2 spawnPos = (savedInfo != null) ? savedInfo.savedPos : item.oriPos;
-
-                // 2. 색상: 세이브가 있으면 세이브값, 없으면 SO의 originColor
                 int spawnColor = (savedInfo != null) ? savedInfo.savedColor : item.originColor;
 
-                item.color = spawnColor; // 인게임 데이터 동기화
+                // [참고] SaveInfo에 savedState가 있다면 여기서 불러옵니다. 없다면 Field로 초기화.
+                item.currentState = ItemState.Field;
+                item.color = spawnColor;
 
                 CreateItemObject(item, spawnPos, spawnColor);
             }
         }
+
+        // 아이템이 다 깔리면 현재 화면(Location)에 맞춰서 가시성 1차 필터링
+        UpdateStageVisibility(_currentLocation);
     }
 
     private void CreateItemObject(Item data, Vector2 pos, int colorIndex)
     {
         if (data.prefab == null) return;
 
-        // 1. [핵심] 부모를 지정해서 일단 생성만 합니다. (Instantiate에서 위치 강제 배정 금지)
         GameObject newItem = Instantiate(data.prefab, itemParent);
         newItem.name = data.id;
-
-        // 2. [최초 좌표 세팅 핵심]
-        // Overlay 캔버스에서는 transform.position이 화면의 픽셀 좌표와 일치합니다.
-        // ToolBarController의 마우스 드롭 로직과 동일하게 transform.position에 직접 대입합니다.
         newItem.transform.position = pos;
 
-        // 3. 색상 적용
         ApplyTypeLogic(newItem, data, colorIndex);
 
         if (!spawnedItems.ContainsKey(data.id))
@@ -70,12 +77,54 @@ public class ItemManager : MonoBehaviour
         if (colorMgr == null) return;
 
         Color targetColor = colorMgr.GetColor(colorIndex);
-
-        // 부모/자식 어디에 있든 Image 컴포넌트를 찾아 색상 적용
         Image uiImage = obj.GetComponentInChildren<Image>(true);
-        if (uiImage != null)
+        if (uiImage != null) uiImage.color = targetColor;
+    }
+
+    // ---------------------------------------------------
+    // [기능 2] 무대 조명 켜기/끄기 (핵심 가시성 제어)
+    // ---------------------------------------------------
+    public void UpdateStageVisibility(string newLocation)
+    {
+        _currentLocation = newLocation; // 현재 무대 이름 갱신
+
+        foreach (var entry in spawnedItems)
         {
-            uiImage.color = targetColor;
+            string id = entry.Key;
+            GameObject obj = entry.Value;
+            Item data = GetItemDataById(id);
+
+            if (data == null || obj == null) continue;
+
+            // [우선순위 필터링]
+            if (data.currentState == ItemState.Storage || data.currentState == ItemState.Used)
+            {
+                // 1순위: 보관함(Storage)에 있거나 정답으로 사용(Used)되었다면 무조건 켜둠
+                obj.SetActive(true);
+            }
+            else // 2순위: 바닥(Field)에 있다면 출신지(locationID) 검사
+            {
+                bool isMyStage = (data.locationID == _currentLocation);
+                obj.SetActive(isMyStage);
+            }
+        }
+        Debug.Log($"<color=green>[Visibility]</color> '{_currentLocation}' 화면 기준으로 아이템 필터링 완료");
+    }
+
+    // ---------------------------------------------------
+    // [기능 3] 데이터 갱신 (상태, 위치, 색상)
+    // ---------------------------------------------------
+    public void UpdateItemStateAndPosition(string itemId, ItemState newState, Vector2 newPos)
+    {
+        Item data = GetItemDataById(itemId);
+        if (data != null)
+        {
+            data.currentState = newState;
+            data.changePos = newPos;
+            ChangeItemPos(itemId, newPos);
+
+            // 상태가 변했으니 화면에 즉시 반영 (예: 바닥->보관함 이동 시)
+            UpdateStageVisibility(_currentLocation);
         }
     }
 
@@ -98,13 +147,15 @@ public class ItemManager : MonoBehaviour
         if (data != null) { data.changePos = newPos; ChangeItemPos(itemId, newPos); }
     }
 
+    // ---------------------------------------------------
+    // [기능 4] 세이브 및 스테이지 완전 정리
+    // ---------------------------------------------------
     public void ChangeItemPos(string itemId, Vector2 newPos)
     {
         SaveData data = SaveManager.Instance.Load();
         if (data.itemPositions == null) data.itemPositions = new List<ItemSaveInfo>();
         data.itemPositions.Clear();
 
-        // 화면에 있는 모든 아이템의 '현재 픽셀 좌표(transform.position)'를 저장합니다.
         foreach (var entry in spawnedItems)
         {
             string id = entry.Key;
@@ -119,5 +170,15 @@ public class ItemManager : MonoBehaviour
     }
 
     public Item GetItemDataById(string searchId) => itemData.Find(item => item.id == searchId);
-    public void ClearAllItems() { foreach (var item in spawnedItems.Values) if (item != null) Destroy(item); spawnedItems.Clear(); }
+
+    // [핵심] 스테이지가 완전히 끝날 때 호출하여 찌꺼기를 날려버리는 함수
+    public void ClearAllItems()
+    {
+        foreach (var item in spawnedItems.Values)
+        {
+            if (item != null) Destroy(item);
+        }
+        spawnedItems.Clear();
+        Debug.Log("<color=red>[System]</color> 이전 스테이지 아이템 데이터 완전 파괴 완료.");
+    }
 }

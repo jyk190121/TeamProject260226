@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: Apple
   m_EditorClassIdentifier: Assembly-CSharp::Item
   id: Item1
+  locationID: Main
   stageIndex: 1
   oriPos: {x: 25, y: 20}
   originColor: 0
   type: 0
   prefab: {fileID: 5815863799546554293, guid: 00866d60c5fb1724996829ce2e66a763, type: 3}
+  currentState: 0
   changePos: {x: 1632.6129, y: 965.4224}
   color: 0
-  isGround: 0
