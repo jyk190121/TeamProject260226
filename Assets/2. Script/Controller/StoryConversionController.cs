@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -19,20 +20,25 @@ public class StoryConversionController : MonoBehaviour
 
     public Button[] exitBtns = new Button[2];
 
-
+    public ToolBarController toolBar;
     void Start()
     {
         ExitStory();
+
+        toolBar = FindAnyObjectByType<ToolBarController>();
     }
 
     void Update()
     {
-        CheckWorldObjectHover();
-        //// stagePanel이 꺼져있을 때 (= 서재 상태일 때)만 레이캐스트 작동
-        //if (stagePanel != null && !stagePanel.activeSelf)
-        //{
-        //   CheckWorldObjectHover();
-        //}
+        // stagePanel이 꺼져있을 때 (= 서재 상태일 때)만 레이캐스트 작동
+        if (stagePanel != null && !stagePanel.activeSelf)
+        {
+            CheckWorldObjectHover();
+        }
+        else
+        {
+            NormalCursor();
+        }
     }
 
     void CheckWorldObjectHover()
@@ -55,7 +61,6 @@ public class StoryConversionController : MonoBehaviour
             GameObject hoveredObj = results[0].gameObject;
             int studyLayerIndex = LayerMask.NameToLayer("Study");
 
-            // [핵심] 만약 잡힌 UI가 'Study' 레이어가 아니라면 (예: 책, 아이템) HandOpen
             if (hoveredObj.layer != studyLayerIndex)
             {
                 targetState = CursorState.HandOpen;
@@ -135,5 +140,46 @@ public class StoryConversionController : MonoBehaviour
         //현재 위치 인식(Library)
         if (ItemManager.Instance != null)
             ItemManager.Instance.UpdateStageVisibility("Library");
+    }
+
+
+    void NormalCursor()
+    {
+        if (CursorManager.Instance == null) return;
+
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = Input.mousePosition;
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        // 기본값은 Normal
+        CursorState targetState = CursorState.Normal;
+
+        if (results.Count > 0)
+        {
+            GameObject hoveredObj = results[0].gameObject;
+            int studyLayerIndex = LayerMask.NameToLayer("Study");
+
+            // [수정 핵심] 'Study' 레이어가 아닌 곳(상호작용 가능 구역)에 마우스가 올라가면
+            if (hoveredObj.layer != studyLayerIndex)
+            {
+                // ToolBarController가 있다면 현재 도구 상태를 가져오고, 없으면 기본 HandOpen
+                if (toolBar != null)
+                {
+                    targetState = toolBar.GetCurrentToolCursorState();
+                }
+                else
+                {
+                    targetState = CursorState.HandOpen;
+                }
+            }
+        }
+
+        // 마우스 커서 적용 (중복 호출 방지 로직은 CursorManager 내부에 있으므로 안전)
+        if (CursorManager.Instance.GetCurrentState() != targetState)
+        {
+            CursorManager.Instance.ChangeCursor(targetState);
+        }
     }
 }

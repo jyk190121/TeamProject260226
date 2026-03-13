@@ -1398,6 +1398,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoomInTrigger
   targetZoomPanel: {fileID: 897060935}
+  zoomLocationID: Zoom_Desk
 --- !u!114 &370803564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3783,6 +3784,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoomOutTrigger
   myPanel: {fileID: 897060935}
+  returnLocationID: Sub
 --- !u!114 &897060938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4874,8 +4876,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 660, y: 1080}
+  m_AnchoredPosition: {x: 2.5, y: 0}
+  m_SizeDelta: {x: 475, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1297779704
 MonoBehaviour:
@@ -6139,7 +6141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1703893710
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7012,7 +7014,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1952577426}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f2082df65ab75a46986b800a2337d45, type: 3}
+  m_Script: {fileID: 11500000, guid: 9c54ad1aa754e1a4d8c534e5b9dd1e6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToolBarController_Empty
   itemManager: {fileID: 248996477}
@@ -7025,7 +7027,6 @@ MonoBehaviour:
   - {fileID: 790968228}
   - {fileID: 1320035093}
   - {fileID: 1821903171}
-  - {fileID: 0}
   bucketColorPreview: {fileID: 1320035094}
 --- !u!1 &2000995719
 GameObject:

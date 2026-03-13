@@ -1,8 +1,9 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using System.Collections.Generic;
+using UnityEngine.UI;
 using Key = UnityEngine.InputSystem.Key;
 
 public class ToolBarController_Empty : MonoBehaviour
@@ -26,6 +27,8 @@ public class ToolBarController_Empty : MonoBehaviour
     bool _isHoldingItem = false;
     int _selectedToolIndex = 0;
     int _currentHeldColor = 0;
+    bool _isZoomActive = false;
+
 
     Vector2 _originalPos;
     Vector3 _originalScale;
@@ -94,7 +97,42 @@ public class ToolBarController_Empty : MonoBehaviour
                     Debug.Log($"<color=white>[Eraser]</color> {targetData.id} 색상 초기화(0)");
                 }
                 break;
+
+            case 4: // [추가] 돋보기 (확대/축소)
+                    // 1. 진입(ZoomIn)이 있는지 먼저 체크
+                ZoomInTrigger zoomIn = GetUIComponentAtMouse<ZoomInTrigger>(mousePos);
+                if (zoomIn != null)
+                {
+                    //zoomIn.Execute(this);
+                    break;
+                }
+
+                // 2. 퇴장(ZoomOut)이 있는지 체크
+                ZoomOutTrigger zoomOut = GetUIComponentAtMouse<ZoomOutTrigger>(mousePos);
+                if (zoomOut != null)
+                {
+                    //zoomOut.Execute(this);
+                    break;
+                }
+                break;
         }
+    }
+
+    public void UpdateMagnifierCursor(bool isZoomed)
+    {
+        _isZoomActive = isZoomed;
+        // 나중에 여기서 커서 이미지를 교체하면 됩니다.
+    }
+
+    private T GetUIComponentAtMouse<T>(Vector2 mousePos) where T : Component
+    {
+        List<RaycastResult> results = GetUIElementsAtMouse(mousePos);
+        foreach (var r in results)
+        {
+            T component = r.gameObject.GetComponentInParent<T>();
+            if (component != null) return component;
+        }
+        return null;
     }
 
     private void ClearBucket() { _currentHeldColor = 0; UpdateBucketUI(); }
@@ -165,22 +203,48 @@ public class ToolBarController_Empty : MonoBehaviour
         }
     }
 
+    // [수정] 아이템을 놓는 로직에 상태(State) 갱신 추가
     private void TryPlaceItem(Vector2 mousePos)
     {
         if (_currentMovingItem == null) return;
 
+        // 다시 클릭 가능하게 복구 (성공 시 다시 꺼짐)
         SetUIRaycastTarget(_currentMovingItem, true);
+
+        // 1. 마우스 아래에 정답 구역(AnswerZone)이 있는지 확인
+        AnswerZone zone = GetUIComponentAtMouse<AnswerZone>(mousePos);
+        Item data = itemManager.GetItemDataById(_currentMovingItem.name.Replace("(Clone)", "").Trim());
+
+        if (zone != null)
+        {
+            // 2. 정답 구역이 있다면 숫자 ID와 색상 대조
+            if (zone.CheckMatch(data, _currentMovingItem))
+            {
+                // [참고] 정답 처리 시 상태를 'Used'로 바꾸는 것은 AnswerZone 스크립트 내부에서 처리하는 것이 좋습니다.
+                _currentMovingItem = null;
+                _isHoldingItem = false;
+                return;
+            }
+        }
+
+        // 3. 정답이 아니거나 정답 구역이 아니면 보관함(Storage) 구역인지 검사
         if (IsMouseOverStorage(mousePos))
         {
             string id = _currentMovingItem.name.Replace("(Clone)", "").Trim();
             _currentMovingItem.transform.localScale = _originalScale;
-            itemManager.UpdateItemPosition(id, _currentMovingItem.transform.position);
+
+            // [핵심 변경] 단순 위치 업데이트가 아닌, 상태(Storage)와 위치를 함께 업데이트합니다!
+            itemManager.UpdateItemStateAndPosition(id, ItemState.Storage, _currentMovingItem.transform.position);
+
+            Debug.Log($"<color=cyan>[상태 갱신]</color> {id} 아이템이 보관함(Storage)에 들어갔습니다.");
         }
         else
         {
+            // 4. 보관함도, 정답 구역도 아닌 허공에 놓았다면 원래 위치로 강제 복귀 (상태는 여전히 Field)
             _currentMovingItem.transform.position = _originalPos;
             _currentMovingItem.transform.localScale = _originalScale;
         }
+
         _currentMovingItem = null;
         _isHoldingItem = false;
     }
@@ -220,23 +284,42 @@ public class ToolBarController_Empty : MonoBehaviour
         if (index < 0 || index >= toolBtns.Length || toolBtns[index] == null) return;
 
         _selectedToolIndex = index;
-        ChangeCursorToButtonImage(toolBtns[index]);
+        ChangeCursorToButtonImage(index);
 
         Debug.Log($"<color=white><b>[Tool Switch]</b> {index + 1}번 도구로 변경되었습니다.</color>");
     }
 
-    public void ChangeCursorToButtonImage(Button clickedButton)
+    public void ChangeCursorToButtonImage(int index)
     {
-        Image btnImage = clickedButton.GetComponent<Image>();
-        if (btnImage != null && btnImage.sprite != null)
+        switch (index)
         {
-            Texture2D tex = btnImage.sprite.texture;
-            if (tex.isReadable) Cursor.SetCursor(tex, hotSpot, CursorMode.Auto);
+            case 0:
+                CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
+                break;
+            case 1:
+                CursorManager.Instance.ChangeCursor(CursorState.Spoid);
+                break;
+            case 2:
+                CursorManager.Instance.ChangeCursor(CursorState.Paint);
+                break;
+            case 3:
+                CursorManager.Instance.ChangeCursor(CursorState.Glasses);
+                break;
         }
 
-        CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
     }
 
+    public CursorState GetCurrentToolCursorState()
+    {
+        switch (_selectedToolIndex)
+        {
+            case 0: return CursorState.HandOpen;
+            case 1: return CursorState.Spoid;
+            case 2: return CursorState.Paint;
+            case 3: return CursorState.Glasses;
+            default: return CursorState.Normal;
+        }
+    }
 
     private void HandleNumericInput() { if (Keyboard.current == null) return; for (int i = 0; i < 5; i++) if (Keyboard.current[Key.Digit1 + i].wasPressedThisFrame) SelectTool(i); }
 }
