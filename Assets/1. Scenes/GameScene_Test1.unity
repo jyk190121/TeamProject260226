@@ -1747,6 +1747,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoomInTrigger
   targetZoomPanel: {fileID: 897060935}
+  zoomLocationID: Zoom_Desk
 --- !u!114 &370803564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4793,6 +4794,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoomOutTrigger
   myPanel: {fileID: 897060935}
+  returnLocationID: Sub
 --- !u!114 &897060938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5144,6 +5146,7 @@ MonoBehaviour:
   exitBtns:
   - {fileID: 868409365}
   - {fileID: 1106314159}
+  toolBar: {fileID: 0}
 --- !u!1 &1032846423
 GameObject:
   m_ObjectHideFlags: 0
