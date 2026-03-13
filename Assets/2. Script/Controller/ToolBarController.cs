@@ -9,7 +9,6 @@ public class ToolBarController : MonoBehaviour
 {
     [Header("매니저 연결")]
     public ItemManager itemManager;
-    public ColorManager colorManager;
 
     [Header("설정")]
     // 이제 아이템 잡을 때 레이어 이름에 의존하지 않으므로 더 안전합니다.
@@ -79,7 +78,7 @@ public class ToolBarController : MonoBehaviour
                 if (targetData != null)
                 {
                     if (_currentHeldColor == 0) _currentHeldColor = targetData.color;
-                    else _currentHeldColor = colorManager.MixColor(_currentHeldColor, targetData.color);
+                    else _currentHeldColor = ColorManager.MixColor(_currentHeldColor, targetData.color);
                     UpdateBucketUI();
                     Debug.Log($"<color=cyan>[Spoid]</color> 조색됨: {_currentHeldColor}");
                 }
@@ -146,7 +145,7 @@ public class ToolBarController : MonoBehaviour
     }
 
     private void ClearBucket() { _currentHeldColor = 0; UpdateBucketUI(); }
-    private void UpdateBucketUI() { if (bucketColorPreview != null) bucketColorPreview.color = colorManager.GetColor(_currentHeldColor); }
+    private void UpdateBucketUI() { if (bucketColorPreview != null) bucketColorPreview.color = ColorManager.GetColor(_currentHeldColor); }
 
     // ---------------------------------------------------
     // [기능] 마우스 포인터 아래의 아이템을 안전하게 찾는 로직

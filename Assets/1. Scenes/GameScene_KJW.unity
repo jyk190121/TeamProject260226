@@ -923,6 +923,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9a6d139a49e62f24ab11dc345125b834, type: 2}
   - {fileID: 11400000, guid: d2c0a2bfb001c294f9700c1ad95c2f25, type: 2}
   - {fileID: 11400000, guid: 4b4cb25ba3b0a8b4db17253ec02aa4e1, type: 2}
+  - {fileID: 11400000, guid: f8f061d3559ffb84c82e429662ce5dca, type: 2}
+  - {fileID: 11400000, guid: 8972c18596a7f4c46a3a795cf74a3d56, type: 2}
   itemParent: {fileID: 300093210}
 --- !u!114 &248996478
 MonoBehaviour:
@@ -936,7 +938,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79d68639be9f07c4f816dae93600c7c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageManager
-  totalStage: 5
+  totalChapter: 6
 --- !u!4 &248996480
 Transform:
   m_ObjectHideFlags: 0
@@ -3255,7 +3257,8 @@ MonoBehaviour:
   exitBtns:
   - {fileID: 868409365}
   - {fileID: 1106314159}
-  toolBar: {fileID: 0}
+  toolBar: {fileID: 1952577429}
+  storyController: {fileID: 1777644968}
 --- !u!1 &1032846423
 GameObject:
   m_ObjectHideFlags: 0
@@ -5374,6 +5377,7 @@ MonoBehaviour:
   startPosition: {x: 775, y: -1000}
   finalTargetPos: {x: 775, y: 525}
   animationDuration: 1
+  _isPendingSubStory: 0
 --- !u!1 &1821903169
 GameObject:
   m_ObjectHideFlags: 0

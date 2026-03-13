@@ -158,7 +158,7 @@ public class StartController : MonoBehaviour
         
         
         yield return new WaitForSeconds(2f);
-        GameSceneManager.Instance.LoadScene("GameScene_KJY");
+        GameSceneManager.Instance.LoadScene("GameScene_KJW");
         CursorManager.Instance.ChangeCursor(CursorState.Normal);
     }
 
@@ -169,7 +169,7 @@ public class StartController : MonoBehaviour
         print($"이어하기 로직 실행: 스테이지 {data.lastUnlockedChapter}");
 
         // 로드된 데이터를 GameScene에 전달하는 로직 필요
-        GameSceneManager.Instance.LoadScene("GameScene_KJY");
+        GameSceneManager.Instance.LoadScene("GameScene_KJW");
     }
 
     private void OnClickSetting()
