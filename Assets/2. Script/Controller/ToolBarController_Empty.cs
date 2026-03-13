@@ -233,7 +233,10 @@ public class ToolBarController_Empty : MonoBehaviour
             Texture2D tex = btnImage.sprite.texture;
             if (tex.isReadable) Cursor.SetCursor(tex, hotSpot, CursorMode.Auto);
         }
+
+        CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
     }
+
 
     private void HandleNumericInput() { if (Keyboard.current == null) return; for (int i = 0; i < 5; i++) if (Keyboard.current[Key.Digit1 + i].wasPressedThisFrame) SelectTool(i); }
 }
