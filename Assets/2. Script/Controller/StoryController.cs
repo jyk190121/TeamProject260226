@@ -18,12 +18,12 @@ public class StoryController : MonoBehaviour
     //public Vector2 startOffset = new Vector2(-Screen.width, -Screen.height); // 화면 왼쪽 밖 오프셋
 
     LayoutGroup layoutGroup;
-    int originalTopPadding;
+    //int originalTopPadding;
 
     void Awake()
     {
         layoutGroup = contentParent.GetComponent<LayoutGroup>();
-        if (layoutGroup != null) originalTopPadding = layoutGroup.padding.left;
+        //if (layoutGroup != null) originalTopPadding = layoutGroup.padding.left;
     }
 
 
@@ -107,9 +107,10 @@ public class StoryController : MonoBehaviour
         //LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
 
 
+        ///수정
         RectTransform rect = sub.GetComponent<RectTransform>();
 
-        // [1] CanvasGroup 체크 및 추가
+        // CanvasGroup 체크 및 추가
         CanvasGroup group = sub.GetComponent<CanvasGroup>();
         if (group == null)
         {
@@ -133,7 +134,7 @@ public class StoryController : MonoBehaviour
 
         RectTransform spacerRect = spacer.GetComponent<RectTransform>();
 
-        // [3] LayoutElement 추가 (LayoutGroup이 Spacer의 크기를 무시하지 않도록)
+        // LayoutElement 추가 (LayoutGroup이 Spacer의 크기를 무시하지 않도록)
         LayoutElement spacerLayout = spacer.AddComponent<LayoutElement>();
 
         // 초기 상태 설정
@@ -148,11 +149,9 @@ public class StoryController : MonoBehaviour
 
             float currentWidth = Mathf.Lerp(0, targetWidth, t);
 
-            // 둘 다 적용해야 레이아웃 그룹이 정확히 반응합니다.
             spacerRect.sizeDelta = new Vector2(currentWidth, 0);
             le.preferredWidth = currentWidth;
 
-            // 애니메이션 (날아오기)
             rect.anchoredPosition = Vector2.Lerp(startPosition, finalTargetPos, t);
             group.alpha = t;
 
@@ -160,7 +159,7 @@ public class StoryController : MonoBehaviour
             yield return null;
         }
 
-        // [4] 최종 정착 부분 수정
+        // 최종 정착 부분 수정
         Destroy(spacer);
 
         // 부모를 옮기되, 현재 월드 위치를 유지하도록 true 설정
@@ -169,10 +168,6 @@ public class StoryController : MonoBehaviour
 
         // 레이아웃이 즉시 계산되도록 호출
         LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
-
-        // 이제 레이아웃이 잡은 위치로 부드럽게 넘어가도록 함
-        // 만약 여전히 튄다면 아래 한 줄은 주석 처리하거나 0 대신 여백값을 넣으세요.
-        // rect.anchoredPosition = Vector2.zero; 
 
         group.alpha = 1f;
     }

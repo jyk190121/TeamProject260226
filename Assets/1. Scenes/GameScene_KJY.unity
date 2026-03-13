@@ -3875,7 +3875,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
   m_Content: {fileID: 2107739570}
   m_Horizontal: 1
-  m_Vertical: 1
+  m_Vertical: 0
   m_MovementType: 1
   m_Elasticity: 0.1
   m_Inertia: 1
@@ -6463,9 +6463,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StoryController
   storyPrefab: {fileID: 5459140978688170202, guid: a11ef97ae853b3247bdde000b3494a07, type: 3}
   contentParent: {fileID: 2107739570}
-  startPosition: {x: 555, y: -1000}
-  finalTargetPos: {x: 555, y: 800}
-  animationDuration: 2
+  startPosition: {x: 720, y: -1000}
+  finalTargetPos: {x: 720, y: 525}
+  animationDuration: 1
 --- !u!1 &1812182743
 GameObject:
   m_ObjectHideFlags: 0
