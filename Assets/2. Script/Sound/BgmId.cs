@@ -4,6 +4,6 @@ public enum BgmId
 
     Title,
     MainStory1,
-    SubStory1,
+    Cinderella_Scene1,
 
 }
