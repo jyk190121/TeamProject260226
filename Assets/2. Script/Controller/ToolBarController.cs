@@ -89,15 +89,15 @@ public class ToolBarController : MonoBehaviour
                     Debug.Log($"<color=yellow>[Paint]</color> {targetData.id}에 색상 적용");
                 }
                 break;
-            case 3: // 지우개
-                if (targetData != null && inStorage)
-                {
-                    itemManager.UpdateItemColor(targetData.id, 0);
-                    Debug.Log($"<color=white>[Eraser]</color> {targetData.id} 색상 초기화(0)");
-                }
-                break;
+            //case 3: // 지우개
+            //    if (targetData != null && inStorage)
+            //    {
+            //        itemManager.UpdateItemColor(targetData.id, 0);
+            //        Debug.Log($"<color=white>[Eraser]</color> {targetData.id} 색상 초기화(0)");
+            //    }
+            //    break;
 
-            case 4: // [추가] 돋보기 (확대/축소)
+            case 3: // [추가] 돋보기 (확대/축소)
                     // 1. 진입(ZoomIn)이 있는지 먼저 체크
                 ZoomInTrigger zoomIn = GetUIComponentAtMouse<ZoomInTrigger>(mousePos);
                 if (zoomIn != null)
