@@ -2,17 +2,25 @@ using UnityEngine;
 
 public class ZoomOutTrigger : MonoBehaviour
 {
-    [Header("닫을 판넬 (자기 자신 연결)")]
+    [Header("끌 줌 패널 (자기 자신)")]
     public GameObject myPanel;
 
-    // controller를 인자로 받아 줌 상태를 업데이트합니다.
+    [Header("데이터 연동")]
+    [Tooltip("줌을 닫을 때 돌아갈 원래 화면의 소속 (예: Main 또는 Sub)")]
+    public string returnLocationID = "Sub";
+
+    // 클릭 시 실행되는 함수
     public void Execute(ToolBarController controller)
     {
         if (myPanel != null)
         {
+            // 1. 확대 패널을 끕니다.
             myPanel.SetActive(false);
-            controller.UpdateMagnifierCursor(false); // 줌 상태를 false로 변경
-            Debug.Log("<color=orange>[ZoomOut]</color> 확대 화면 꺼짐");
+            controller.UpdateMagnifierCursor(false);
+
+            // 2. [핵심] 매니저에게 "원래 방 조명 다시 켜!" 라고 지시합니다.
+            if (ItemManager.Instance != null)
+                ItemManager.Instance.UpdateStageVisibility(returnLocationID);
         }
     }
 }

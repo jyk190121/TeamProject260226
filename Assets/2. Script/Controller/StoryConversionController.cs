@@ -27,11 +27,12 @@ public class StoryConversionController : MonoBehaviour
 
     void Update()
     {
-        // stagePanel이 꺼져있을 때 (= 서재 상태일 때)만 레이캐스트 작동
-        if (stagePanel != null && !stagePanel.activeSelf)
-        {
-            CheckWorldObjectHover();
-        }
+        CheckWorldObjectHover();
+        //// stagePanel이 꺼져있을 때 (= 서재 상태일 때)만 레이캐스트 작동
+        //if (stagePanel != null && !stagePanel.activeSelf)
+        //{
+        //   CheckWorldObjectHover();
+        //}
     }
 
     void CheckWorldObjectHover()
@@ -98,6 +99,10 @@ public class StoryConversionController : MonoBehaviour
         subStoryPanel.SetActive(false);
         blockImg.SetActive(false);
         EnterStory();
+
+        //현재 위치 인식(Main)
+        if (ItemManager.Instance != null)
+            ItemManager.Instance.UpdateStageVisibility("Main");
     }
 
     public void SubStorySelect()
@@ -107,6 +112,10 @@ public class StoryConversionController : MonoBehaviour
         subStoryPanel.SetActive(true);
         blockImg.SetActive(false);
         EnterStory();
+
+        //현재 위치 인식(Sub)
+        if (ItemManager.Instance != null)
+            ItemManager.Instance.UpdateStageVisibility("Sub");
     }
 
     void EnterStory()
@@ -122,5 +131,9 @@ public class StoryConversionController : MonoBehaviour
     {
         stagePanel.SetActive(false);
         blockImg.SetActive(true);
+
+        //현재 위치 인식(Library)
+        if (ItemManager.Instance != null)
+            ItemManager.Instance.UpdateStageVisibility("Library");
     }
 }

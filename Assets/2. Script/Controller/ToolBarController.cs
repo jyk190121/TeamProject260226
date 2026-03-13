@@ -202,7 +202,7 @@ public class ToolBarController : MonoBehaviour
         }
     }
 
-    // [수정] 아이템을 놓는 로직에 정답 판정 추가
+    // [수정] 아이템을 놓는 로직에 상태(State) 갱신 추가
     private void TryPlaceItem(Vector2 mousePos)
     {
         if (_currentMovingItem == null) return;
@@ -210,34 +210,36 @@ public class ToolBarController : MonoBehaviour
         // 다시 클릭 가능하게 복구 (성공 시 다시 꺼짐)
         SetUIRaycastTarget(_currentMovingItem, true);
 
-        // [추가] 1. 마우스 아래에 정답 구역(AnswerZone)이 있는지 확인
+        // 1. 마우스 아래에 정답 구역(AnswerZone)이 있는지 확인
         AnswerZone zone = GetUIComponentAtMouse<AnswerZone>(mousePos);
         Item data = itemManager.GetItemDataById(_currentMovingItem.name.Replace("(Clone)", "").Trim());
 
         if (zone != null)
         {
-            // [추가] 2. 정답 구역이 있다면 숫자 ID와 색상 대조
+            // 2. 정답 구역이 있다면 숫자 ID와 색상 대조
             if (zone.CheckMatch(data, _currentMovingItem))
             {
-                // 정답이면 여기서 로직 종료 (아이템은 고정됨)
+                // [참고] 정답 처리 시 상태를 'Used'로 바꾸는 것은 AnswerZone 스크립트 내부에서 처리하는 것이 좋습니다.
                 _currentMovingItem = null;
                 _isHoldingItem = false;
                 return;
             }
         }
 
-        // 3. 정답이 아니거나 정답 구역이 아니면 기존 보관함 로직 수행
+        // 3. 정답이 아니거나 정답 구역이 아니면 보관함(Storage) 구역인지 검사
         if (IsMouseOverStorage(mousePos))
         {
             string id = _currentMovingItem.name.Replace("(Clone)", "").Trim();
             _currentMovingItem.transform.localScale = _originalScale;
-            itemManager.UpdateItemPosition(id, _currentMovingItem.transform.position);
 
-            // [참고] 보관함으로 부모 변경 로직이 필요하다면 여기서 수행
+            // [핵심 변경] 단순 위치 업데이트가 아닌, 상태(Storage)와 위치를 함께 업데이트합니다!
+            itemManager.UpdateItemStateAndPosition(id, ItemState.Storage, _currentMovingItem.transform.position);
+
+            Debug.Log($"<color=cyan>[상태 갱신]</color> {id} 아이템이 보관함(Storage)에 들어갔습니다.");
         }
         else
         {
-            // 원래 위치로 복귀
+            // 4. 보관함도, 정답 구역도 아닌 허공에 놓았다면 원래 위치로 강제 복귀 (상태는 여전히 Field)
             _currentMovingItem.transform.position = _originalPos;
             _currentMovingItem.transform.localScale = _originalScale;
         }
@@ -294,6 +296,7 @@ public class ToolBarController : MonoBehaviour
             Texture2D tex = btnImage.sprite.texture;
             if (tex.isReadable) Cursor.SetCursor(tex, hotSpot, CursorMode.Auto);
         }
+        
     }
 
     private void HandleNumericInput() { if (Keyboard.current == null) return; for (int i = 0; i < 5; i++) if (Keyboard.current[Key.Digit1 + i].wasPressedThisFrame) SelectTool(i); }

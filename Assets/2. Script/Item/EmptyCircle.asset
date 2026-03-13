@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: EmptyCircle
   m_EditorClassIdentifier: Assembly-CSharp::Item
   id: 111
+  locationID: Main
   stageIndex: 1
   oriPos: {x: 1000, y: 600}
   originColor: 0
   type: 0
   prefab: {fileID: 3030617414520634162, guid: 78580001f75d1c9498cdb37483d6022d, type: 3}
-  changePos: {x: 1547.7551, y: 723.45087}
-  color: 0
-  isGround: 0
+  changePos: {x: 1649.2107, y: 684.1353}
+  color: 2
