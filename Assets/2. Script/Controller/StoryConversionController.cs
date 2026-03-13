@@ -21,11 +21,17 @@ public class StoryConversionController : MonoBehaviour
     public Button[] exitBtns = new Button[2];
 
     public ToolBarController toolBar;
+    public StoryController storyController;
+
+    // 메인스토리를 진입한지 체크
+    bool enterStory = false;
+
     void Start()
     {
         ExitStory();
 
         toolBar = FindAnyObjectByType<ToolBarController>();
+        storyController = FindAnyObjectByType<StoryController>();
     }
 
     void Update()
@@ -33,44 +39,13 @@ public class StoryConversionController : MonoBehaviour
         // stagePanel이 꺼져있을 때 (= 서재 상태일 때)만 레이캐스트 작동
         if (stagePanel != null && !stagePanel.activeSelf)
         {
-            CheckWorldObjectHover();
+            //서재 체크용
+            MouseHover("study");
         }
         else
         {
-            NormalCursor();
-        }
-    }
-
-    void CheckWorldObjectHover()
-    {
-        if (CursorManager.Instance == null) return;
-
-        // 1. 마우스 위치에 있는 UI 요소를 탐색하기 위한 설정
-        PointerEventData eventData = new PointerEventData(EventSystem.current);
-        eventData.position = Input.mousePosition;
-
-        // 2. 마우스 아래에 있는 모든 UI를 담을 리스트
-        List<RaycastResult> results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, results);
-
-        CursorState targetState = CursorState.Normal;
-
-        if (results.Count > 0)
-        {
-            // 첫 번째로 잡힌 UI의 레이어 확인
-            GameObject hoveredObj = results[0].gameObject;
-            int studyLayerIndex = LayerMask.NameToLayer("Study");
-
-            if (hoveredObj.layer != studyLayerIndex)
-            {
-                targetState = CursorState.HandOpen;
-            }
-        }
-
-        // 마우스 커서 적용
-        if (CursorManager.Instance.GetCurrentState() != targetState)
-        {
-            CursorManager.Instance.ChangeCursor(targetState);
+            //스토리 체크용
+            MouseHover("story");
         }
     }
 
@@ -99,6 +74,7 @@ public class StoryConversionController : MonoBehaviour
 
     public void MainStorySelect()
     {
+        enterStory = true;
         stagePanel.SetActive(true);
         mainStoryPanel.SetActive(true);
         subStoryPanel.SetActive(false);
@@ -134,16 +110,22 @@ public class StoryConversionController : MonoBehaviour
     // 메인 or 서브 스토리에서 나가기 버튼 선택 시 (서재가 Default)
     public void ExitStory()
     {
+        // 메인 스토리에서 나가는 시점인지 확인 (mainStoryPanel이 켜져있었는지 체크)
+        bool wasInMainStory = mainStoryPanel.activeSelf;
+
         stagePanel.SetActive(false);
         blockImg.SetActive(true);
 
         //현재 위치 인식(Library)
         if (ItemManager.Instance != null)
+        {
             ItemManager.Instance.UpdateStageVisibility("Library");
+        }
+
+        if (storyController != null && enterStory) storyController.TriggerSubStoryGeneration();
     }
 
-
-    void NormalCursor()
+    void MouseHover(string space)
     {
         if (CursorManager.Instance == null) return;
 
@@ -153,7 +135,6 @@ public class StoryConversionController : MonoBehaviour
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
-        // 기본값은 Normal
         CursorState targetState = CursorState.Normal;
 
         if (results.Count > 0)
@@ -161,25 +142,27 @@ public class StoryConversionController : MonoBehaviour
             GameObject hoveredObj = results[0].gameObject;
             int studyLayerIndex = LayerMask.NameToLayer("Study");
 
-            // [수정 핵심] 'Study' 레이어가 아닌 곳(상호작용 가능 구역)에 마우스가 올라가면
+            // 상호작용 가능한 구역(Study 레이어가 아닌 곳)에 마우스가 올라갔을 때
             if (hoveredObj.layer != studyLayerIndex)
             {
-                // ToolBarController가 있다면 현재 도구 상태를 가져오고, 없으면 기본 HandOpen
-                if (toolBar != null)
+                if (space.Equals("study"))
                 {
-                    targetState = toolBar.GetCurrentToolCursorState();
-                }
-                else
-                {
+                    // [서재] 무조건 손모양 커서
                     targetState = CursorState.HandOpen;
+                }
+                else if (space.Equals("story"))
+                {
+                    // [스토리] 툴바 상태에 따른 커서, 툴바가 없으면 기본 손모양
+                    targetState = (toolBar != null) ? toolBar.GetCurrentToolCursorState() : CursorState.HandOpen;
                 }
             }
         }
 
-        // 마우스 커서 적용 (중복 호출 방지 로직은 CursorManager 내부에 있으므로 안전)
+        // 커서 상태 변경
         if (CursorManager.Instance.GetCurrentState() != targetState)
         {
             CursorManager.Instance.ChangeCursor(targetState);
         }
+
     }
 }

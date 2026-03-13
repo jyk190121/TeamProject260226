@@ -166,7 +166,7 @@ public class StartController : MonoBehaviour
     {
         //print("게임 이어하기 로직 실행");
         SaveData data = SaveManager.Instance.Load();
-        print($"이어하기 로직 실행: 스테이지 {data.lastUnlockedStage}");
+        print($"이어하기 로직 실행: 스테이지 {data.lastUnlockedChapter}");
 
         // 로드된 데이터를 GameScene에 전달하는 로직 필요
         GameSceneManager.Instance.LoadScene("GameScene_KJY");
