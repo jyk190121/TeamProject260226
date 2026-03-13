@@ -89,15 +89,15 @@ public class ToolBarController : MonoBehaviour
                     Debug.Log($"<color=yellow>[Paint]</color> {targetData.id}에 색상 적용");
                 }
                 break;
-            case 3: // 지우개
-                if (targetData != null && inStorage)
-                {
-                    itemManager.UpdateItemColor(targetData.id, 0);
-                    Debug.Log($"<color=white>[Eraser]</color> {targetData.id} 색상 초기화(0)");
-                }
-                break;
+            //case 3: // 지우개
+            //    if (targetData != null && inStorage)
+            //    {
+            //        itemManager.UpdateItemColor(targetData.id, 0);
+            //        Debug.Log($"<color=white>[Eraser]</color> {targetData.id} 색상 초기화(0)");
+            //    }
+            //    break;
 
-            case 4: // [추가] 돋보기 (확대/축소)
+            case 3: // [추가] 돋보기 (확대/축소)
                     // 1. 진입(ZoomIn)이 있는지 먼저 체크
                 ZoomInTrigger zoomIn = GetUIComponentAtMouse<ZoomInTrigger>(mousePos);
                 if (zoomIn != null)
@@ -283,20 +283,41 @@ public class ToolBarController : MonoBehaviour
         if (index < 0 || index >= toolBtns.Length || toolBtns[index] == null) return;
 
         _selectedToolIndex = index;
-        ChangeCursorToButtonImage(toolBtns[index]);
+        ChangeCursorToButtonImage(index);
 
         Debug.Log($"<color=white><b>[Tool Switch]</b> {index + 1}번 도구로 변경되었습니다.</color>");
     }
 
-    public void ChangeCursorToButtonImage(Button clickedButton)
+    public void ChangeCursorToButtonImage(int index)
     {
-        Image btnImage = clickedButton.GetComponent<Image>();
-        if (btnImage != null && btnImage.sprite != null)
+        switch (index)
         {
-            Texture2D tex = btnImage.sprite.texture;
-            if (tex.isReadable) Cursor.SetCursor(tex, hotSpot, CursorMode.Auto);
+            case 0:
+                CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
+                break;
+            case 1:
+                CursorManager.Instance.ChangeCursor(CursorState.Spoid);
+                break;
+            case 2:
+                CursorManager.Instance.ChangeCursor(CursorState.Paint);
+                break;
+            case 3:
+                CursorManager.Instance.ChangeCursor(CursorState.Glasses);
+                break;
         }
-        
+
+    }
+
+    public CursorState GetCurrentToolCursorState()
+    {
+        switch (_selectedToolIndex)
+        {
+            case 0: return CursorState.HandOpen;
+            case 1: return CursorState.Spoid;
+            case 2: return CursorState.Paint;
+            case 3: return CursorState.Glasses;
+            default: return CursorState.Normal;
+        }
     }
 
     private void HandleNumericInput() { if (Keyboard.current == null) return; for (int i = 0; i < 5; i++) if (Keyboard.current[Key.Digit1 + i].wasPressedThisFrame) SelectTool(i); }

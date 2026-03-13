@@ -8900,6 +8900,7 @@ MonoBehaviour:
   exitBtns:
   - {fileID: 1611920251}
   - {fileID: 20230704}
+  toolBar: {fileID: 0}
 --- !u!4 &1611631801
 Transform:
   m_ObjectHideFlags: 0
