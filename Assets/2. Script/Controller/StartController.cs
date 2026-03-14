@@ -151,6 +151,9 @@ public class StartController : MonoBehaviour
 
     IEnumerator StartNewGame()
     {
+        // 클릭 금지!
+        MouseClickManager.Instance.SetClickEnable(false);
+
         CursorManager.Instance.ChangeCursor(CursorState.Loading);
 
         SaveManager.Instance.DeleteSaveFile(); // 기존 데이터 삭제
@@ -158,8 +161,11 @@ public class StartController : MonoBehaviour
         
         
         yield return new WaitForSeconds(2f);
-        GameSceneManager.Instance.LoadScene("GameScene_KJW");
+        GameSceneManager.Instance.LoadScene("GameScene_KJY");
         CursorManager.Instance.ChangeCursor(CursorState.Normal);
+
+        // 클릭 금지 해제!
+        MouseClickManager.Instance.SetClickEnable(true);
     }
 
     private void OnClickContinue()
@@ -169,7 +175,7 @@ public class StartController : MonoBehaviour
         print($"이어하기 로직 실행: 스테이지 {data.lastUnlockedChapter}");
 
         // 로드된 데이터를 GameScene에 전달하는 로직 필요
-        GameSceneManager.Instance.LoadScene("GameScene_KJW");
+        GameSceneManager.Instance.LoadScene("GameScene_KJY");
     }
 
     private void OnClickSetting()

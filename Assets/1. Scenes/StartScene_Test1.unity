@@ -3131,6 +3131,7 @@ GameObject:
   - component: {fileID: 2037764662}
   - component: {fileID: 2037764665}
   - component: {fileID: 2037764666}
+  - component: {fileID: 2037764667}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -3214,31 +3215,34 @@ MonoBehaviour:
   cursorDataList:
   - state: 0
     texture: {fileID: 2800000, guid: 9642ebfe59234824a9b62dac4d5646e5, type: 3}
-    hotspot: {x: -25, y: 25}
   - state: 1
     texture: {fileID: 2800000, guid: 863481affd1f87e4594380c194618b5d, type: 3}
-    hotspot: {x: 0, y: 0}
   - state: 2
     texture: {fileID: 2800000, guid: 6d90fd8ffc9051c4887fe2364e37ca4e, type: 3}
-    hotspot: {x: 0, y: 0}
   - state: 3
     texture: {fileID: 2800000, guid: e850980ad36fa344eb6d9c92efc7da16, type: 3}
-    hotspot: {x: 0, y: 0}
   - state: 4
     texture: {fileID: 2800000, guid: 7621193fa4de51e44901af0e19348b6f, type: 3}
-    hotspot: {x: 0, y: 0}
   - state: 5
     texture: {fileID: 2800000, guid: 478225e5fdc302a42a1d17bc407b617f, type: 3}
-    hotspot: {x: 0, y: 0}
   - state: 6
     texture: {fileID: 2800000, guid: c9b1ab0de72a9ea4e9ff3919d1e04fa6, type: 3}
-    hotspot: {x: 0, y: 0}
   - state: 7
     texture: {fileID: 2800000, guid: 8546a2fb0301f624180301d802b49b00, type: 3}
-    hotspot: {x: 0, y: 0}
   - state: 8
     texture: {fileID: 2800000, guid: ceaadcb101f080e46840a15e0680a160, type: 3}
-    hotspot: {x: 0, y: 0}
+--- !u!114 &2037764667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037764659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21646404bfdd99545846c0eec30ac03f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MouseClickManager
 --- !u!1 &2038837952
 GameObject:
   m_ObjectHideFlags: 0
