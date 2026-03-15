@@ -1,13 +1,25 @@
 fileFormatVersion: 2
-guid: 672e4ac2da7c7534a95ef41fff4353d7
+guid: 3fe82ca9114571c48ba6b1ba4b590f8c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6033550288056453372
-    second: NPC_0_0
+      213: -7240386783430081287
+    second: 1773371891802_0
   - first:
-      213: -8003784003949375274
-    second: NPC_0_1
+      213: -1169088124231911004
+    second: 1773371891802_1
+  - first:
+      213: -7987041586440126337
+    second: 1773371891802_2
+  - first:
+      213: 2940183687655507274
+    second: 1773371891802_3
+  - first:
+      213: 6071462649274638949
+    second: 1773371891802_4
+  - first:
+      213: 2554217435585240985
+    second: 1773371891802_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -40,7 +52,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -49,7 +61,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -78,7 +90,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -116,45 +128,133 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: NPC_0_0
+      name: Moon
       rect:
         serializedVersion: 2
-        x: 1398
-        y: 1366
-        width: 20
-        height: 6
+        x: 1053
+        y: 763
+        width: 163
+        height: 162
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cf88f06150a7bb350800000000000000
-      internalID: 6033550288056453372
+      spriteID: 9f48739e49af48b90800000000000000
+      internalID: -7240386783430081287
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: NPC_0_1
+      name: Whijang
       rect:
         serializedVersion: 2
-        x: 1178
-        y: 671
-        width: 422
-        height: 688
+        x: 1444
+        y: 529
+        width: 218
+        height: 493
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6d0d4a1bad8dce090800000000000000
-      internalID: -8003784003949375274
+      spriteID: 4a9770c8b8096cfe0800000000000000
+      internalID: -1169088124231911004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 1773371891802_2
+      rect:
+        serializedVersion: 2
+        x: 905
+        y: 372
+        width: 13
+        height: 9
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f70c6f98ef3582190800000000000000
+      internalID: -7987041586440126337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cheese
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 109
+        width: 265
+        height: 154
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a45ca157c71adc820800000000000000
+      internalID: 2940183687655507274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 1773371891802_4
+      rect:
+        serializedVersion: 2
+        x: 752
+        y: 191
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 562211d8c1b224450800000000000000
+      internalID: 6071462649274638949
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Dress
+      rect:
+        serializedVersion: 2
+        x: 758
+        y: 121
+        width: 274
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99fda2f8937627320800000000000000
+      internalID: 2554217435585240985
       vertices: []
       indices: 
       edges: []
@@ -163,7 +263,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 252f89a0b8d8fdd48a442b2de042c924
     internalID: 0
     vertices: []
     indices: 
@@ -173,8 +273,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      NPC_0_0: 6033550288056453372
-      NPC_0_1: -8003784003949375274
+      1773371891802_2: -7987041586440126337
+      1773371891802_4: 6071462649274638949
+      Cheese: 2940183687655507274
+      Dress: 2554217435585240985
+      Moon: -7240386783430081287
+      Whijang: -1169088124231911004
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
