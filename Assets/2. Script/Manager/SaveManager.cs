@@ -5,6 +5,8 @@ using UnityEngine;
 [System.Serializable]
 public class SaveData
 {
+    public bool isGameStarted = false;    // 진행 중인 게임이 있는지 저장
+
     public int lastUnlockedChapter = 1; // 마지막으로 도달한 챕터 (메인)
     public int UnlockedStage = 1;       // 플레이중인 스테이지 (서브)
     public List<ItemSaveInfo> itemPositions = new List<ItemSaveInfo>();
@@ -49,6 +51,15 @@ public class SaveManager : MonoBehaviour
     {
         return File.Exists(savePath);
     }
+    public bool CanContinue()
+    {
+        if (!File.Exists(savePath)) return false;
+
+        // 파일을 로드해서 진행 플래그 확인
+        SaveData data = Load();
+        return data.isGameStarted;
+    }
+
     public void DeleteSaveFile()
     {
         if (File.Exists(savePath))

@@ -23,8 +23,6 @@ public class StartController : MonoBehaviour
     public Color hoverColor = new Color(0, 0, 0.5f);    // navyBlue 대용 (Color에 navyBlue는 기본 정의되어 있지 않음)
     Color normalColor = Color.yellow;                   // 기본 색상
 
-    bool isGameStart = false;                           // 게임 실행여부
-
     void Start()
     {
         // 팝업 버튼 리스너 등록 (한 번만 등록하면 됨)
@@ -61,10 +59,10 @@ public class StartController : MonoBehaviour
 
         if (continueBtn == null) return;
 
-        bool canContinue = SaveManager.Instance.HasSaveData();
+        bool canContinue = SaveManager.Instance.CanContinue();
 
         // 이어하기 버튼: 데이터가 있고, 사운드 설정만이 아닐경우
-        continueBtn.interactable = canContinue && isGameStart;
+        continueBtn.interactable = canContinue;
 
         CanvasGroup cg = continueBtn.GetComponent<CanvasGroup>();
         if (cg == null)
@@ -73,9 +71,9 @@ public class StartController : MonoBehaviour
         }
 
         // 이제 안전하게 alpha 값을 조절할 수 있습니다.
-        cg.alpha = canContinue && isGameStart ? 1.0f : 0.5f;
+        cg.alpha = canContinue ? 1.0f : 0.5f;
 
-        print($"사운드값을 제외한 세이브데이터 존재여부 : {canContinue && isGameStart}");
+        print($"사운드값을 제외한 세이브데이터 존재여부 : {canContinue}");
     }
 
     void OnDisable()
@@ -137,7 +135,7 @@ public class StartController : MonoBehaviour
     {
         print("게임 시작 로직 실행");
 
-        if (SaveManager.Instance.HasSaveData() && isGameStart)
+        if (SaveManager.Instance.CanContinue())
         {
             warningPopup.SetActive(true);
         }
@@ -164,8 +162,10 @@ public class StartController : MonoBehaviour
     void StartGame()
     {
         StartCoroutine(GameLoadSequence(() => {
-            print("최초 게임 시작");
-            isGameStart = true;
+            SaveData data = SaveManager.Instance.Load();
+            data.isGameStarted = true;
+            SaveManager.Instance.Save(data);
+            print($"최초 게임 시작 {data.isGameStarted }");
         }));
     }
 
@@ -174,9 +174,11 @@ public class StartController : MonoBehaviour
         StartCoroutine(GameLoadSequence(() => {
             SaveManager.Instance.DeleteSaveFile();
 
-            print("새 게임 시작 (기존데이터 삭제)");
             // 게임 시작 초기화
-            isGameStart = false;
+            SaveData newData = new SaveData();
+            newData.isGameStarted = false;
+            SaveManager.Instance.Save(newData);
+            print($"새 게임 시작 (기존데이터 삭제) {newData.isGameStarted}");
         }));
     }
 
