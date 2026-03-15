@@ -143,47 +143,41 @@ public class StartController : MonoBehaviour
         }
         else
         {
-            StartCoroutine(StartGame());
+            StartGame();
         }
     }
-
-    IEnumerator StartGame()
+    private IEnumerator GameLoadSequence(System.Action dataProcessAction)
     {
-        // 클릭 금지!
         MouseClickManager.Instance.SetClickEnable(false);
-
         CursorManager.Instance.ChangeCursor(CursorState.Loading);
 
-        print("최초 게임 시작");
-        isGameStart = true;
+        dataProcessAction?.Invoke();
 
         yield return new WaitForSeconds(2f);
+
         GameSceneManager.Instance.LoadScene("GameScene_KJY");
         CursorManager.Instance.ChangeCursor(CursorState.Normal);
-
-        // 클릭 금지 해제!
         MouseClickManager.Instance.SetClickEnable(true);
     }
 
-    IEnumerator StartNewGame()
+
+    void StartGame()
     {
-        // 클릭 금지!
-        MouseClickManager.Instance.SetClickEnable(false);
+        StartCoroutine(GameLoadSequence(() => {
+            print("최초 게임 시작");
+            isGameStart = true;
+        }));
+    }
 
-        CursorManager.Instance.ChangeCursor(CursorState.Loading);
+    void StartNewGame()
+    {
+        StartCoroutine(GameLoadSequence(() => {
+            SaveManager.Instance.DeleteSaveFile();
 
-        SaveManager.Instance.DeleteSaveFile();
-
-        print("새 게임 시작 (기존데이터 삭제)");
-        // 게임 시작 초기화
-        isGameStart = false;
-
-        yield return new WaitForSeconds(2f);
-        GameSceneManager.Instance.LoadScene("GameScene_KJY");
-        CursorManager.Instance.ChangeCursor(CursorState.Normal);
-
-        // 클릭 금지 해제!
-        MouseClickManager.Instance.SetClickEnable(true);
+            print("새 게임 시작 (기존데이터 삭제)");
+            // 게임 시작 초기화
+            isGameStart = false;
+        }));
     }
 
     private void OnClickContinue()
@@ -218,7 +212,7 @@ public class StartController : MonoBehaviour
     private void OnClickPopupYes()
     {
         warningPopup.SetActive(false);
-        StartCoroutine(StartNewGame());
+        StartNewGame();
     }
 
     // 팝업 No: 그냥 팝업 닫기
