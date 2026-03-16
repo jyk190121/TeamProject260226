@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188bd5cad55e9db4e99a4cf0f40c0b5e, type: 3}
+  m_Name: dress
+  m_EditorClassIdentifier: Assembly-CSharp::Item
+  id: 104
+  locationID: Sub
+  chapterIndex: 1
+  stageIndex: 1
+  oriPos: {x: 200, y: 800}
+  originColor: 8
+  type: 1
+  prefab: {fileID: 3030617414520634162, guid: 2ed7c58e8d41f7142a201f5d33d0bc81, type: 3}
+  changePos: {x: 200, y: 800}
+  color: 8

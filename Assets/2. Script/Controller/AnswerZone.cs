@@ -2,21 +2,51 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
+public enum ClearType { Page, Chapter }
+
 public class AnswerZone : MonoBehaviour
 {
-    [Header("정답 조건 (숫자 ID 111 방식)")]
-    public int targetID;       // 예: 111 (서브스토리 1장 1번 아이템)
-    public int targetColor;    // 정답 색상 인덱스
+    [Header("정답 조건")]
+    public int targetID;
+    public int targetColor;
+
+    // [추가됨] 메인 씬 전용인지 체크
+    [Header("위치 및 등장 조건")]
+    [Tooltip("체크 시 메인(Main) 화면용 존이 되며, Sub 페이지 번호를 무시합니다.")]
+    public bool isMainZone = false;
+
+    public int requiredChapter = 1; // Main
+    public int requiredPage = 1;    // Sub (isMainZone이 true면 무시됨)
+
+    [Header("클리어 설정")]
+    public ClearType clearType = ClearType.Page;
 
     [Header("성공 시 실행할 이벤트")]
     public UnityEvent onCorrect;
 
-    // ToolBarController에서 아이템을 놓았을 때 호출됨
     public bool CheckMatch(Item data, GameObject itemObj)
     {
         if (data == null) return false;
 
-        // [수정] string ID를 숫자로 변환하여 3자리 판정
+        // 1. [변경됨] 메인 존 체크박스에 따른 유연한 조건 검사
+        if (StageManager.Instance != null)
+        {
+            // 챕터는 무조건 일치해야 함
+            if (StageManager.Instance.CurrentChapter() != requiredChapter)
+            {
+                Debug.Log($"<color=orange>[AnswerZone]</color> 다른 챕터의 정답 구역입니다.");
+                return false;
+            }
+
+            // 메인 존이 아닐 경우에만 페이지 번호까지 깐깐하게 검사
+            if (!isMainZone && StageManager.Instance.CurrentStage() != requiredPage)
+            {
+                Debug.Log($"<color=orange>[AnswerZone]</color> 아직 이 기믹을 풀 타이밍(페이지)이 아닙니다.");
+                return false;
+            }
+        }
+
+        // 2. 정답 판정
         if (int.TryParse(data.id, out int itemNumber))
         {
             if (itemNumber == targetID && data.color == targetColor)
@@ -32,19 +62,28 @@ public class AnswerZone : MonoBehaviour
 
     private void Success(GameObject itemObj)
     {
-        // 1. 위치 고정 (스냅)
         itemObj.transform.position = this.transform.position;
-
-        // 2. 더 이상 집을 수 없게 레이캐스트 차단 (Lock)
         Graphic[] graphics = itemObj.GetComponentsInChildren<Graphic>();
         foreach (var g in graphics) g.raycastTarget = false;
-
-        // 3. 아이템의 부모를 정답 구역으로 변경 (관리 편의성)
         itemObj.transform.SetParent(this.transform);
 
         Debug.Log($"<color=cyan>[정답]</color> ID {targetID} 매칭 성공! 기믹 해결.");
         onCorrect?.Invoke();
 
-        StageManager.Instance.ClearChapter();
+        if (clearType == ClearType.Page)
+        {
+            Debug.Log("<color=yellow>[스테이지 진행]</color> 페이지(Sub) 클리어! 다음 페이지로 넘어갑니다.");
+            StageManager.Instance.ClearStage();
+
+            if (ItemManager.Instance != null)
+            {
+                ItemManager.Instance.SpawnItem(StageManager.Instance.CurrentChapter(), StageManager.Instance.CurrentStage());
+            }
+        }
+        else if (clearType == ClearType.Chapter)
+        {
+            Debug.Log("<color=yellow>[스테이지 진행]</color> 챕터(Main) 클리어! 다음 챕터로 넘어갑니다.");
+            StageManager.Instance.ClearChapter();
+        }
     }
 }
