@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1585048202744548995}
   - component: {fileID: 5407580226667388743}
   m_Layer: 5
-  m_Name: Carriage
+  m_Name: RedCarpet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 3986080985264366505, guid: 32f3a9abcdd374845998ac70de8208be, type: 3}
+  m_Sprite: {fileID: -8513350898334058592, guid: 32f3a9abcdd374845998ac70de8208be, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

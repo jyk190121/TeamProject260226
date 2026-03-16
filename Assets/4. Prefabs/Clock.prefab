@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1585048202744548995}
   - component: {fileID: 5407580226667388743}
   m_Layer: 5
-  m_Name: Carriage
+  m_Name: Clock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
