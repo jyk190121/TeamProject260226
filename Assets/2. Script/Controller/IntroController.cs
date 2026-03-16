@@ -116,6 +116,11 @@ public class IntroController : MonoBehaviour
 
     private void Start()
     {
+        if (toolBarController == null)
+        {
+            toolBarController = FindAnyObjectByType<ToolBarController>();
+        }
+
         // 자동 시작은 하지 않는다.
         // 외부 씬 스크립트가 PlayIntro()를 호출해야 시작한다.
         PlayIntro();

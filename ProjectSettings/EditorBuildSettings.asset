@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/1. Scenes/GameScene_KJW.unity
     guid: 932df575557424a48ba8cca608d83d4a
+  - enabled: 1
+    path: Assets/1. Scenes/GameScene_NUH.unity
+    guid: 0f3e2cb0aaabc624d8e4f0a8d61e6905
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
