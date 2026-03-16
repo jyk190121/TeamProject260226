@@ -4519,13 +4519,13 @@ MonoBehaviour:
   - state: 4
     texture: {fileID: 2800000, guid: 2a2f759ebbc4b2747a28a23498b07f91, type: 3}
   - state: 5
-    texture: {fileID: 2800000, guid: 478225e5fdc302a42a1d17bc407b617f, type: 3}
+    texture: {fileID: 2800000, guid: 71da9815dd2d9ae47ba571af33288351, type: 3}
   - state: 6
-    texture: {fileID: 2800000, guid: c9b1ab0de72a9ea4e9ff3919d1e04fa6, type: 3}
+    texture: {fileID: 2800000, guid: bb62c2ac0369d5b4786edd1bf3564bfd, type: 3}
   - state: 7
     texture: {fileID: 2800000, guid: 8546a2fb0301f624180301d802b49b00, type: 3}
   - state: 8
-    texture: {fileID: 2800000, guid: ceaadcb101f080e46840a15e0680a160, type: 3}
+    texture: {fileID: 2800000, guid: ade1de275582550458d5d5f4e19d4ede, type: 3}
 --- !u!114 &2037764667
 MonoBehaviour:
   m_ObjectHideFlags: 0
