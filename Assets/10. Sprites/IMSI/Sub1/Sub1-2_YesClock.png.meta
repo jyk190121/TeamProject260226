@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c9b1ab0de72a9ea4e9ff3919d1e04fa6
+guid: 2cc90622374ccb746bdcf74a6964518b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3866974549642074184
-    second: Paint_0
+      213: -2990048285047318183
+    second: YesClock_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -24,7 +24,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -87,12 +87,12 @@ TextureImporter:
     buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 4
+    textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 1
+    overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Paint_0
+      name: YesClock_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 113
-        height: 124
+        x: 1745
+        y: 555
+        width: 73
+        height: 204
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 84854e26dd04aa530800000000000000
-      internalID: 3866974549642074184
+      spriteID: 9591d7c3de63186d0800000000000000
+      internalID: -2990048285047318183
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Paint_0: 3866974549642074184
+      YesClock_0: -2990048285047318183
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
