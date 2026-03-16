@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 44a6c09c9ee4ccd40a1527bca8d749b8
+guid: a63b45c82b76bbc4d8b97541923e0889
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6520936677976288497
-    second: NPC_4_0
+      213: -2074594861574888044
+    second: NPC_5_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: NPC_4_0
+      name: NPC_5_0
       rect:
         serializedVersion: 2
-        x: 1147
-        y: 678
-        width: 408
-        height: 673
+        x: 1138
+        y: 645
+        width: 472
+        height: 679
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1fca795fb550f7a50800000000000000
-      internalID: 6520936677976288497
+      spriteID: 4956afe07fe8533e0800000000000000
+      internalID: -2074594861574888044
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      NPC_4_0: 6520936677976288497
+      NPC_5_0: -2074594861574888044
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
