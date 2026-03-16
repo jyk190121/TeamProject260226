@@ -25,7 +25,7 @@ public class ItemManager : MonoBehaviour
     {
         if (currentChapter <= 0 || currentStage <= 0) return;
 
-        //ClearAllItems();
+        ClearAllItems();
         SaveData savedData = SaveManager.Instance.Load();
 
         foreach (Item item in itemData)
