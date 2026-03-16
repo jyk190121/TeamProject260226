@@ -9,17 +9,30 @@ public class ZoomInTrigger : MonoBehaviour
     [Tooltip("이 확대 화면에 진입할 때 켤 아이템의 소속 (예: Zoom_Desk)")]
     public string zoomLocationID = "Zoom_Desk";
 
-    // 클릭 시 실행되는 함수 (이전 코드에 맞춤)
+    [Header("등장 조건 (예: 1챕터 2페이지)")]
+    public int requiredChapter = 1; // Main
+    public int requiredPage = 1;    // Sub
+
     public void Execute(ToolBarController controller)
     {
+        // 1. 현재 진행도와 돋보기 기믹의 요구 진행도가 맞는지 검사
+        if (StageManager.Instance != null)
+        {
+            if (StageManager.Instance.CurrentChapter() != requiredChapter ||
+                StageManager.Instance.CurrentStage() != requiredPage)
+            {
+                Debug.Log($"<color=orange>[ZoomIn]</color> 아직 이 곳을 살펴볼 타이밍(페이지)이 아닙니다.");
+                return; // 조건 안 맞으면 확대 패널 안 열림
+            }
+        }
+
+        // 2. 조건이 맞으면 정상 작동
         if (targetZoomPanel != null)
         {
-            // 1. 확대 패널을 화면에 켭니다.
             targetZoomPanel.SetActive(true);
-            targetZoomPanel.transform.SetAsLastSibling(); // 맨 앞으로 가져오기
-            controller.UpdateMagnifierCursor(true); // 마우스 커서 변경
+            targetZoomPanel.transform.SetAsLastSibling();
+            controller.UpdateMagnifierCursor(true);
 
-            // 2. [핵심] 매니저에게 "서랍 안쪽 조명 켜!" 라고 지시합니다.
             if (ItemManager.Instance != null)
                 ItemManager.Instance.UpdateStageVisibility(zoomLocationID);
         }
