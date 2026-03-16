@@ -4509,7 +4509,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CursorManager
   cursorDataList:
   - state: 0
-    texture: {fileID: 2800000, guid: 9642ebfe59234824a9b62dac4d5646e5, type: 3}
+    texture: {fileID: 2800000, guid: 0a12513c002253648a9f9481851b2aec, type: 3}
   - state: 1
     texture: {fileID: 2800000, guid: 863481affd1f87e4594380c194618b5d, type: 3}
   - state: 2

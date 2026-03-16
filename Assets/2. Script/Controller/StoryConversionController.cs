@@ -110,9 +110,6 @@ public class StoryConversionController : MonoBehaviour
     // 메인 or 서브 스토리에서 나가기 버튼 선택 시 (서재가 Default)
     public void ExitStory()
     {
-        // 메인 스토리에서 나가는 시점인지 확인 (mainStoryPanel이 켜져있었는지 체크)
-        bool wasInMainStory = mainStoryPanel.activeSelf;
-
         stagePanel.SetActive(false);
         blockImg.SetActive(true);
 
@@ -122,7 +119,11 @@ public class StoryConversionController : MonoBehaviour
             ItemManager.Instance.UpdateStageVisibility("Library");
         }
 
-        if (storyController != null && enterStory) storyController.TriggerSubStoryGeneration();
+        if (storyController != null && enterStory)
+        {
+            storyController.TriggerSubStoryGeneration();
+            enterStory = false;
+        }
     }
 
     void MouseHover(string space)
