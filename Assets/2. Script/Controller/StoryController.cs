@@ -201,4 +201,12 @@ public class StoryController : MonoBehaviour
 
         group.alpha = 1f;
     }
+
+    private void Update()
+    {
+        if (Keyboard.current.spaceKey.wasPressedThisFrame == true)
+        {
+            StartCoroutine(StartSequence());
+        }
+    }
 }

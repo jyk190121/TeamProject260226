@@ -27,25 +27,24 @@ public class ItemManager : MonoBehaviour
     // ---------------------------------------------------
     // [기능 1] 스테이지 시작 (아이템 일괄 생성)
     // ---------------------------------------------------
-    public void SpawnItem(int stageIndex)
+    public void SpawnItem(int currentChapter, int currentStage)
     {
-        if (stageIndex <= 0) return;
+        if (currentChapter <= 0 || currentStage <= 0) return;
 
-        // 이전 스테이지 찌꺼기가 있다면 확실하게 밀어버림 (스테이지 전환 대비)
         ClearAllItems();
 
         SaveData savedData = SaveManager.Instance.Load();
 
         foreach (Item item in itemData)
         {
-            if (item.stageIndex == stageIndex)
+            // [핵심 변경] Main과 Sub가 현재 진행도와 완벽히 일치하는 아이템만 골라서 생성합니다.
+            if (item.chapterIndex == currentChapter && item.stageIndex == currentStage)
             {
                 var savedInfo = savedData.itemPositions?.Find(x => x.itemId == item.id);
 
                 Vector2 spawnPos = (savedInfo != null) ? savedInfo.savedPos : item.oriPos;
                 int spawnColor = (savedInfo != null) ? savedInfo.savedColor : item.originColor;
 
-                // [참고] SaveInfo에 savedState가 있다면 여기서 불러옵니다. 없다면 Field로 초기화.
                 item.currentState = ItemState.Field;
                 item.color = spawnColor;
 
@@ -53,7 +52,6 @@ public class ItemManager : MonoBehaviour
             }
         }
 
-        // 아이템이 다 깔리면 현재 화면(Location)에 맞춰서 가시성 1차 필터링
         UpdateStageVisibility(_currentLocation);
     }
 
@@ -73,10 +71,8 @@ public class ItemManager : MonoBehaviour
 
     private void ApplyTypeLogic(GameObject obj, Item data, int colorIndex)
     {
-        ColorManager colorMgr = Object.FindFirstObjectByType<ColorManager>();
-        if (colorMgr == null) return;
-
-        Color targetColor = colorMgr.GetColor(colorIndex);
+        
+        Color targetColor = ColorManager.GetColor(colorIndex);
         Image uiImage = obj.GetComponentInChildren<Image>(true);
         if (uiImage != null) uiImage.color = targetColor;
     }
