@@ -128,6 +128,15 @@ public class StoryConversionController : MonoBehaviour
     void MouseHover(string space)
     {
         if (CursorManager.Instance == null) return;
+        
+        if (MouseClickManager.Instance != null && MouseClickManager.Instance.IsClickBlocked)
+        {
+            if (CursorManager.Instance.GetCurrentState() != CursorState.Loading)
+            {
+                CursorManager.Instance.ChangeCursor(CursorState.Loading);
+            }
+            return;
+        }
 
         PointerEventData eventData = new PointerEventData(EventSystem.current);
         eventData.position = Input.mousePosition;

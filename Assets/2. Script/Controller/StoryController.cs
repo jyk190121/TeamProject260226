@@ -136,6 +136,7 @@ public class StoryController : MonoBehaviour
 
         //LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
 
+        MouseClickManager.Instance.SetClickEnable(false);
 
         ///수정
         RectTransform rect = sub.GetComponent<RectTransform>();
@@ -200,6 +201,9 @@ public class StoryController : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
 
         group.alpha = 1f;
+
+        MouseClickManager.Instance.SetClickEnable(true);
+
     }
 
     private void Update()

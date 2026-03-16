@@ -11,9 +11,12 @@ public class StartController : MonoBehaviour
     public Button exitBtn;
 
     [Header("팝업 UI")]
-    public GameObject warningPopup;             // 데이터 초기화 경고 팝업창
-    public Button popupYesBtn;                  // 팝업 내 확인 버튼
-    public Button popupNoBtn;                   // 팝업 내 취소 버튼
+    public GameObject warningPopup;                     // 데이터 초기화 경고 팝업창
+    public Button popupYesBtn;                          // 팝업 내 확인 버튼
+    public Button popupNoBtn;                           // 팝업 내 취소 버튼
+
+    public GameObject settingPopup;                     // 설정 팝업창
+    public Button settingExitBtn;                       // 설정 팝업창 닫기 버튼
 
     [Header("색상 설정")]
     //Color hoverColor = Color.navyBlue;                // 변경 색상
@@ -25,9 +28,11 @@ public class StartController : MonoBehaviour
         // 팝업 버튼 리스너 등록 (한 번만 등록하면 됨)
         if (popupYesBtn != null) popupYesBtn.onClick.AddListener(OnClickPopupYes);
         if (popupNoBtn != null) popupNoBtn.onClick.AddListener(OnClickPopupNo);
+        if (settingExitBtn != null) settingExitBtn.onClick.AddListener(OnClickSettingExit);
 
         // 팝업 초기 비활성화
         if (warningPopup != null) warningPopup.SetActive(false);
+        if (settingPopup != null) settingPopup.SetActive(false);
 
         UpdateButtonState();
     }
@@ -54,10 +59,10 @@ public class StartController : MonoBehaviour
 
         if (continueBtn == null) return;
 
-        bool hasData = SaveManager.Instance.HasSaveData();
+        bool canContinue = SaveManager.Instance.CanContinue();
 
-        // 이어하기 버튼: 데이터가 있을 때만 클릭 가능
-        continueBtn.interactable = hasData;
+        // 이어하기 버튼: 데이터가 있고, 사운드 설정만이 아닐경우
+        continueBtn.interactable = canContinue;
 
         CanvasGroup cg = continueBtn.GetComponent<CanvasGroup>();
         if (cg == null)
@@ -66,9 +71,9 @@ public class StartController : MonoBehaviour
         }
 
         // 이제 안전하게 alpha 값을 조절할 수 있습니다.
-        cg.alpha = hasData ? 1.0f : 0.5f;
+        cg.alpha = canContinue ? 1.0f : 0.5f;
 
-        print($"세이브데이터 존재여부 : {hasData}");
+        print($"사운드값을 제외한 세이브데이터 존재여부 : {canContinue}");
     }
 
     void OnDisable()
@@ -130,51 +135,70 @@ public class StartController : MonoBehaviour
     {
         print("게임 시작 로직 실행");
 
-        if (SaveManager.Instance.HasSaveData())
+        if (SaveManager.Instance.CanContinue())
         {
-            // 데이터가 있으면 팝업창 띄우기
             warningPopup.SetActive(true);
         }
         else
         {
-            //GameSceneManager.Instance.LoadScene("GameScene_KJY");
-            StartCoroutine( StartNewGame() );
+            StartGame();
         }
     }
-
-    //void StartNewGame()
-    //{
-    //    SaveManager.Instance.DeleteSaveFile(); // 기존 데이터 삭제
-    //    print("새 게임 시작");
-    //    GameSceneManager.Instance.LoadScene("GameScene_KJY");
-    //}
-
-    IEnumerator StartNewGame()
+    private IEnumerator GameLoadSequence(System.Action dataProcessAction)
     {
+        MouseClickManager.Instance.SetClickEnable(false);
         CursorManager.Instance.ChangeCursor(CursorState.Loading);
 
-        SaveManager.Instance.DeleteSaveFile(); // 기존 데이터 삭제
-        print("새 게임 시작");
-        
-        
+        dataProcessAction?.Invoke();
+
         yield return new WaitForSeconds(2f);
-        GameSceneManager.Instance.LoadScene("GameScene_KJW");
+
+        GameSceneManager.Instance.LoadScene("GameScene_KJY");
         CursorManager.Instance.ChangeCursor(CursorState.Normal);
+        MouseClickManager.Instance.SetClickEnable(true);
+    }
+
+
+    void StartGame()
+    {
+        StartCoroutine(GameLoadSequence(() => {
+            SaveData data = SaveManager.Instance.Load();
+            data.isGameStarted = true;
+            SaveManager.Instance.Save(data);
+            print($"최초 게임 시작 {data.isGameStarted }");
+        }));
+    }
+
+    void StartNewGame()
+    {
+        StartCoroutine(GameLoadSequence(() => {
+            SaveManager.Instance.DeleteSaveFile();
+
+            // 게임 시작 초기화
+            SaveData newData = new SaveData();
+            newData.isGameStarted = false;
+            SaveManager.Instance.Save(newData);
+            print($"새 게임 시작 (기존데이터 삭제) {newData.isGameStarted}");
+        }));
     }
 
     private void OnClickContinue()
     {
         //print("게임 이어하기 로직 실행");
         SaveData data = SaveManager.Instance.Load();
-        print($"이어하기 로직 실행: 스테이지 {data.lastUnlockedChapter}");
+        print($"이어하기 로직 실행: 메인 {data.lastUnlockedChapter}장");
 
         // 로드된 데이터를 GameScene에 전달하는 로직 필요
-        GameSceneManager.Instance.LoadScene("GameScene_KJW");
+        GameSceneManager.Instance.LoadScene("GameScene_KJY");
     }
 
     private void OnClickSetting()
     {
-        print("옵션 창 열기 로직 실행");
+        settingPopup.gameObject.SetActive(true);
+    }
+    private void OnClickSettingExit()
+    {
+        settingPopup.gameObject.SetActive(false);
     }
 
     private void OnClickExit()
@@ -190,7 +214,7 @@ public class StartController : MonoBehaviour
     private void OnClickPopupYes()
     {
         warningPopup.SetActive(false);
-        StartCoroutine(StartNewGame());
+        StartNewGame();
     }
 
     // 팝업 No: 그냥 팝업 닫기

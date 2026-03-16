@@ -41,7 +41,7 @@ public class StageManager : MonoBehaviour
         StartStage(currentChapterIndex, currentStage);
     }
 
-    public void ClearStage()
+    public void ClearChapter()
     {
         //// 1. 현재 맵에 있는 아이템들의 위치를 SO 데이터(changePos)로 동기화
         //ItemManager.Instance.UpdateAllItemPositions();
@@ -90,6 +90,11 @@ public class StageManager : MonoBehaviour
         {
             print("모든 챕터 클리어!");
         }
+    }
+
+    public void ClearStage()
+    {
+        currentStage++;
     }
 
     // 스테이지 시작 시 
