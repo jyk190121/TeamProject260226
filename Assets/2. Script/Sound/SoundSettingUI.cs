@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(SoundSettingsUI))]
 public class SoundSettingsUI : MonoBehaviour
 {
     [Header("Sliders")]

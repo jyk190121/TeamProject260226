@@ -5,11 +5,12 @@ using UnityEngine;
 [System.Serializable]
 public class SaveData
 {
-    public bool isGameStarted = false;    // 진행 중인 게임이 있는지 저장
+    public bool isGameStarted = false;                          // 진행 중인 게임이 있는지 저장
 
-    public int lastUnlockedChapter = 1; // 마지막으로 도달한 챕터 (메인)
-    public int UnlockedStage = 1;       // 플레이중인 스테이지 (서브)
+    public int lastUnlockedChapter = 1;                         // 마지막으로 도달한 챕터 (메인)
+    public int UnlockedStage = 1;                               // 플레이중인 스테이지 (서브)
     public List<ItemSaveInfo> itemPositions = new List<ItemSaveInfo>();
+    public List<int> generatedSubStories = new List<int>();     // 서브 스토리 리스트
 
     // 볼륨 데이터 (기본값 1)
     public float volMaster = 1.0f;

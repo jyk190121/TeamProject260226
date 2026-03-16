@@ -17,7 +17,7 @@ public class StoryController : MonoBehaviour
     public float animationDuration = 2f;
     //public Vector2 startOffset = new Vector2(-Screen.width, -Screen.height); // 화면 왼쪽 밖 오프셋
 
-    LayoutGroup layoutGroup;
+    //LayoutGroup layoutGroup;
     //int originalTopPadding;
 
     // 서브 스토리가 생성 대기 중인지 확인하는 플래그 (true : 생성)
@@ -34,35 +34,70 @@ public class StoryController : MonoBehaviour
         StageManager.OnChapterCleared -= HandleStageCleared;
     }
 
+    //void Awake()
+    //{
+    //    //layoutGroup = contentParent.GetComponent<LayoutGroup>();
+    //    //if (layoutGroup != null) originalTopPadding = layoutGroup.padding.left;
+    //}
+
+    void Start()
+    {
+        // 게임 시작 시 저장된 데이터로부터 이미 생성된 서브 스토리들 복구
+        LoadExistingSubStories();
+    }
     private void HandleStageCleared()
     {
-        Debug.Log("<color=yellow>스테이지 클리어 감지: 서브 스토리 예약</color>");
+        int currentChapter = StageManager.Instance.CurrentChapter();
+        SaveData data = SaveManager.Instance.Load();
+
+        // 이미 생성된 기록이 있다면 예약하지 않음
+        if (data.generatedSubStories.Contains(currentChapter))
+        {
+            print($"<color=white>{currentChapter}장은 이미 생성된 스토리입니다.</color>");
+            return;
+        }
+
+        print("<color=yellow>새로운 스테이지 클리어 감지: 서브 스토리 예약</color>");
         SetPendingSubStory(true);
     }
 
-    void Awake()
+    void LoadExistingSubStories()
     {
-        layoutGroup = contentParent.GetComponent<LayoutGroup>();
-        //if (layoutGroup != null) originalTopPadding = layoutGroup.padding.left;
+        SaveData data = SaveManager.Instance.Load();
+        if (data.generatedSubStories == null) return;
+
+        foreach (int chapterIndex in data.generatedSubStories)
+        {
+            // 애니메이션 없이 즉시 생성
+            CreateSubStoryUI($"{chapterIndex}장의 기록", false);
+        }
     }
 
     // 스테이지 클리어 시 호출하여 생성 예약
     public void SetPendingSubStory(bool state) => _isPendingSubStory = state;
 
-    // 실제로 생성을 시작하는 함수
+    // 외부에서 생성을 시작하는 함수
     public void TriggerSubStoryGeneration()
     {
         // 예약된 게 없으면 나감
         if (!_isPendingSubStory) return;
 
-        //StartCoroutine(StartSequence());
-        //_isPendingSubStory = false;
+        int currentChapter = StageManager.Instance.CurrentChapter();
+        SaveData data = SaveManager.Instance.Load();
 
-        // 현재 스테이지 번호를 가져와서 이름에 활용할 수 있습니다.
-        int currentStage = SaveManager.Instance.Load().lastUnlockedChapter;
-        //string storyName = $"{currentStage}장의 기록";
-
+        if (data.generatedSubStories.Contains(currentChapter))
+        {
+            print($"{currentChapter}장은 이미 생성되어 있어 생성을 취소합니다.");
+            _isPendingSubStory = false;
+            return;
+        }
+        // UI 생성 (애니메이션 포함)
         StartCoroutine(StartSequence());
+
+        // 데이터 기록 및 저장
+        data.generatedSubStories.Add(currentChapter);
+        SaveManager.Instance.Save(data);
+
         _isPendingSubStory = false;
     }
 
@@ -70,6 +105,25 @@ public class StoryController : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
         AddStorysubAtTopWithWorldMotion("새로운 스토리");
+    }
+    void CreateSubStoryUI(string message, bool useAnimation)
+    {
+        if (storyPrefab == null || contentParent == null) return;
+
+        if (useAnimation)
+        {
+            AddStorysubAtTopWithWorldMotion(message);
+        }
+        else
+        {
+            // 로드 시: 애니메이션 없이 즉시 배치
+            GameObject sub = Instantiate(storyPrefab, contentParent);
+            sub.transform.SetAsFirstSibling();
+            Text txt = sub.GetComponentInChildren<Text>();
+            if (txt != null) txt.text = message;
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
+        }
     }
 
     public void AddStorysubAtTopWithWorldMotion(string message)
