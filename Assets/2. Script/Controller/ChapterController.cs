@@ -15,6 +15,9 @@ public class ChapterController : MonoBehaviour
     // 세이브 데이터 기준 해금된 최대 챕터 번호
     int maxUnlockedChapter;
 
+    private readonly Color activeColor = new Color(207f / 255f, 255f / 255f, 162f / 255f);
+    private readonly Color disabledColor = new Color(188f / 255f, 188f / 255f, 188f / 255f);
+
     void OnEnable()
     {
         // StageManager의 챕터 시작 이벤트를 구독
@@ -102,17 +105,37 @@ public class ChapterController : MonoBehaviour
 
         // 2. 버튼 활성화/비활성화 로직
         // 이전 버튼: 1장일 때는 무조건 비활성
-        if (prevBtn != null)
-        {
-            prevBtn.interactable = (currentViewChapter > 1);
-        }
 
-        // 다음 버튼: 현재 보는 페이지가 해금된 최대 장수보다 작을 때만 활성
-        if (nextBtn != null)
-        {
-            nextBtn.interactable = (currentViewChapter < maxUnlockedChapter);
-        }
+        UpdateButtonAppearance(prevBtn, currentViewChapter > 1);
+        UpdateButtonAppearance(nextBtn, currentViewChapter < maxUnlockedChapter);
+
+        //if (prevBtn != null)
+        //{
+        //    prevBtn.interactable = (currentViewChapter > 1);
+            
+        //}
+
+        //// 다음 버튼: 현재 보는 페이지가 해금된 최대 장수보다 작을 때만 활성
+        //if (nextBtn != null)
+        //{
+        //    nextBtn.interactable = (currentViewChapter < maxUnlockedChapter);
+        //}
 
         print($"<color=cyan>현재 UI 표시 챕터: {currentViewChapter} / 해금 최대치: {maxUnlockedChapter}</color>");
+    }
+
+    void UpdateButtonAppearance(Button btn, bool isInteractable)
+    {
+        if (btn == null) return;
+
+        // 버튼 상호작용 설정
+        btn.interactable = isInteractable;
+
+        // 버튼의 Image 컴포넌트 색상 변경
+        Image btnImg = btn.GetComponent<Image>();
+        if (btnImg != null)
+        {
+            btnImg.color = isInteractable ? activeColor : disabledColor;
+        }
     }
 }
