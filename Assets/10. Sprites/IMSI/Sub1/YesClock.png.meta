@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: afe55acdc87b09047893e3739bfca4ae
+guid: 2cc90622374ccb746bdcf74a6964518b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2706366648370621755
-    second: UI_HandOpen_0
+      213: -2990048285047318183
+    second: YesClock_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: UI_HandOpen_0
+      name: YesClock_0
       rect:
         serializedVersion: 2
-        x: 32
-        y: 0
-        width: 98
-        height: 166
+        x: 1745
+        y: 555
+        width: 73
+        height: 204
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5c297eb4fdd017ad0800000000000000
-      internalID: -2706366648370621755
+      spriteID: 9591d7c3de63186d0800000000000000
+      internalID: -2990048285047318183
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      UI_HandOpen_0: -2706366648370621755
+      YesClock_0: -2990048285047318183
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
