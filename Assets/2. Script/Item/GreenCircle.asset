@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Item
   id: GreenCircle
   locationID: Zoom_Desk
-  chapterIndex: 1
   stageIndex: 1
   oriPos: {x: 900, y: 450}
   originColor: 2

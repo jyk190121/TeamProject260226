@@ -101,7 +101,7 @@ public class StageManager : MonoBehaviour
         // 기존 존재하는 아이템 파괴
         ItemManager.Instance.ClearAllItems();
 
-        ItemManager.Instance.SpawnItem(currentChapterIndex, currentStage);
+        ItemManager.Instance.SpawnItem(currentChapterIndex);
 
         print($"{currentChapterIndex} 시작됨");
     }
