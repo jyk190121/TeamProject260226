@@ -64,9 +64,25 @@ public class SoundManager : MonoBehaviour
 
         BuildMaps();
 
-        Master = Mathf.Clamp01(defaultMaster);
-        Bgm = Mathf.Clamp01(defaultBgm);
-        Sfx = Mathf.Clamp01(defaultSfx);
+        //Master = Mathf.Clamp01(defaultMaster);
+        //Bgm = Mathf.Clamp01(defaultBgm);
+        //Sfx = Mathf.Clamp01(defaultSfx);
+
+        // [수정] 세이브 데이터 로드 시도
+        if (SaveManager.Instance != null)
+        {
+            SaveData data = SaveManager.Instance.Load();
+            Master = data.volMaster;
+            Bgm = data.volBgm;
+            Sfx = data.volSfx;
+        }
+        else
+        {
+            // 데이터가 없으면 기본값 사용
+            Master = Mathf.Clamp01(defaultMaster);
+            Bgm = Mathf.Clamp01(defaultBgm);
+            Sfx = Mathf.Clamp01(defaultSfx);
+        }
 
         ApplyAllToMixer();
     }
