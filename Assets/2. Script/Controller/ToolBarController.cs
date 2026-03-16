@@ -31,6 +31,9 @@ public class ToolBarController : MonoBehaviour
     Vector2 _originalPos;
     Vector3 _originalScale;
 
+    //NPC Intro용 public
+    public bool isHoldingItem => _isHoldingItem;
+
     void Start()
     {
         for (int i = 0; i < toolBtns.Length; i++)

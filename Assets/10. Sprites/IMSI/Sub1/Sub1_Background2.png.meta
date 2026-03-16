@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 2137965aee6008945a66afcbdcdea25c
+guid: 451ed9a62bad5654da5f430b3a1c9b3c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6997741227164693895
-    second: NPC_1_0
+      213: -7859182970394675201
+    second: 1773371893135_0
+  - first:
+      213: 3519544531870375864
+    second: 1773371893135_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +78,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: NPC_1_0
+      name: 1773371893135_0
       rect:
         serializedVersion: 2
-        x: 1139
-        y: 671
-        width: 461
-        height: 684
+        x: 1570
+        y: 751
+        width: 286
+        height: 329
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +131,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 785f14b0298fc1160800000000000000
-      internalID: 6997741227164693895
+      spriteID: ff773d86ab29ee290800000000000000
+      internalID: -7859182970394675201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 1773371893135_1
+      rect:
+        serializedVersion: 2
+        x: 875
+        y: 291
+        width: 148
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bf5d49ba1fe7d030800000000000000
+      internalID: 3519544531870375864
       vertices: []
       indices: 
       edges: []
@@ -138,7 +163,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +173,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      NPC_1_0: 6997741227164693895
+      1773371893135_0: -7859182970394675201
+      1773371893135_1: 3519544531870375864
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
