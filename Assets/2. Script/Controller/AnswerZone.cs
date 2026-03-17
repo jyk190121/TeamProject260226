@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public enum ClearType { Page, Chapter }
+public enum ClearType { Page, Chapter, EventOnly }
 
 public class AnswerZone : MonoBehaviour
 {
@@ -10,44 +10,40 @@ public class AnswerZone : MonoBehaviour
     public int targetID;
     public int targetColor;
 
-    // [추가됨] 메인 씬 전용인지 체크
     [Header("위치 및 등장 조건")]
-    [Tooltip("체크 시 메인(Main) 화면용 존이 되며, Sub 페이지 번호를 무시합니다.")]
     public bool isMainZone = false;
-
-    public int requiredChapter = 1; // Main
-    public int requiredPage = 1;    // Sub (isMainZone이 true면 무시됨)
+    public int requiredChapter = 1;
+    public int requiredPage = 1;
 
     [Header("클리어 설정")]
     public ClearType clearType = ClearType.Page;
 
+    // ==========================================
+    // [추가됨] 정답 제출 후 아이템을 어떻게 할지 에디터에서 선택!
+    // ==========================================
+    [Header("정답 아이템 처리 방식")]
+    [Tooltip("체크 시 유저가 드래그해서 손을 놓은 '그 위치 그대로' 놔둡니다. 해제 시 정답존 중앙으로 자석처럼 붙습니다.")]
+    public bool keepDroppedPosition = false;
+    [Tooltip("체크 시 정답을 맞추면 아이템이 화면에서 아예 파괴되어 사라집니다.")]
+    public bool destroyItemOnSuccess = false;
+
     [Header("성공 시 실행할 이벤트")]
     public UnityEvent onCorrect;
 
+    [HideInInspector] public bool isSolved = false;
+
     public bool CheckMatch(Item data, GameObject itemObj)
     {
-        if (data == null) return false;
+        if (data == null || isSolved) return false;
 
-        // 1. [변경됨] 메인 존 체크박스에 따른 유연한 조건 검사
         if (StageManager.Instance != null)
         {
-            // 챕터는 무조건 일치해야 함
-            if (StageManager.Instance.CurrentChapter() != requiredChapter)
-            {
-                Debug.Log($"<color=orange>[AnswerZone]</color> 다른 챕터의 정답 구역입니다.");
-                return false;
-            }
-
-            // 메인 존이 아닐 경우에만 페이지 번호까지 깐깐하게 검사
-            if (!isMainZone && StageManager.Instance.CurrentStage() != requiredPage)
-            {
-                Debug.Log($"<color=orange>[AnswerZone]</color> 아직 이 기믹을 풀 타이밍(페이지)이 아닙니다.");
-                return false;
-            }
+            if (StageManager.Instance.CurrentChapter() != requiredChapter) return false;
+            if (!isMainZone && StageManager.Instance.CurrentStage() != requiredPage) return false;
         }
 
-        // 2. 정답 판정
-        if (int.TryParse(data.id, out int itemNumber))
+        string baseId = data.id.Split('_')[0];
+        if (int.TryParse(baseId, out int itemNumber))
         {
             if (itemNumber == targetID && data.color == targetColor)
             {
@@ -55,34 +51,41 @@ public class AnswerZone : MonoBehaviour
                 return true;
             }
         }
-
-        Debug.Log($"<color=red>[오답]</color> ID:{data.id} / Color:{data.color} 는 정답이 아닙니다.");
         return false;
     }
 
     private void Success(GameObject itemObj)
     {
-        itemObj.transform.position = this.transform.position;
-        Graphic[] graphics = itemObj.GetComponentsInChildren<Graphic>();
-        foreach (var g in graphics) g.raycastTarget = false;
-        itemObj.transform.SetParent(this.transform);
+        isSolved = true;
 
-        Debug.Log($"<color=cyan>[정답]</color> ID {targetID} 매칭 성공! 기믹 해결.");
+        // 아이템 처리 로직
+        if (destroyItemOnSuccess)
+        {
+            itemObj.SetActive(false); // 화면에서 아예 없앰
+        }
+        else
+        {
+            // 중앙 자석 정렬 옵션을 켜뒀을 때만 위치 이동
+            if (!keepDroppedPosition)
+            {
+                itemObj.transform.position = this.transform.position;
+            }
+
+            // 터치(클릭) 무시 처리 및 정답존에 종속시킴
+            Graphic[] graphics = itemObj.GetComponentsInChildren<Graphic>();
+            foreach (var g in graphics) g.raycastTarget = false;
+            itemObj.transform.SetParent(this.transform);
+        }
+
         onCorrect?.Invoke();
 
         if (clearType == ClearType.Page)
         {
-            Debug.Log("<color=yellow>[스테이지 진행]</color> 페이지(Sub) 클리어! 다음 페이지로 넘어갑니다.");
             StageManager.Instance.ClearStage();
-
-            if (ItemManager.Instance != null)
-            {
-                ItemManager.Instance.SpawnItem(StageManager.Instance.CurrentChapter(), StageManager.Instance.CurrentStage());
-            }
+            if (ItemManager.Instance != null) ItemManager.Instance.SpawnItem(StageManager.Instance.CurrentChapter(), StageManager.Instance.CurrentStage());
         }
         else if (clearType == ClearType.Chapter)
         {
-            Debug.Log("<color=yellow>[스테이지 진행]</color> 챕터(Main) 클리어! 다음 챕터로 넘어갑니다.");
             StageManager.Instance.ClearChapter();
         }
     }

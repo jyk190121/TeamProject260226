@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 188bd5cad55e9db4e99a4cf0f40c0b5e, type: 3}
-  m_Name: Moon
+  m_Name: Insignia 3
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  id: 101
+  id: 103_3
   locationID: Sub
   chapterIndex: 1
   stageIndex: 1
-  oriPos: {x: -240, y: 230}
-  originColor: 0
-  type: 0
-  prefab: {fileID: 3030617414520634162, guid: f6c33fb835d3f0542a7b07d9e1eb822c, type: 3}
-  changePos: {x: 1554.8121, y: 710.52625}
-  color: 0
+  oriPos: {x: -681, y: 250}
+  originColor: 1
+  type: 1
+  prefab: {fileID: 3030617414520634162, guid: 66b374b31d089e54ba19cb10dd337256, type: 3}
+  changePos: {x: 200, y: 250}
+  color: 1
