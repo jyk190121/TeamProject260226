@@ -2373,8 +2373,8 @@ MonoBehaviour:
   defaultMaster: 0.8
   defaultBgm: 0.8
   defaultSfx: 0.8
-  titleSceneName: Title
-  inGameSceneName: InGame
+  titleSceneName: StartScene_Test1
+  inGameSceneName: GameScene_Test2
 --- !u!82 &743333288
 AudioSource:
   m_ObjectHideFlags: 0
