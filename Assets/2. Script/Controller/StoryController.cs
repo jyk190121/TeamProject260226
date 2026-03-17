@@ -1,4 +1,7 @@
 using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -7,11 +10,14 @@ public class StoryController : MonoBehaviour
 {
     [Header("UI 연결")]
     public GameObject storyPrefab;
+    public GameObject storyReadPrefab;
     public Transform contentParent;
+    public TextMeshProUGUI progressTxt ;                                // 진행도 텍스트 (%)
+    public Image progressImg;                                           // 진행도 이미지 (Bar)
 
     [Header("좌표 보정")]
-    public Vector2 startPosition;                                         // 시작 절대 좌표
-    public Vector2 finalTargetPos;                                        // 최종 정착 좌표
+    public Vector2 startPosition;                                       // 시작 절대 좌표
+    public Vector2 finalTargetPos;                                      // 최종 정착 좌표
 
     [Header("모션 설정")]
     public float animationDuration = 2f;
@@ -63,14 +69,38 @@ public class StoryController : MonoBehaviour
 
     void LoadExistingSubStories()
     {
+        //SaveData data = SaveManager.Instance.Load();
+        //if (data.generatedSubStories == null) return;
+
+        //foreach (int chapterIndex in data.generatedSubStories)
+        //{
+        //    // 애니메이션 없이 즉시 생성
+        //    CreateSubStoryUI($"{chapterIndex}장의 기록", false);
+        //}
+
         SaveData data = SaveManager.Instance.Load();
         if (data.generatedSubStories == null) return;
 
-        foreach (int chapterIndex in data.generatedSubStories)
+        //foreach (int chapterIndex in data.generatedSubStories)
+        //{
+        //    // 다 읽은 목록에 포함되어 있다면 읽은 프리팹 사용
+        //    bool isRead = data.readSubStories.Contains(chapterIndex);
+
+        //    // 저장된 데이터를 불러올 때는 애니메이션 없이 즉시 생성
+        //    CreateSubStoryUI($"{chapterIndex}장의 기록", false, isRead);
+        //}
+
+        for (int i = 0; i < data.generatedSubStories.Count; i++)
         {
-            // 애니메이션 없이 즉시 생성
-            CreateSubStoryUI($"{chapterIndex}장의 기록", false);
+            int chapterIndex = data.generatedSubStories[i];
+
+            // [로직 변경] 리스트의 마지막 요소가 아니라면 모두 읽음(isRead = true) 처리
+            bool isRead = (i != data.generatedSubStories.Count - 1);
+
+            CreateSubStoryUI($"{chapterIndex}장의 기록", false, isRead);
         }
+
+        UpdateProgressUI();
     }
 
     // 스테이지 클리어 시 호출하여 생성 예약
@@ -91,8 +121,12 @@ public class StoryController : MonoBehaviour
             _isPendingSubStory = false;
             return;
         }
-        // UI 생성 (애니메이션 포함)
-        StartCoroutine(StartSequence());
+
+        // [추가] 새 스토리를 만들기 전에, 기존에 New 상태였던 UI들을 모두 Read로 교체
+        StartCoroutine(SubStorySequence(currentChapter));
+
+        //// UI 생성 (애니메이션 포함)
+        //StartCoroutine(StartSequence());
 
         // 데이터 기록 및 저장
         data.generatedSubStories.Add(currentChapter);
@@ -100,15 +134,63 @@ public class StoryController : MonoBehaviour
 
         _isPendingSubStory = false;
     }
+    //void RefreshAllToReadState()
+    //{
+    //    // New 프리팹은 "New"라는 태그를 붙여두거나, 특정 컴포넌트로 구별하면 좋습니다.
+    //    // 여기서는 간단하게 contentParent의 자식들 중 New 프리팹을 찾아 교체합니다.
+    //    foreach (Transform child in contentParent)
+    //    {
+    //        // 만약 이름이나 태그로 구분이 가능하다면 (예: storyPrefab의 이름이 "SubStory_New")
+    //        if (child.name.Contains(storyPrefab.name))
+    //        {
+    //            int chapterIdx = 0; // 실제 데이터와 연동하려면 정보를 들고 있어야 함
+    //            // 기존 MarkAsRead 로직을 활용해 교체
+    //            ReplaceToReadPrefab(child.gameObject);
+    //        }
+    //    }
+    //}
 
     private IEnumerator StartSequence()
     {
         yield return new WaitForEndOfFrame();
-        AddStorysubAtTopWithWorldMotion("새로운 스토리");
+        yield return StartCoroutine(AddStorysubAtTopWithWorldMotion("새로운 스토리"));
     }
-    void CreateSubStoryUI(string message, bool useAnimation)
+
+    IEnumerator SubStorySequence(int chapter)
     {
-        if (storyPrefab == null || contentParent == null) return;
+        // 1. 새로운 스토리 올라오는 애니메이션 실행 및 끝날 때까지 대기
+        // yield return을 사용해 AnimatesubFromScreenToContent가 끝날 때까지 기다립니다.
+        yield return StartCoroutine(StartSequence());
+
+        // 2. 새 스토리 배치가 완전히 끝난 후, 기존 스토리들 교체 시작
+        RefreshAllToReadState();
+    }
+    //void CreateSubStoryUI(string message, bool useAnimation)
+    //{
+    //    if (storyPrefab == null || contentParent == null) return;
+
+    //    if (useAnimation)
+    //    {
+    //        AddStorysubAtTopWithWorldMotion(message);
+    //    }
+    //    else
+    //    {
+    //        // 로드 시: 애니메이션 없이 즉시 배치
+    //        GameObject sub = Instantiate(storyPrefab, contentParent);
+    //        sub.transform.SetAsFirstSibling();
+    //        Text txt = sub.GetComponentInChildren<Text>();
+    //        if (txt != null) txt.text = message;
+
+
+    //        LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
+    //    }
+    //}
+
+    void CreateSubStoryUI(string message, bool useAnimation, bool isRead = false)
+    {
+        if (contentParent == null) return;
+
+        GameObject targetPrefab = isRead ? storyReadPrefab : storyPrefab;
 
         if (useAnimation)
         {
@@ -116,9 +198,11 @@ public class StoryController : MonoBehaviour
         }
         else
         {
-            // 로드 시: 애니메이션 없이 즉시 배치
-            GameObject sub = Instantiate(storyPrefab, contentParent);
+            //애니메이션 없이 바로 생성
+            GameObject sub = Instantiate(targetPrefab, contentParent);
+            sub.name = targetPrefab.name;
             sub.transform.SetAsFirstSibling();
+
             Text txt = sub.GetComponentInChildren<Text>();
             if (txt != null) txt.text = message;
 
@@ -126,9 +210,10 @@ public class StoryController : MonoBehaviour
         }
     }
 
-    public void AddStorysubAtTopWithWorldMotion(string message)
+
+    IEnumerator AddStorysubAtTopWithWorldMotion(string message)
     {
-        if (storyPrefab == null || contentParent == null) return;
+        if (storyPrefab == null || contentParent == null) yield break;
 
         // 임시 생성 (Content가 아닌 Canvas 바로 아래 생성하여 레이아웃 방해 금지)
         Canvas parentCanvas = contentParent.GetComponentInParent<Canvas>();
@@ -138,7 +223,7 @@ public class StoryController : MonoBehaviour
         Text txt = tempsub.GetComponentInChildren<Text>();
         if (txt != null) txt.text = message;
 
-        StartCoroutine(AnimatesubFromScreenToContent(tempsub));
+        yield return StartCoroutine(AnimatesubFromScreenToContent(tempsub));
     }
 
     private IEnumerator AnimatesubFromScreenToContent(GameObject sub)
@@ -258,11 +343,113 @@ public class StoryController : MonoBehaviour
 
         MouseClickManager.Instance.SetClickEnable(true);
 
+        UpdateProgressUI();
+    }
+
+
+    void RefreshAllToReadState()
+    {
+        List<GameObject> targets = new List<GameObject>();
+
+        // 하이어라키를 순회하며 '읽음' 프리팹이 아닌 '일반' 프리팹들을 찾습니다.
+        foreach (Transform child in contentParent)
+        {
+            // 이름에 storyPrefab 이름이 포함되어 있고, storyReadPrefab 이름은 포함되지 않은 것
+            if (child.name.Contains(storyPrefab.name) && !child.name.Contains(storyReadPrefab.name))
+            {
+                // [추가 조건] 방금 막 생성된 첫 번째 자식(Index 0)은 제외합니다.
+                // 그래야 방금 올라온 책은 New 상태를 유지합니다.
+                if (child.GetSiblingIndex() != 0)
+                {
+                    targets.Add(child.gameObject);
+                }
+            }
+        }
+
+        foreach (GameObject target in targets)
+        {
+            StartCoroutine(ReplaceWithFadeRoutine(target));
+        }
+    }
+
+    IEnumerator ReplaceWithFadeRoutine(GameObject currentObj)
+    {
+        if (currentObj == null) yield break;
+
+        int targetIndex = currentObj.transform.GetSiblingIndex();
+        Text txtComp = currentObj.GetComponentInChildren<Text>();
+        string msg = (txtComp != null) ? txtComp.text : "";
+
+        // 1. 새 '읽음' 프리팹 생성
+        GameObject newReadSub = Instantiate(storyReadPrefab, contentParent);
+        newReadSub.name = storyReadPrefab.name;
+        newReadSub.transform.SetSiblingIndex(targetIndex);
+
+        Text newTxt = newReadSub.GetComponentInChildren<Text>();
+        if (newTxt != null) newTxt.text = msg;
+
+        // 2. CanvasGroup 확보 (에러 방지를 위해 먼저 가져옴)
+        CanvasGroup oldGroup = currentObj.GetComponent<CanvasGroup>() ?? currentObj.AddComponent<CanvasGroup>();
+        CanvasGroup newGroup = newReadSub.GetComponent<CanvasGroup>() ?? newReadSub.AddComponent<CanvasGroup>();
+
+        yield return new WaitForEndOfFrame();
+
+        // 3. 이제 안전하게 접근 가능
+        if (newGroup != null) newGroup.alpha = 0f;
+        if (oldGroup != null) oldGroup.alpha = 1f;
+
+        float fadeDuration = 0.5f;
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            // 도중에 파괴되었을 경우 대비
+            if (oldGroup == null || newGroup == null) break;
+
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / fadeDuration);
+
+            oldGroup.alpha = 1f - t;
+            newGroup.alpha = t;
+
+            yield return null;
+        }
+
+        if (newGroup != null) newGroup.alpha = 1f;
+        if (currentObj != null) Destroy(currentObj);
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
+    }
+
+    // 진행도 업데이트
+    private void UpdateProgressUI()
+    {
+        if (contentParent == null || progressTxt == null || progressImg == null) return;
+
+        int validCount = 0;
+
+        foreach (Transform child in contentParent)
+        {
+            // 1. 이름이 "Spacer"인 임시 객체 제외
+            // 2. 이미 파괴 예약이 걸린 객체(Active 상태가 아님) 제외 (선택적)
+            if (child.name != "Spacer")
+            {
+                validCount++;
+            }
+        }
+
+        // 개당 10% 계산
+        float progress = Mathf.Clamp01(validCount * 0.1f);
+
+        progressImg.fillAmount = progress;
+        progressTxt.text = $"{(int)(progress * 100)}%";
+
+        Debug.Log($"[정확한 카운트] 실제 책 개수: {validCount} -> {progress * 100}%");
     }
 
     private void Update()
     {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame == true)
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             StartCoroutine(StartSequence());
         }

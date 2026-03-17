@@ -162,6 +162,7 @@ public class StartController : MonoBehaviour
     void StartGame()
     {
         StartCoroutine(GameLoadSequence(() => {
+            SaveManager.Instance.ResetGame();
             SaveData data = SaveManager.Instance.Load();
             data.isGameStarted = true;
             SaveManager.Instance.Save(data);

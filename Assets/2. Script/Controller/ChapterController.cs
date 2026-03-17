@@ -6,7 +6,9 @@ public class ChapterController : MonoBehaviour
 {
     [Header("UI 연결")]
     public Image targetMainImage;        // 실제로 화면에 보여지는 Image 컴포넌트
-    public List<Sprite> chapterSprites;  // 1장~ ?장까지의 이미지 리스트
+    public Image completedMainImage;     // 완성(클리어) Image 컴포넌트
+    public List<Sprite> chapterSprites;  // 1장~ ?장까지의 Image 리스트 (미완)
+    public List<Sprite> completedSprites;// 완성(클리어) Image 리스트
     public Button prevBtn;
     public Button nextBtn;
 
@@ -14,6 +16,9 @@ public class ChapterController : MonoBehaviour
     int currentViewChapter;
     // 세이브 데이터 기준 해금된 최대 챕터 번호
     int maxUnlockedChapter;
+
+    private readonly Color activeColor = new Color(207f / 255f, 255f / 255f, 162f / 255f);
+    private readonly Color disabledColor = new Color(188f / 255f, 188f / 255f, 188f / 255f);
 
     void OnEnable()
     {
@@ -93,26 +98,66 @@ public class ChapterController : MonoBehaviour
     {
         if (targetMainImage == null || chapterSprites == null) return;
 
-        // 1. 이미지 교체
+        // 이미지 교체
         int spriteIndex = currentViewChapter - 1;
+
+        bool isChapterCompleted = currentViewChapter < maxUnlockedChapter;
+
         if (spriteIndex >= 0 && spriteIndex < chapterSprites.Count)
         {
             targetMainImage.sprite = chapterSprites[spriteIndex];
+
+            if (spriteIndex < completedSprites.Count && completedSprites[spriteIndex] != null)
+            {
+                completedMainImage.sprite = completedSprites[spriteIndex];
+
+                // 클리어된 챕터라면 완성본 활성화
+                completedMainImage.gameObject.SetActive(isChapterCompleted);
+                // 진행 중인 챕터라면 일반본 활성화
+                targetMainImage.gameObject.SetActive(!isChapterCompleted);
+            }
+            else
+            {
+                // 완성본 스프라이트가 없으면 기본 이미지만 표시
+                completedMainImage.gameObject.SetActive(false);
+                targetMainImage.gameObject.SetActive(true);
+            }
         }
 
-        // 2. 버튼 활성화/비활성화 로직
+        // 버튼 활성화/비활성화 로직
         // 이전 버튼: 1장일 때는 무조건 비활성
-        if (prevBtn != null)
-        {
-            prevBtn.interactable = (currentViewChapter > 1);
-        }
 
-        // 다음 버튼: 현재 보는 페이지가 해금된 최대 장수보다 작을 때만 활성
-        if (nextBtn != null)
-        {
-            nextBtn.interactable = (currentViewChapter < maxUnlockedChapter);
-        }
+        UpdateButtonAppearance(prevBtn, currentViewChapter > 1);
+        UpdateButtonAppearance(nextBtn, currentViewChapter < maxUnlockedChapter);
+
+        //if (prevBtn != null)
+        //{
+        //    prevBtn.interactable = (currentViewChapter > 1);
+            
+        //}
+
+        //// 다음 버튼: 현재 보는 페이지가 해금된 최대 장수보다 작을 때만 활성
+        //if (nextBtn != null)
+        //{
+        //    nextBtn.interactable = (currentViewChapter < maxUnlockedChapter);
+        //}
 
         print($"<color=cyan>현재 UI 표시 챕터: {currentViewChapter} / 해금 최대치: {maxUnlockedChapter}</color>");
     }
+
+    void UpdateButtonAppearance(Button btn, bool isInteractable)
+    {
+        if (btn == null) return;
+
+        // 버튼 상호작용 설정
+        btn.interactable = isInteractable;
+
+        // 버튼의 Image 컴포넌트 색상 변경
+        Image btnImg = btn.GetComponent<Image>();
+        if (btnImg != null)
+        {
+            btnImg.color = isInteractable ? activeColor : disabledColor;
+        }
+    }
+
 }
