@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 188bd5cad55e9db4e99a4cf0f40c0b5e, type: 3}
   m_Name: Clock
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  id: 106
+  id: 107
   locationID: Sub
   chapterIndex: 1
   stageIndex: 2
-  oriPos: {x: 200, y: 1000}
+  isHiddenInitially: 1
+  oriPos: {x: -250.9, y: 100.7}
   originColor: 0
   type: 0
-  prefab: {fileID: 3030617414520634162, guid: f6c33fb835d3f0542a7b07d9e1eb822c, type: 3}
-  changePos: {x: 200, y: 1000}
-  color: 0
+  prefab: {fileID: 3030617414520634162, guid: d9f76cc5906d9c543b4c534d20478e87, type: 3}
+  targetItemToHideMe: 

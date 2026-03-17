@@ -25,14 +25,18 @@ public class ItemManager : MonoBehaviour
     {
         if (currentChapter <= 0 || currentStage <= 0) return;
 
-        ClearAllItems();
         SaveData savedData = SaveManager.Instance.Load();
 
         foreach (Item item in itemData)
         {
             if (item.chapterIndex == currentChapter && item.stageIndex == currentStage)
             {
+                if (spawnedItems.ContainsKey(item.id)) continue;
+
                 var savedInfo = savedData.itemPositions?.Find(x => x.itemId == item.id);
+
+                // [핵심 방어막] 숨겨진 아이템이고 획득한 기록도 없다면 스폰 무시
+                if (item.isHiddenInitially && savedInfo == null) continue;
 
                 Vector2 spawnPos = (savedInfo != null) ? savedInfo.savedPos : item.oriPos;
                 int spawnColor = (savedInfo != null) ? savedInfo.savedColor : item.originColor;
@@ -46,45 +50,15 @@ public class ItemManager : MonoBehaviour
 
         UpdateStageVisibility(_currentLocation);
 
-        // [추가됨] 아이템 깔기 끝난 후, 씬에 있는 정답/확대 존들도 현재 페이지에 맞게 켜고 끄기
-        UpdateInteractZones(currentChapter, currentStage);
-    }
-
-    private void CreateItemObject(Item data, Vector2 pos, int colorIndex)
-    {
-        if (data.prefab == null) return;
-
-        GameObject newItem = Instantiate(data.prefab, itemParent);
-        newItem.name = data.id;
-
-        // [핵심 변경] 월드 좌표(position) 대신 UI 로컬 좌표(anchoredPosition) 사용!
-        RectTransform rt = newItem.GetComponent<RectTransform>();
-        if (rt != null)
-        {
-            rt.anchoredPosition = pos;
-        }
-        else
-        {
-            // UI(RectTransform)가 아닌 일반 3D/2D 오브젝트일 경우를 위한 예외 처리
-            newItem.transform.position = pos;
-        }
-
-        ApplyTypeLogic(newItem, data, colorIndex);
-
-        if (!spawnedItems.ContainsKey(data.id))
-            spawnedItems.Add(data.id, newItem);
-    }
-
-    private void ApplyTypeLogic(GameObject obj, Item data, int colorIndex)
-    {
-        Color targetColor = ColorManager.GetColor(colorIndex);
-        Image uiImage = obj.GetComponentInChildren<Image>(true);
-        if (uiImage != null) uiImage.color = targetColor;
+        PageController pageCtrl = Object.FindFirstObjectByType<PageController>();
+        if (pageCtrl != null) pageCtrl.RefreshPageImage();
     }
 
     public void UpdateStageVisibility(string newLocation)
     {
         _currentLocation = newLocation;
+        int currentChap = StageManager.Instance != null ? StageManager.Instance.CurrentChapter() : 1;
+        int currentStage = StageManager.Instance != null ? StageManager.Instance.CurrentStage() : 1;
 
         foreach (var entry in spawnedItems)
         {
@@ -94,42 +68,86 @@ public class ItemManager : MonoBehaviour
 
             if (data == null || obj == null) continue;
 
+            if (!string.IsNullOrEmpty(data.targetItemToHideMe))
+            {
+                Item linkedItem = GetItemDataById(data.targetItemToHideMe);
+                if (linkedItem != null && (linkedItem.currentState == ItemState.Storage || linkedItem.currentState == ItemState.Used))
+                {
+                    obj.SetActive(false);
+                    continue;
+                }
+            }
+
             if (data.currentState == ItemState.Storage || data.currentState == ItemState.Used)
             {
                 obj.SetActive(true);
             }
             else
             {
-                bool isMyStage = (data.locationID == _currentLocation);
+                bool isMyStage = (data.locationID == _currentLocation) &&
+                                 (data.chapterIndex == currentChap) &&
+                                 (data.stageIndex == currentStage);
                 obj.SetActive(isMyStage);
             }
         }
-        Debug.Log($"<color=green>[Visibility]</color> '{_currentLocation}' 화면 기준으로 아이템 필터링 완료");
+
+        if (StageManager.Instance != null)
+        {
+            UpdateInteractZones(currentChap, currentStage);
+        }
+    }
+
+    // [이벤트 소환용 함수]
+    public void SpawnSpecificItem(string itemID)
+    {
+        Item item = GetItemDataById(itemID);
+        if (item != null && !spawnedItems.ContainsKey(itemID))
+        {
+            item.currentState = ItemState.Field;
+            CreateItemObject(item, item.oriPos, item.originColor);
+            UpdateStageVisibility(_currentLocation);
+
+            // 저장 로직 (방을 나갔다 들어와도 계속 스폰되도록 기록해둠)
+            ChangeItemPos(itemID, item.oriPos);
+            Debug.Log($"<color=lime>[이벤트 소환]</color> {itemID} 아이템이 나타났습니다!");
+        }
+    }
+
+    private void CreateItemObject(Item data, Vector2 pos, int colorIndex)
+    {
+        if (data.prefab == null) return;
+
+        GameObject newItem = Instantiate(data.prefab, itemParent);
+        newItem.name = data.id;
+
+        RectTransform rt = newItem.GetComponent<RectTransform>();
+        if (rt != null) rt.anchoredPosition = pos;
+        else newItem.transform.position = pos;
+
+        ApplyTypeLogic(newItem, data, colorIndex);
+
+        if (!spawnedItems.ContainsKey(data.id))
+            spawnedItems.Add(data.id, newItem);
+    }
+
+    private void ApplyTypeLogic(GameObject obj, Item data, int colorIndex)
+    {
+        if (data.type != ItemType.A && data.type != ItemType.B) return;
+        Color targetColor = ColorManager.GetColor(colorIndex);
+        Image uiImage = obj.GetComponentInChildren<Image>(true);
+        if (uiImage != null) uiImage.color = targetColor;
     }
 
     public void UpdateItemStateAndPosition(string itemId, ItemState newState, Vector2 newPos)
     {
         Item data = GetItemDataById(itemId);
-        if (data != null)
-        {
-            data.currentState = newState;
-            data.changePos = newPos;
-            ChangeItemPos(itemId, newPos);
-            UpdateStageVisibility(_currentLocation);
-        }
+        if (data != null) { data.currentState = newState; data.changePos = newPos; ChangeItemPos(itemId, newPos); UpdateStageVisibility(_currentLocation); }
     }
 
     public void UpdateItemColor(string itemId, int newColorIndex)
     {
         Item data = GetItemDataById(itemId);
-        if (data != null)
-        {
-            data.color = newColorIndex;
-            if (spawnedItems.TryGetValue(itemId, out GameObject obj))
-                ApplyTypeLogic(obj, data, newColorIndex);
-
-            ChangeItemPos(itemId, data.changePos);
-        }
+        if (data != null) { data.color = newColorIndex; if (spawnedItems.TryGetValue(itemId, out GameObject obj)) ApplyTypeLogic(obj, data, newColorIndex); ChangeItemPos(itemId, data.changePos); }
     }
 
     public void UpdateItemPosition(string itemId, Vector2 newPos)
@@ -151,10 +169,8 @@ public class ItemManager : MonoBehaviour
             Item so = itemData.Find(x => x.id == id);
             if (so != null && obj != null)
             {
-                // [핵심 변경] 현재 위치를 저장할 때도 UI 로컬 좌표(anchoredPosition) 추출!
                 RectTransform rt = obj.GetComponent<RectTransform>();
                 Vector2 savePos = (rt != null) ? rt.anchoredPosition : (Vector2)obj.transform.position;
-
                 data.itemPositions.Add(new ItemSaveInfo { itemId = id, savedPos = savePos, savedColor = so.color });
             }
         }
@@ -165,35 +181,44 @@ public class ItemManager : MonoBehaviour
 
     public void ClearAllItems()
     {
-        foreach (var item in spawnedItems.Values)
-        {
-            if (item != null) Destroy(item);
-        }
+        foreach (var item in spawnedItems.Values) { if (item != null) Destroy(item); }
         spawnedItems.Clear();
-        Debug.Log("<color=red>[System]</color> 이전 스테이지 아이템 데이터 완전 파괴 완료.");
     }
 
-    // [추가됨] 씬에 있는 Zone들을 페이지 진행도에 따라 자동으로 On/Off 해주는 함수
-    // [변경됨] isMainZone 체크 여부에 따라 끄고 켜는 조건 분리
     private void UpdateInteractZones(int chapter, int stage)
     {
         AnswerZone[] answerZones = Object.FindObjectsByType<AnswerZone>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var zone in answerZones)
         {
-            // 메인 존이면 챕터만 맞으면 무조건 켜둠, 서브 존이면 페이지까지 맞아야 켜짐
-            if (zone.isMainZone)
-                zone.gameObject.SetActive(zone.requiredChapter == chapter);
-            else
-                zone.gameObject.SetActive(zone.requiredChapter == chapter && zone.requiredPage == stage);
+            if (zone.isMainZone) zone.gameObject.SetActive(zone.requiredChapter == chapter);
+            else zone.gameObject.SetActive(zone.requiredChapter == chapter && zone.requiredPage == stage);
         }
 
         ZoomInTrigger[] zoomZones = Object.FindObjectsByType<ZoomInTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var zone in zoomZones)
         {
-            // ZoomInTrigger도 추후 메인 존에 쓸 수 있으니 확장성을 위해 로직을 맞춰둠 (필요시 ZoomInTrigger 스크립트에도 isMainZone 변수 추가 가능)
             zone.gameObject.SetActive(zone.requiredChapter == chapter && zone.requiredPage == stage);
         }
 
-        Debug.Log($"<color=cyan>[Zone Update]</color> {chapter}-{stage} 페이지용 상호작용 구역(Zone) 켜기/끄기 동기화 완료.");
+        ObjectVisibilityController[] storyObjects = Object.FindObjectsByType<ObjectVisibilityController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var obj in storyObjects)
+        {
+            bool shouldBeActive = false;
+
+            if (obj.locationID == _currentLocation)
+            {
+                if (obj.isMainObject)
+                {
+                    if (obj.visibilityType == ObjectVisibilityController.VisibilityType.OnlyThisPage) shouldBeActive = (obj.requiredChapter == chapter);
+                    else shouldBeActive = (chapter >= obj.requiredChapter);
+                }
+                else
+                {
+                    if (obj.visibilityType == ObjectVisibilityController.VisibilityType.OnlyThisPage) shouldBeActive = (obj.requiredChapter == chapter && obj.requiredPage == stage);
+                    else shouldBeActive = (chapter > obj.requiredChapter) || (chapter == obj.requiredChapter && stage >= obj.requiredPage);
+                }
+            }
+            obj.gameObject.SetActive(shouldBeActive);
+        }
     }
 }

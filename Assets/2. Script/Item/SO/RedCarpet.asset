@@ -16,9 +16,9 @@ MonoBehaviour:
   locationID: Sub
   chapterIndex: 1
   stageIndex: 2
+  isHiddenInitially: 0
   oriPos: {x: 275.9, y: -113.3}
   originColor: 1
-  type: 0
+  type: 1
   prefab: {fileID: 3030617414520634162, guid: 08bc86b91c5cb71418bbebbc4437abaf, type: 3}
-  changePos: {x: 275.9, y: -113.3}
-  color: 1
+  targetItemToHideMe: 

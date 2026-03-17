@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 188bd5cad55e9db4e99a4cf0f40c0b5e, type: 3}
   m_Name: Insignia
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  id: 103
+  id: 103_0
   locationID: Sub
   chapterIndex: 1
   stageIndex: 1
   oriPos: {x: 200, y: 250}
-  originColor: 2
+  originColor: 1
   type: 1
   prefab: {fileID: 3030617414520634162, guid: c13edc227016a9d45a9ff5c7811e9220, type: 3}
   changePos: {x: 200, y: 250}
-  color: 2
+  color: 1
