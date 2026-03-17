@@ -6,7 +6,9 @@ public class ChapterController : MonoBehaviour
 {
     [Header("UI 연결")]
     public Image targetMainImage;        // 실제로 화면에 보여지는 Image 컴포넌트
-    public List<Sprite> chapterSprites;  // 1장~ ?장까지의 이미지 리스트
+    public Image completedMainImage;     // 완성(클리어) Image 컴포넌트
+    public List<Sprite> chapterSprites;  // 1장~ ?장까지의 Image 리스트 (미완)
+    public List<Sprite> completedSprites;// 완성(클리어) Image 리스트
     public Button prevBtn;
     public Button nextBtn;
 
@@ -96,14 +98,33 @@ public class ChapterController : MonoBehaviour
     {
         if (targetMainImage == null || chapterSprites == null) return;
 
-        // 1. 이미지 교체
+        // 이미지 교체
         int spriteIndex = currentViewChapter - 1;
+
+        bool isChapterCompleted = currentViewChapter < maxUnlockedChapter;
+
         if (spriteIndex >= 0 && spriteIndex < chapterSprites.Count)
         {
             targetMainImage.sprite = chapterSprites[spriteIndex];
+
+            if (spriteIndex < completedSprites.Count && completedSprites[spriteIndex] != null)
+            {
+                completedMainImage.sprite = completedSprites[spriteIndex];
+
+                // 클리어된 챕터라면 완성본 활성화
+                completedMainImage.gameObject.SetActive(isChapterCompleted);
+                // 진행 중인 챕터라면 일반본 활성화
+                targetMainImage.gameObject.SetActive(!isChapterCompleted);
+            }
+            else
+            {
+                // 완성본 스프라이트가 없으면 기본 이미지만 표시
+                completedMainImage.gameObject.SetActive(false);
+                targetMainImage.gameObject.SetActive(true);
+            }
         }
 
-        // 2. 버튼 활성화/비활성화 로직
+        // 버튼 활성화/비활성화 로직
         // 이전 버튼: 1장일 때는 무조건 비활성
 
         UpdateButtonAppearance(prevBtn, currentViewChapter > 1);
@@ -138,4 +159,5 @@ public class ChapterController : MonoBehaviour
             btnImg.color = isInteractable ? activeColor : disabledColor;
         }
     }
+
 }

@@ -46,7 +46,8 @@ public class StageManager : MonoBehaviour
     public void ClearChapter()
     {
         SaveData data = SaveManager.Instance.Load();
-        data.lastUnlockedChapter = currentChapterIndex;
+
+        int clearedChapter = currentChapterIndex;
 
         // 다음 챕터 진행
         currentChapterIndex++;
@@ -61,11 +62,11 @@ public class StageManager : MonoBehaviour
         // "나 챕터 깼어!"라고 방송함
         OnChapterCleared?.Invoke();
 
-        if (currentChapterIndex < totalChapter)
+        if (currentChapterIndex <= totalChapter)
         {
             StartStage(currentChapterIndex, 1);
             //currentChapterIndex의 스토리로 진행되어져야 함
-            StartChapter(currentChapterIndex);
+            OnChapterStarted?.Invoke(clearedChapter);
         }
         else
         {

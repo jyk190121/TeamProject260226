@@ -6252,7 +6252,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1449123106}
+  m_Father: {fileID: 1703893710}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
@@ -8334,9 +8334,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChapterController
   targetMainImage: {fileID: 2104951967}
+  completedMainImage: {fileID: 2117576259}
   chapterSprites:
   - {fileID: -111888198705434859, guid: f2ce3e140bcb7c44bb4c48aa68db886c, type: 3}
-  - {fileID: -6363034722592040027, guid: 4e693c808bb31f044bf2be8088828a15, type: 3}
+  - {fileID: 21300000, guid: 5ced647822dc4b64cb250fe6b737093a, type: 3}
+  completedSprites:
+  - {fileID: 2158169143541515962, guid: 0f8ff25cc44785945ad3454936b8e4f7, type: 3}
+  - {fileID: 21300000, guid: b0b9d5cbabbcd054fac0e3bf69e16b0a, type: 3}
   prevBtn: {fileID: 1802771747}
   nextBtn: {fileID: 2017285054}
 --- !u!1 &1192022652
@@ -9653,7 +9657,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 911389674}
   - {fileID: 2097423486}
   - {fileID: 2104951966}
   - {fileID: 2117576258}
@@ -11781,7 +11784,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1703893710
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11794,6 +11797,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 911389674}
   - {fileID: 1449123106}
   - {fileID: 370803562}
   - {fileID: 897060936}
@@ -14013,7 +14017,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2117576258
 RectTransform:
   m_ObjectHideFlags: 0
