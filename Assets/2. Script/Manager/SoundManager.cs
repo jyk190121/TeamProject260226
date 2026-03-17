@@ -2,14 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 
-/// <summary>
-/// 게임 전체 사운드를 관리하는 매니저.
-/// - BGM 재생 / 정지
-/// - SFX 재생
-/// - AudioMixer 볼륨 적용
-/// - SaveManager가 읽어갈 볼륨 키 / 현재 볼륨 값 제공
-/// </summary>
+[DisallowMultipleComponent]
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance;
@@ -34,6 +29,10 @@ public class SoundManager : MonoBehaviour
     [Range(0f, 1f)][SerializeField] private float defaultBgm = 0.8f;
     [Range(0f, 1f)][SerializeField] private float defaultSfx = 0.8f;
 
+    [Header("Scene BGM")]
+    [SerializeField] private string titleSceneName = "Title";
+    [SerializeField] private string inGameSceneName = "InGame";
+
     private const string KEY_MASTER = "vol_master";
     private const string KEY_BGM = "vol_bgm";
     private const string KEY_SFX = "vol_sfx";
@@ -51,6 +50,22 @@ public class SoundManager : MonoBehaviour
     private Dictionary<BgmId, SoundLibrary.BgmEntry> bgmMap;
     private Dictionary<SfxId, SoundLibrary.SfxEntry> sfxMap;
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -64,27 +79,26 @@ public class SoundManager : MonoBehaviour
 
         BuildMaps();
 
-        //Master = Mathf.Clamp01(defaultMaster);
-        //Bgm = Mathf.Clamp01(defaultBgm);
-        //Sfx = Mathf.Clamp01(defaultSfx);
-
-        // [수정] 세이브 데이터 로드 시도
         if (SaveManager.Instance != null)
         {
             SaveData data = SaveManager.Instance.Load();
-            Master = data.volMaster;
-            Bgm = data.volBgm;
-            Sfx = data.volSfx;
+            Master = Mathf.Clamp01(data.volMaster);
+            Bgm = Mathf.Clamp01(data.volBgm);
+            Sfx = Mathf.Clamp01(data.volSfx);
         }
         else
         {
-            // 데이터가 없으면 기본값 사용
             Master = Mathf.Clamp01(defaultMaster);
             Bgm = Mathf.Clamp01(defaultBgm);
             Sfx = Mathf.Clamp01(defaultSfx);
         }
 
         ApplyAllToMixer();
+    }
+
+    private void Start()
+    {
+        PlayCurrentSceneBgm();
     }
 
     /// <summary>
@@ -187,9 +201,6 @@ public class SoundManager : MonoBehaviour
         OnVolumeChanged?.Invoke();
     }
 
-    /// <summary>
-    /// SaveManager가 로드한 값을 한 번에 반영할 때 사용.
-    /// </summary>
     public void ApplyLoadedVolumes(float master, float bgm, float sfx)
     {
         Master = Mathf.Clamp01(master);
@@ -199,9 +210,6 @@ public class SoundManager : MonoBehaviour
         ApplyAllToMixer();
     }
 
-    /// <summary>
-    /// SaveManager가 저장할 때 사용할 키 / 값 묶음 반환.
-    /// </summary>
     public Dictionary<string, float> GetVolumeSaveData()
     {
         return new Dictionary<string, float>
@@ -210,6 +218,50 @@ public class SoundManager : MonoBehaviour
             { KEY_BGM, Bgm },
             { KEY_SFX, Sfx }
         };
+    }
+
+    #endregion
+
+    #region Scene BGM
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        PlayCurrentSceneBgm();
+    }
+
+    /// <summary>
+    /// GameSceneManager의 SceneName()을 우선 사용해서
+    /// 현재 씬에 맞는 BGM을 자동 재생한다.
+    /// </summary>
+    private void PlayCurrentSceneBgm()
+    {
+        string currentSceneName = GetCurrentSceneName();
+
+        if (currentSceneName == titleSceneName)
+        {
+            PlayBgm(BgmId.Title);
+        }
+        else if (currentSceneName == inGameSceneName)
+        {
+            PlayBgm(BgmId.InGame);
+        }
+        else
+        {
+            StopBgm();
+        }
+    }
+
+    /// <summary>
+    /// 현재 씬 이름을 가져온다.
+    /// GameSceneManager가 있으면 그쪽을 사용하고,
+    /// 없으면 SceneManager에서 직접 가져온다.
+    /// </summary>
+    private string GetCurrentSceneName()
+    {
+        if (GameSceneManager.Instance != null)
+            return GameSceneManager.Instance.SceneName();
+
+        return SceneManager.GetActiveScene().name;
     }
 
     #endregion
