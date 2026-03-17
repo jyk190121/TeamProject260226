@@ -1,18 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class StoryController : MonoBehaviour
 {
     [Header("UI 연결")]
-    public GameObject storyPrefab;
+    public List<GameObject> chapterPrefabs;
     public GameObject storyReadPrefab;
     public Transform contentParent;
-    public TextMeshProUGUI progressTxt ;                                // 진행도 텍스트 (%)
+    public TextMeshProUGUI progressTxt;                                // 진행도 텍스트 (%)
     public Image progressImg;                                           // 진행도 이미지 (Bar)
 
     [Header("좌표 보정")]
@@ -22,9 +20,6 @@ public class StoryController : MonoBehaviour
     [Header("모션 설정")]
     public float animationDuration = 2f;
     //public Vector2 startOffset = new Vector2(-Screen.width, -Screen.height); // 화면 왼쪽 밖 오프셋
-
-    //LayoutGroup layoutGroup;
-    //int originalTopPadding;
 
     // 서브 스토리가 생성 대기 중인지 확인하는 플래그 (true : 생성)
     [SerializeField] bool _isPendingSubStory = false;
@@ -39,12 +34,6 @@ public class StoryController : MonoBehaviour
     {
         StageManager.OnChapterCleared -= HandleStageCleared;
     }
-
-    //void Awake()
-    //{
-    //    //layoutGroup = contentParent.GetComponent<LayoutGroup>();
-    //    //if (layoutGroup != null) originalTopPadding = layoutGroup.padding.left;
-    //}
 
     void Start()
     {
@@ -150,17 +139,21 @@ public class StoryController : MonoBehaviour
     //    }
     //}
 
-    private IEnumerator StartSequence()
+    private IEnumerator StartSequence(int chapter)
     {
         yield return new WaitForEndOfFrame();
-        yield return StartCoroutine(AddStorysubAtTopWithWorldMotion("새로운 스토리"));
+        int index = Mathf.Clamp(chapter - 1, 0, chapterPrefabs.Count - 1);
+        GameObject targetPrefab = chapterPrefabs[index];
+
+        yield return StartCoroutine(AddStorysubAtTopWithWorldMotion($"{chapter}장의 기록", targetPrefab));
+        //yield return StartCoroutine(AddStorysubAtTopWithWorldMotion("새로운 스토리"), targetPrefab);
     }
 
     IEnumerator SubStorySequence(int chapter)
     {
         // 1. 새로운 스토리 올라오는 애니메이션 실행 및 끝날 때까지 대기
         // yield return을 사용해 AnimatesubFromScreenToContent가 끝날 때까지 기다립니다.
-        yield return StartCoroutine(StartSequence());
+        yield return StartCoroutine(StartSequence(chapter));
 
         // 2. 새 스토리 배치가 완전히 끝난 후, 기존 스토리들 교체 시작
         RefreshAllToReadState();
@@ -190,16 +183,32 @@ public class StoryController : MonoBehaviour
     {
         if (contentParent == null) return;
 
-        GameObject targetPrefab = isRead ? storyReadPrefab : storyPrefab;
+        int chapter = StageManager.Instance.CurrentChapter();
+
+        GameObject targetPrefab = null;
+        GameObject sub = null;
+
+        if (isRead)
+        {
+            targetPrefab = storyReadPrefab;
+        }
+        else
+        {
+            int index = Mathf.Clamp(chapter - 1, 0, chapterPrefabs.Count - 1);
+            targetPrefab = chapterPrefabs[index];
+        }
+
+        if (targetPrefab == null) return;
 
         if (useAnimation)
         {
-            AddStorysubAtTopWithWorldMotion(message);
+            //AddStorysubAtTopWithWorldMotion(message);
+            StartCoroutine(AddStorysubAtTopWithWorldMotion(message, targetPrefab));
         }
         else
         {
             //애니메이션 없이 바로 생성
-            GameObject sub = Instantiate(targetPrefab, contentParent);
+            sub = Instantiate(targetPrefab, contentParent);
             sub.name = targetPrefab.name;
             sub.transform.SetAsFirstSibling();
 
@@ -211,15 +220,29 @@ public class StoryController : MonoBehaviour
     }
 
 
-    IEnumerator AddStorysubAtTopWithWorldMotion(string message)
+    //IEnumerator AddStorysubAtTopWithWorldMotion(string message)
+    //{
+    //    if (storyPrefab == null || contentParent == null) yield break;
+
+    //    // 임시 생성 (Content가 아닌 Canvas 바로 아래 생성하여 레이아웃 방해 금지)
+    //    Canvas parentCanvas = contentParent.GetComponentInParent<Canvas>();
+    //    GameObject tempsub = Instantiate(storyPrefab, parentCanvas.transform);
+
+    //    // 텍스트 변경
+    //    Text txt = tempsub.GetComponentInChildren<Text>();
+    //    if (txt != null) txt.text = message;
+
+    //    yield return StartCoroutine(AnimatesubFromScreenToContent(tempsub));
+    //}
+
+    IEnumerator AddStorysubAtTopWithWorldMotion(string message, GameObject targetPrefab)
     {
-        if (storyPrefab == null || contentParent == null) yield break;
+        if (targetPrefab == null || contentParent == null) yield break;
 
-        // 임시 생성 (Content가 아닌 Canvas 바로 아래 생성하여 레이아웃 방해 금지)
         Canvas parentCanvas = contentParent.GetComponentInParent<Canvas>();
-        GameObject tempsub = Instantiate(storyPrefab, parentCanvas.transform);
+        GameObject tempsub = Instantiate(targetPrefab, parentCanvas.transform);
+        tempsub.name = targetPrefab.name;
 
-        // 텍스트 변경
         Text txt = tempsub.GetComponentInChildren<Text>();
         if (txt != null) txt.text = message;
 
@@ -354,16 +377,31 @@ public class StoryController : MonoBehaviour
         // 하이어라키를 순회하며 '읽음' 프리팹이 아닌 '일반' 프리팹들을 찾습니다.
         foreach (Transform child in contentParent)
         {
-            // 이름에 storyPrefab 이름이 포함되어 있고, storyReadPrefab 이름은 포함되지 않은 것
-            if (child.name.Contains(storyPrefab.name) && !child.name.Contains(storyReadPrefab.name))
+            if (child.GetSiblingIndex() == 0) continue;
+            if (child.name.Contains(storyReadPrefab.name)) continue;
+            // 리스트에 등록된 챕터 프리팹 중 하나인지 확인
+            bool isNewTypePrefab = false;
+            foreach (var prefab in chapterPrefabs)
             {
-                // [추가 조건] 방금 막 생성된 첫 번째 자식(Index 0)은 제외합니다.
-                // 그래야 방금 올라온 책은 New 상태를 유지합니다.
-                if (child.GetSiblingIndex() != 0)
+                if (child.name.Contains(prefab.name))
                 {
-                    targets.Add(child.gameObject);
+                    isNewTypePrefab = true;
+                    break;
                 }
             }
+
+            if (isNewTypePrefab) targets.Add(child.gameObject);
+
+            //// 이름에 storyPrefab 이름이 포함되어 있고, storyReadPrefab 이름은 포함되지 않은 것
+            //if (child.name.Contains(storyPrefab.name) && !child.name.Contains(storyReadPrefab.name))
+            //{
+            //    // [추가 조건] 방금 막 생성된 첫 번째 자식(Index 0)은 제외합니다.
+            //    // 그래야 방금 올라온 책은 New 상태를 유지합니다.
+            //    if (child.GetSiblingIndex() != 0)
+            //    {
+            //        targets.Add(child.gameObject);
+            //    }
+            //}
         }
 
         foreach (GameObject target in targets)
@@ -445,13 +483,5 @@ public class StoryController : MonoBehaviour
         progressTxt.text = $"{(int)(progress * 100)}%";
 
         Debug.Log($"[정확한 카운트] 실제 책 개수: {validCount} -> {progress * 100}%");
-    }
-
-    private void Update()
-    {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
-        {
-            StartCoroutine(StartSequence());
-        }
     }
 }
