@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -8,6 +9,7 @@ public class AnswerZone : MonoBehaviour
 {
     [Header("정답 조건")]
     public int targetID;
+    public Boolean IgnoreColor;
     public int targetColor;
 
     [Header("위치 및 등장 조건")]
@@ -45,7 +47,7 @@ public class AnswerZone : MonoBehaviour
         string baseId = data.id.Split('_')[0];
         if (int.TryParse(baseId, out int itemNumber))
         {
-            if (itemNumber == targetID && data.color == targetColor)
+            if (itemNumber == targetID && (IgnoreColor || data.color == targetColor))
             {
                 Success(itemObj);
                 return true;
