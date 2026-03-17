@@ -56,7 +56,18 @@ public class ItemManager : MonoBehaviour
 
         GameObject newItem = Instantiate(data.prefab, itemParent);
         newItem.name = data.id;
-        newItem.transform.position = pos;
+
+        // [핵심 변경] 월드 좌표(position) 대신 UI 로컬 좌표(anchoredPosition) 사용!
+        RectTransform rt = newItem.GetComponent<RectTransform>();
+        if (rt != null)
+        {
+            rt.anchoredPosition = pos;
+        }
+        else
+        {
+            // UI(RectTransform)가 아닌 일반 3D/2D 오브젝트일 경우를 위한 예외 처리
+            newItem.transform.position = pos;
+        }
 
         ApplyTypeLogic(newItem, data, colorIndex);
 
@@ -140,7 +151,11 @@ public class ItemManager : MonoBehaviour
             Item so = itemData.Find(x => x.id == id);
             if (so != null && obj != null)
             {
-                data.itemPositions.Add(new ItemSaveInfo { itemId = id, savedPos = obj.transform.position, savedColor = so.color });
+                // [핵심 변경] 현재 위치를 저장할 때도 UI 로컬 좌표(anchoredPosition) 추출!
+                RectTransform rt = obj.GetComponent<RectTransform>();
+                Vector2 savePos = (rt != null) ? rt.anchoredPosition : (Vector2)obj.transform.position;
+
+                data.itemPositions.Add(new ItemSaveInfo { itemId = id, savedPos = savePos, savedColor = so.color });
             }
         }
         SaveManager.Instance.Save(data);
