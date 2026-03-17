@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Item
   id: IntroMerry
   locationID: Main
-  chapterIndex: 0
-  stageIndex: 0
-  oriPos: {x: 0, y: 0}
+  chapterIndex: 1
+  stageIndex: 1
+  oriPos: {x: 770, y: 164}
   originColor: 0
   type: 0
   prefab: {fileID: 7763148358696007932, guid: 9ce432bbf113b8542ad5e227f9c09cee, type: 3}
-  changePos: {x: 0, y: 0}
+  changePos: {x: 1653.6416, y: 766.4046}
   color: 0
