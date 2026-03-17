@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 188bd5cad55e9db4e99a4cf0f40c0b5e, type: 3}
   m_Name: Carriage
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  id: 104
+  id: 105
   locationID: Sub
   chapterIndex: 1
   stageIndex: 2
-  oriPos: {x: 200, y: 1000}
-  originColor: 5
+  oriPos: {x: -720, y: 14.2}
+  originColor: 3
   type: 0
-  prefab: {fileID: 3030617414520634162, guid: f6c33fb835d3f0542a7b07d9e1eb822c, type: 3}
-  changePos: {x: 200, y: 1000}
-  color: 5
+  prefab: {fileID: 3030617414520634162, guid: 256444988b1422e478ada3110177f8e8, type: 3}
+  changePos: {x: -720, y: 14.2}
+  color: 3

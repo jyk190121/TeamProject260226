@@ -16,9 +16,9 @@ MonoBehaviour:
   locationID: Sub
   chapterIndex: 1
   stageIndex: 1
-  oriPos: {x: 200, y: 800}
-  originColor: 8
+  oriPos: {x: -298.3, y: -206.3}
+  originColor: 2
   type: 1
   prefab: {fileID: 3030617414520634162, guid: 2ed7c58e8d41f7142a201f5d33d0bc81, type: 3}
-  changePos: {x: 200, y: 800}
-  color: 8
+  changePos: {x: -298.3, y: -206.3}
+  color: 2
