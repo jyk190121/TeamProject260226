@@ -76,13 +76,19 @@ public class ToolBarController : MonoBehaviour
 
         switch (_selectedToolIndex)
         {
-            case 0: TryPickUpItem(mousePos); break;
+            case 0: TryPickUpItem(mousePos);
+                //Sound
+                SoundManager.Instance.PlaySfx(SfxId.HandUp);
+                break;
             case 1: // 스포이트
                 if (targetData != null)
                 {
                     if (_currentHeldColor == 0) _currentHeldColor = targetData.color;
                     else _currentHeldColor = ColorManager.MixColor(_currentHeldColor, targetData.color);
                     UpdateBucketUI();
+
+                    //Sound
+                    SoundManager.Instance.PlaySfx(SfxId.Spoid);
                     Debug.Log($"<color=cyan>[Spoid]</color> 조색됨: {_currentHeldColor}");
                 }
                 break;
@@ -104,6 +110,9 @@ public class ToolBarController : MonoBehaviour
 
 
                     itemManager.UpdateItemColor(targetData.id, _currentHeldColor);
+
+                    //Sound
+                    SoundManager.Instance.PlaySfx(SfxId.Paint);
                     Debug.Log($"<color=yellow>[Paint]</color> {targetData.id}에 색상 적용");
                 }
                 break;
@@ -121,6 +130,9 @@ public class ToolBarController : MonoBehaviour
                 if (zoomIn != null)
                 {
                     zoomIn.Execute(this);
+
+                    //Sound
+                    SoundManager.Instance.PlaySfx(SfxId.ZoomIn);
                     break;
                 }
 
@@ -129,6 +141,9 @@ public class ToolBarController : MonoBehaviour
                 if (zoomOut != null)
                 {
                     zoomOut.Execute(this);
+
+                    //Sound
+                    SoundManager.Instance.PlaySfx(SfxId.ZoomOut);
                     break;
                 }
                 break;
@@ -152,7 +167,15 @@ public class ToolBarController : MonoBehaviour
         return null;
     }
 
-    private void ClearBucket() { _currentHeldColor = 0; UpdateBucketUI(); }
+    private void ClearBucket() 
+    {
+        _currentHeldColor = 0;
+
+        //Sound
+        SoundManager.Instance.PlaySfx(SfxId.EmptyPaint); 
+        UpdateBucketUI(); 
+    }
+
     private void UpdateBucketUI() { if (bucketColorPreview != null) bucketColorPreview.color = ColorManager.GetColor(_currentHeldColor); }
 
     // ---------------------------------------------------
@@ -252,6 +275,9 @@ public class ToolBarController : MonoBehaviour
 
             // [핵심 변경] 단순 위치 업데이트가 아닌, 상태(Storage)와 위치를 함께 업데이트합니다!
             itemManager.UpdateItemStateAndPosition(id, ItemState.Storage, _currentMovingItem.transform.position);
+
+            //Sound
+            SoundManager.Instance.PlaySfx(SfxId.HandDrop);
 
             Debug.Log($"<color=cyan>[상태 갱신]</color> {id} 아이템이 보관함(Storage)에 들어갔습니다.");
         }

@@ -14,78 +14,74 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SoundLibrary
   bgms:
   - id: 1
-    clip: {fileID: 0}
-    volume: 0
+    clip: {fileID: 8300000, guid: 9ec0008bcd8848b4ca05e308af39aa7b, type: 3}
+    volume: 1
     loop: 1
   - id: 2
-    clip: {fileID: 0}
-    volume: 0
-    loop: 1
-  - id: 3
-    clip: {fileID: 0}
-    volume: 0
+    clip: {fileID: 8300000, guid: f93c3c7b72686e34fbbda25512f9cfd0, type: 3}
+    volume: 1
     loop: 1
   sfxs:
   - id: 1
     clip: {fileID: 8300000, guid: e49874f19fdb7114bbf776cb9e5f53c0, type: 3}
-    volume: 0
+    volume: 1
   - id: 2
     clip: {fileID: 8300000, guid: fc2c7bc88c11417459295ad228177dc7, type: 3}
-    volume: 0
+    volume: 1
   - id: 3
     clip: {fileID: 8300000, guid: 3dd5212b8ca2b0242ac1686e14f17340, type: 3}
-    volume: 0
+    volume: 1
   - id: 4
     clip: {fileID: 8300000, guid: c4ba6436bdf9d134894c132824def13f, type: 3}
-    volume: 0
+    volume: 1
   - id: 5
     clip: {fileID: 8300000, guid: 2999a8c2c936b614989c3aa5265eac71, type: 3}
-    volume: 0
+    volume: 1
   - id: 6
     clip: {fileID: 8300000, guid: 4a09040e8e6916c4aae24278581e6b06, type: 3}
-    volume: 0
+    volume: 1
   - id: 7
     clip: {fileID: 8300000, guid: a65e44e8c694a3a4891eef0db109e331, type: 3}
-    volume: 0
+    volume: 1
   - id: 8
     clip: {fileID: 8300000, guid: c230389cdba1a4d47bda71c4d0e2b6f9, type: 3}
-    volume: 0
+    volume: 1
   - id: 9
     clip: {fileID: 8300000, guid: ae4250e9fb8f41043b06454d4f60f929, type: 3}
-    volume: 0
+    volume: 1
   - id: 10
     clip: {fileID: 8300000, guid: ae9ac757ba0b39e4f91369d167331c3e, type: 3}
-    volume: 0
+    volume: 1
   - id: 11
     clip: {fileID: 8300000, guid: 9abb3a81b78d7cb4e8e1e42cad3709ef, type: 3}
-    volume: 0
+    volume: 1
   - id: 12
     clip: {fileID: 8300000, guid: 2b8670b132d29984c93743808adbfcb3, type: 3}
-    volume: 0
+    volume: 1
   - id: 13
     clip: {fileID: 8300000, guid: f5c5f438581b89c4b96789e177c6254a, type: 3}
-    volume: 0
+    volume: 1
   - id: 14
     clip: {fileID: 8300000, guid: 1be2fcc16ab0da84f99ba7c633037620, type: 3}
-    volume: 0
+    volume: 1
   - id: 15
     clip: {fileID: 8300000, guid: 16d0788660e724f44ae05e641af1b222, type: 3}
-    volume: 0
+    volume: 1
   - id: 16
     clip: {fileID: 8300000, guid: 588a3e02b1e7157439b2af6b7c108b6b, type: 3}
-    volume: 0
+    volume: 1
   - id: 17
     clip: {fileID: 8300000, guid: 625413c77fe628b4a89cd52b2c321a7a, type: 3}
-    volume: 0
+    volume: 1
   - id: 18
     clip: {fileID: 8300000, guid: 7da0cc86b320a5142842d45c8f9937ff, type: 3}
-    volume: 0
+    volume: 1
   - id: 19
     clip: {fileID: 8300000, guid: f677351afc9770e42aee78010e4f2765, type: 3}
-    volume: 0
+    volume: 1
   - id: 20
     clip: {fileID: 8300000, guid: 539f6ac58ca2d7342b6ece3257b893fb, type: 3}
-    volume: 0
+    volume: 1
   - id: 21
     clip: {fileID: 8300000, guid: 5db88af34cdf76a4da00883882558713, type: 3}
-    volume: 0
+    volume: 1
