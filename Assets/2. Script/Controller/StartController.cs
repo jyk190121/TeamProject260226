@@ -149,11 +149,13 @@ public class StartController : MonoBehaviour
         MouseClickManager.Instance.SetClickEnable(false);
         CursorManager.Instance.ChangeCursor(CursorState.Loading);
 
+        yield return StartCoroutine(CameraZoomStart());
+        
         dataProcessAction?.Invoke();
 
         yield return new WaitForSeconds(2f);
 
-        GameSceneManager.Instance.LoadScene("GameScene_NUH");
+        GameSceneManager.Instance.LoadScene("GameScene_KJY");
         CursorManager.Instance.ChangeCursor(CursorState.Normal);
         MouseClickManager.Instance.SetClickEnable(true);
     }
@@ -190,7 +192,7 @@ public class StartController : MonoBehaviour
         print($"이어하기 로직 실행: 메인 {data.lastUnlockedChapter}장");
 
         // 로드된 데이터를 GameScene에 전달하는 로직 필요
-        GameSceneManager.Instance.LoadScene("GameScene_NUH");
+        GameSceneManager.Instance.LoadScene("GameScene_KJY");
     }
 
     private void OnClickSetting()
@@ -223,4 +225,12 @@ public class StartController : MonoBehaviour
     {
         warningPopup.SetActive(false);
     }
+
+    IEnumerator CameraZoomStart()
+    {
+        if (CameraZoom.Instance != null)
+        {
+            yield return StartCoroutine(CameraZoom.Instance.PlayStartSequence());
+        }
+    }    
 }
