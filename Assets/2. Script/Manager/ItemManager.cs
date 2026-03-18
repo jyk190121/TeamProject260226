@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -123,6 +124,25 @@ public class ItemManager : MonoBehaviour
         RectTransform rt = newItem.GetComponent<RectTransform>();
         if (rt != null) rt.anchoredPosition = pos;
         else newItem.transform.position = pos;
+
+        GameObject frontObj = GameObject.Find("Front");
+
+
+        if (data.id.Equals("105"))
+        {
+            if (frontObj != null)
+            {
+                newItem.transform.SetParent(frontObj.transform, false);
+            }
+            else
+            {
+                print("Front 오브젝트를 찾을 수 없습니다.");
+            }
+        }
+        if(GameSceneManager.Instance.GetContinue() && data.id.Equals("IntroMerry"))
+        {
+            Destroy(data.prefab);
+        }
 
         ApplyTypeLogic(newItem, data, colorIndex);
 

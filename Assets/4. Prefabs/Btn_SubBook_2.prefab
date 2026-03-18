@@ -289,7 +289,7 @@ GameObject:
   - component: {fileID: 224503705648473122}
   - component: {fileID: -6778522014660726198}
   m_Layer: 8
-  m_Name: Btn_SubBook
+  m_Name: Btn_SubBook_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

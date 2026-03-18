@@ -70,13 +70,24 @@ public class IntroController : MonoBehaviour
         if (itemManager == null)
             itemManager = ItemManager.Instance;
 
-        if (realMaryObject != null)
+        if (realMaryObject != null && !GameSceneManager.Instance.GetContinue())
             realMaryObject.SetActive(false);
 
         if (cutsceneMaryObject != null)
             cutsceneMaryObject.SetActive(false);
-
-        PlayIntro();
+        if(GameSceneManager.Instance != null) 
+        { 
+            if(!GameSceneManager.Instance.GetContinue())
+            {
+                PlayIntro();
+            }
+            else
+            {
+                cutsceneMaryContainer.SetActive(false);
+                DestroyItemMary();
+            }
+        }
+        
     }
 
     private void Update()
