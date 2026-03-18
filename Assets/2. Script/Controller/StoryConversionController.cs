@@ -39,13 +39,13 @@ public class StoryConversionController : MonoBehaviour
         // stagePanel이 꺼져있을 때 (= 서재 상태일 때)만 레이캐스트 작동
         if (stagePanel != null && !stagePanel.activeSelf)
         {
-            MouseHover();
+            MouseHover("study");
         }
-        //else
-        //{
-        //    //스토리 체크용
-        //    MouseHover("story");
-        //}
+        else
+        {
+            //스토리 체크용
+            MouseHover("story");
+        }
     }
 
     void OnEnable()
@@ -125,7 +125,7 @@ public class StoryConversionController : MonoBehaviour
         }
     }
 
-    void MouseHover()
+    void MouseHover(string space)
     {
         if (CursorManager.Instance == null) return;
         
@@ -154,17 +154,18 @@ public class StoryConversionController : MonoBehaviour
             // 상호작용 가능한 구역(Study 레이어가 아닌 곳)에 마우스가 올라갔을 때
             if (hoveredObj.layer != studyLayerIndex)
             {
-                //if (space.Equals("study"))
-                //{
-                //    // [서재] 무조건 손모양 커서
-                //    targetState = (toolBar != null) ? toolBar.GetCurrentToolCursorState() : CursorState.HandOpen;
-                //}
+                if (space.Equals("study") || space.Equals("story"))
+                {
+                    // [서재] 무조건 손모양 커서
+                    //targetState = CursorState.HandOpen;
+                    targetState = (toolBar != null) ? toolBar.GetCurrentToolCursorState() : CursorState.HandOpen;
+                }
                 //else if (space.Equals("story"))
                 //{
                 //    // [스토리] 툴바 상태에 따른 커서, 툴바가 없으면 기본 손모양
                 //    targetState = (toolBar != null) ? toolBar.GetCurrentToolCursorState() : CursorState.HandOpen;
                 //}
-                targetState = (toolBar != null) ? toolBar.GetCurrentToolCursorState() : CursorState.HandOpen;
+                //targetState = (toolBar != null) ? toolBar.GetCurrentToolCursorState() : CursorState.HandOpen;
             }
         }
 

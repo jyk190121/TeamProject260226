@@ -21,11 +21,18 @@ public class FadeOut : MonoBehaviour
     // 로딩이 시작될 때 이 함수를 호출하세요.
     public void StartFadeOut()
     {
+        if(GameSceneManager.Instance.GetContinue())
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         StartCoroutine(FadeOutAndDestroy());
     }
 
     private IEnumerator FadeOutAndDestroy()
     {
+        MouseClickManager.Instance.SetClickEnable(false);
         float elapsedTime = 0f;
         float startAlpha = canvasGroup.alpha;
 
@@ -38,6 +45,8 @@ public class FadeOut : MonoBehaviour
         }
 
         canvasGroup.alpha = 0f;
+
+        MouseClickManager.Instance.SetClickEnable(true);
 
         // 알파값이 0이 되면 오브젝트 파괴
         Destroy(gameObject);

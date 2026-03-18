@@ -155,7 +155,7 @@ public class StartController : MonoBehaviour
         
         dataProcessAction?.Invoke();
 
-        GameSceneManager.Instance.LoadScene("GameScene_KJY");
+        GameSceneManager.Instance.LoadScene("GameScene_Test2");
         CursorManager.Instance.ChangeCursor(CursorState.Normal);
         MouseClickManager.Instance.SetClickEnable(true);
     }
@@ -196,7 +196,7 @@ public class StartController : MonoBehaviour
         StartCoroutine(CameraZoomStart());
 
         // 로드된 데이터를 GameScene에 전달하는 로직 필요
-        GameSceneManager.Instance.LoadScene("GameScene_KJY");
+        GameSceneManager.Instance.LoadScene("GameScene_Test2");
 
     }
 
