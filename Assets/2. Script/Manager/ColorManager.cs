@@ -4,7 +4,7 @@ using UnityEngine;
 ///  색 규칙 계산 전용 static 유틸리티
 /// Empty=0 Red=1 Blue=2 Purple=3 Yellow=4 Orange=5 Green=6 Black=7
 /// </summary>
-public static class ColorManager
+public static class ColorManager 
 {
     // 룩업 테이블 (8*8, 정적 초기화)
     // [currentColorValue, newColorValue] -> resultColorValue
