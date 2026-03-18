@@ -243,47 +243,79 @@ public class ToolBarController : MonoBehaviour
         }
     }
 
-    // [수정] 아이템을 놓는 로직에 상태(State) 갱신 추가
     private void TryPlaceItem(Vector2 mousePos)
     {
         if (_currentMovingItem == null) return;
 
-        // 다시 클릭 가능하게 복구 (성공 시 다시 꺼짐)
         SetUIRaycastTarget(_currentMovingItem, true);
 
-        // 1. 마우스 아래에 정답 구역(AnswerZone)이 있는지 확인
         AnswerZone zone = GetUIComponentAtMouse<AnswerZone>(mousePos);
-        Item data = itemManager.GetItemDataById(_currentMovingItem.name.Replace("(Clone)", "").Trim());
+        string id = _currentMovingItem.name.Replace("(Clone)", "").Trim();
+        Item data = itemManager.GetItemDataById(id);
 
         if (zone != null)
         {
-            // 2. 정답 구역이 있다면 숫자 ID와 색상 대조
             if (zone.CheckMatch(data, _currentMovingItem))
             {
-                // [참고] 정답 처리 시 상태를 'Used'로 바꾸는 것은 AnswerZone 스크립트 내부에서 처리하는 것이 좋습니다.
                 _currentMovingItem = null;
                 _isHoldingItem = false;
                 return;
             }
         }
 
-        // 3. 정답이 아니거나 정답 구역이 아니면 보관함(Storage) 구역인지 검사
         if (IsMouseOverStorage(mousePos))
         {
-            string id = _currentMovingItem.name.Replace("(Clone)", "").Trim();
             _currentMovingItem.transform.localScale = _originalScale;
-
-            // [핵심 변경] 단순 위치 업데이트가 아닌, 상태(Storage)와 위치를 함께 업데이트합니다!
             itemManager.UpdateItemStateAndPosition(id, ItemState.Storage, _currentMovingItem.transform.position);
-
-            //Sound
             SoundManager.Instance.PlaySfx(SfxId.HandDrop);
 
-            Debug.Log($"<color=cyan>[상태 갱신]</color> {id} 아이템이 보관함(Storage)에 들어갔습니다.");
+            
+            if (id == "107")
+            {
+                Debug.Log("107번 시계 획득! 배경 상태를 영구 고정합니다.");
+
+                // [수정 핵심] 씬에 있는 모든 '오브젝트 등장 조정기'를 가져옵니다 (비활성화된 것 포함)
+                ObjectVisibilityController[] allControllers = Object.FindObjectsByType<ObjectVisibilityController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+                foreach (var ctrl in allControllers)
+                {
+                    // 1. 시계 있는 배경 (YesClock) -> 끄고 잠금
+                    if (ctrl.gameObject.name == "YesClock")
+                    {
+                        ctrl.isSolved = true;
+                        ctrl.gameObject.SetActive(false);
+                    }
+                   
+                    // 3. 문 (Stage1_Door) -> 끄고 잠금 (호박 문제 해결 연동)
+                    else if (ctrl.gameObject.name == "Stage1_Door")
+                    {
+                        ctrl.isSolved = true;
+                        ctrl.gameObject.SetActive(false);
+                    }
+                }
+
+                // 3. 확대 패널 끄기 (기존 유지)
+                ZoomOutTrigger zoomTrigger = Object.FindFirstObjectByType<ZoomOutTrigger>();
+                if (zoomTrigger != null && zoomTrigger.myPanel != null)
+                    zoomTrigger.myPanel.SetActive(false);
+
+                UpdateMagnifierCursor(false);
+
+                // 4. 서재로 정식 복귀 (기존 유지)
+                StoryConversionController conversionCtrl = Object.FindFirstObjectByType<StoryConversionController>();
+                if (conversionCtrl != null)
+                {
+                    conversionCtrl.ExitStory();
+                }
+
+                // 5. 위치 보정 (기존 유지)
+                itemManager.UpdateStageVisibility("Study");
+            }
+            // ==========================================
+            // ==========================================
         }
         else
         {
-            // 4. 보관함도, 정답 구역도 아닌 허공에 놓았다면 원래 위치로 강제 복귀 (상태는 여전히 Field)
             _currentMovingItem.transform.position = _originalPos;
             _currentMovingItem.transform.localScale = _originalScale;
         }
@@ -291,7 +323,6 @@ public class ToolBarController : MonoBehaviour
         _currentMovingItem = null;
         _isHoldingItem = false;
     }
-
     private void MoveItemWithMouse(Vector2 mousePos)
     {
         if (_currentMovingItem == null) return;
