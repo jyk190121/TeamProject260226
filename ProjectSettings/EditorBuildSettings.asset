@@ -13,13 +13,13 @@ EditorBuildSettings:
     guid: b25d9c8af1424ba4da3aac691f4d8691
   - enabled: 1
     path: Assets/1. Scenes/GameScene_Test2.unity
-    guid: 269e9de7eb903b84a9bc7192909c2c67
+    guid: 288e73ad517eb89419d2f130c257f36b
   - enabled: 1
     path: Assets/1. Scenes/GameScene_KJY.unity
     guid: 609c22dd7aa2e94448fcadf5552a20d3
-  - enabled: 0
-    path: Assets/1. Scenes/GameScene_KJW.unity
-    guid: a17ad4035bce2454b8679ac5ceebbaf6
+  - enabled: 1
+    path: Assets/1. Scenes/GameScene_NUH.unity
+    guid: fb21c2c84532d4442bda6522f8bcf728
   - enabled: 1
     path: Assets/1. Scenes/GameScene_KJW2.unity
     guid: 5267bb1c2e5c494459eca14ca643a292
@@ -29,6 +29,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/1. Scenes/NUHTEST/InGame.unity
     guid: 34e6436198c038c4bb3c15339106f80b
+  - enabled: 1
+    path: Assets/1. Scenes/GameScene_KJW.unity
+    guid: 10b370d8b040d8242a77f8cb5d76ddff
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
