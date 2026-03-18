@@ -238,7 +238,7 @@ public class ToolBarController : MonoBehaviour
             _originalScale = _currentMovingItem.transform.localScale;
             _currentMovingItem.transform.localScale = _originalScale * pickupScaleMultiplier;
 
-            SetUIRaycastTarget(_currentMovingItem, false);
+            //SetUIRaycastTarget(_currentMovingItem, false);
             Debug.Log($"<color=green>[PickUp]</color> {data.id} 잡기 성공!");
         }
     }

@@ -10,6 +10,22 @@ public class GameController : MonoBehaviour
     public Button OpenExitBtn;                          // 종료 팝업창 닫기 버튼
     public Button exitYesBtn;                          // 팝업 내 확인 버튼
     public Button exitNoBtn;                           // 팝업 내 취소 버튼
+    public FadeOut loadingCanvas;
+
+    NarrationManager narrationManager;
+
+    void Start()
+    {
+        narrationManager = FindAnyObjectByType<NarrationManager>();
+    }
+    void FixedUpdate()
+    {
+        if (loadingCanvas != null && narrationManager.isLoaded)
+        {
+            loadingCanvas.StartFadeOut();
+        }
+    }
+
 
     void OnEnable()
     {
