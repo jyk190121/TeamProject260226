@@ -17,7 +17,7 @@ MonoBehaviour:
   chapterIndex: 1
   stageIndex: 1
   isHiddenInitially: 0
-  oriPos: {x: 770, y: 164}
+  oriPos: {x: 777, y: 777}
   originColor: 0
   type: 0
   prefab: {fileID: 7763148358696007932, guid: 9ce432bbf113b8542ad5e227f9c09cee, type: 3}

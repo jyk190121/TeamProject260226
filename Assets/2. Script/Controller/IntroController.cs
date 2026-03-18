@@ -1,6 +1,10 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Events;
 using UnityEngine.Playables;
+using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class IntroController : MonoBehaviour
 {
@@ -9,24 +13,44 @@ public class IntroController : MonoBehaviour
         None,
         Ready,
         FirstTimelinePlaying,
+        FirstDialoguePlaying,
         WaitingForPlayerAction,
         DraggingItem,
         SuccessTransition,
         SecondTimelinePlaying,
+        SecondDialoguePlaying,
         Completed
     }
 
-    [Header("연출용 메리")]
-    [SerializeField] private GameObject cutsceneMaryObject;
-    [SerializeField] private GameObject cutsceneMaryContainer;
+    [System.Serializable]
+    public struct NPCStateSprite
+    {
+        public string stateName;
+        public Sprite sprite;
+    }
 
-    [Header("진짜 메리")]
-    [SerializeField] private GameObject realMaryObject;
+    [System.Serializable]
+    public class DialogueEventBinding
+    {
+        public string eventKey;
+        public UnityEvent onEvent;
+    }
 
-    [Header("아이템용 메리 데이터")]
+    [Header("스킵")]
+    [SerializeField] private bool enableSkip = true;
+
+    [Header("연출용 Merry")]
+    [SerializeField] private GameObject cutsceneMerryObject;
+    [SerializeField] private GameObject cutsceneMerryContainer;
+    [SerializeField] private Image cutsceneMerryImage;
+
+    [Header("진짜 Merry")]
+    [SerializeField] private GameObject realMerryObject;
+
+    [Header("아이템용 Merry 데이터")]
     [SerializeField] private Item introItemData;
 
-    [Header("아이템용 메리 Sprite")]
+    [Header("아이템용 Merry Sprite")]
     [SerializeField] private Sprite defaultSprite;
     [SerializeField] private Sprite heldSprite;
 
@@ -37,29 +61,40 @@ public class IntroController : MonoBehaviour
     [Header("연결 대상")]
     [SerializeField] private ItemManager itemManager;
     [SerializeField] private ToolBarController toolBarController;
+    [SerializeField] private DialogueManager dialogueManager;
+
+    [Header("대사 그룹")]
+    [SerializeField] private string firstDialogueGroupId = "DGRP_GAME_START_1";
+    [SerializeField] private string secondDialogueGroupId = "DGRP_GAME_START_2";
+
+    [Header("연출 Merry 상태 Sprite")]
+    [SerializeField] private List<NPCStateSprite> merryStateSprites = new List<NPCStateSprite>();
+
+    [Header("대사 이벤트 매핑")]
+    [SerializeField] private List<DialogueEventBinding> dialogueEventBindings = new List<DialogueEventBinding>();
+
+    private readonly Dictionary<string, Sprite> merryStateDictionary = new Dictionary<string, Sprite>();
+    private readonly Dictionary<string, UnityEvent> dialogueEventDictionary = new Dictionary<string, UnityEvent>();
+    private readonly HashSet<string> invokedEventKeys = new HashSet<string>();
 
     private GameObject introItemObject;
     private Image introItemImage;
 
     private IntroPhase currentPhase = IntroPhase.None;
     private bool isCurrentlyHeldVisual = false;
+    private bool isBootRoutineRunning = false;
 
-    private void OnEnable()
+    private Coroutine introBootRoutine;
+
+    private void Awake()
     {
-        if (firstTimelineDirector != null)
-            firstTimelineDirector.stopped += OnFirstTimelineStopped;
+        BuildMerryStateDictionary();
+        BuildDialogueEventDictionary();
 
-        if (secondTimelineDirector != null)
-            secondTimelineDirector.stopped += OnSecondTimelineStopped;
-    }
-
-    private void OnDisable()
-    {
-        if (firstTimelineDirector != null)
-            firstTimelineDirector.stopped -= OnFirstTimelineStopped;
-
-        if (secondTimelineDirector != null)
-            secondTimelineDirector.stopped -= OnSecondTimelineStopped;
+        if (cutsceneMerryImage == null && cutsceneMerryObject != null)
+        {
+            cutsceneMerryImage = cutsceneMerryObject.GetComponentInChildren<Image>(true);
+        }
     }
 
     private void Start()
@@ -70,28 +105,20 @@ public class IntroController : MonoBehaviour
         if (itemManager == null)
             itemManager = ItemManager.Instance;
 
-        if (realMaryObject != null && !GameSceneManager.Instance.GetContinue())
-            realMaryObject.SetActive(false);
+        if (dialogueManager == null)
+            dialogueManager = FindAnyObjectByType<DialogueManager>();
 
-        if (cutsceneMaryObject != null)
-            cutsceneMaryObject.SetActive(false);
-        if(GameSceneManager.Instance != null) 
-        { 
-            if(!GameSceneManager.Instance.GetContinue())
-            {
-                PlayIntro();
-            }
-            else
-            {
-                cutsceneMaryContainer.SetActive(false);
-                DestroyItemMary();
-            }
-        }
-        
+        if (realMerryObject != null)
+            realMerryObject.SetActive(false);
+
+        if(!GameSceneManager.Instance.GetContinue())
+            PlayIntro();
     }
 
     private void Update()
     {
+        HandleSkipInput();
+
         if (currentPhase != IntroPhase.WaitingForPlayerAction &&
             currentPhase != IntroPhase.DraggingItem)
         {
@@ -102,6 +129,7 @@ public class IntroController : MonoBehaviour
 
         if (currentPhase == IntroPhase.SuccessTransition ||
             currentPhase == IntroPhase.SecondTimelinePlaying ||
+            currentPhase == IntroPhase.SecondDialoguePlaying ||
             currentPhase == IntroPhase.Completed)
         {
             return;
@@ -119,39 +147,69 @@ public class IntroController : MonoBehaviour
 
     public void PlayIntro()
     {
+        if (isBootRoutineRunning)
+            return;
+
         if (currentPhase == IntroPhase.FirstTimelinePlaying ||
+            currentPhase == IntroPhase.FirstDialoguePlaying ||
             currentPhase == IntroPhase.WaitingForPlayerAction ||
             currentPhase == IntroPhase.DraggingItem ||
             currentPhase == IntroPhase.SuccessTransition ||
-            currentPhase == IntroPhase.SecondTimelinePlaying)
+            currentPhase == IntroPhase.SecondTimelinePlaying ||
+            currentPhase == IntroPhase.SecondDialoguePlaying)
         {
             Debug.LogWarning($"{nameof(IntroController)}: 이미 인트로가 진행 중입니다.", this);
             return;
         }
 
-        if (!ValidateReferences())
-            return;
+        introBootRoutine = StartCoroutine(PlayIntroRoutine());
+    }
 
-        if (!ResolveIntroItemRuntimeReferences())
-            return;
+    private IEnumerator PlayIntroRoutine()
+    {
+        isBootRoutineRunning = true;
+
+        if (!ValidateReferences())
+        {
+            isBootRoutineRunning = false;
+            introBootRoutine = null;
+            yield break;
+        }
+
+        yield return new WaitUntil(() => dialogueManager != null && dialogueManager.IsLoaded);
+
+        while (!TryResolveIntroItemRuntimeReferences(false))
+        {
+            yield return null;
+        }
+
+        if (!TryResolveIntroItemRuntimeReferences(true))
+        {
+            isBootRoutineRunning = false;
+            introBootRoutine = null;
+            yield break;
+        }
 
         InitializeIntro();
         PlayFirstTimeline();
+
+        isBootRoutineRunning = false;
+        introBootRoutine = null;
     }
 
     private bool ValidateReferences()
     {
         bool isValid = true;
 
-        if (cutsceneMaryObject == null)
+        if (cutsceneMerryObject == null)
         {
-            Debug.LogError($"{nameof(IntroController)}: cutsceneMaryObject가 비어 있습니다.", this);
+            Debug.LogError($"{nameof(IntroController)}: cutsceneMerryObject가 비어 있습니다.", this);
             isValid = false;
         }
 
-        if (realMaryObject == null)
+        if (realMerryObject == null)
         {
-            Debug.LogError($"{nameof(IntroController)}: realMaryObject가 비어 있습니다.", this);
+            Debug.LogError($"{nameof(IntroController)}: realMerryObject가 비어 있습니다.", this);
             isValid = false;
         }
 
@@ -185,16 +243,23 @@ public class IntroController : MonoBehaviour
             isValid = false;
         }
 
+        if (dialogueManager == null)
+        {
+            Debug.LogError($"{nameof(IntroController)}: dialogueManager가 비어 있습니다.", this);
+            isValid = false;
+        }
+
         return isValid;
     }
 
-    private bool ResolveIntroItemRuntimeReferences()
+    private bool TryResolveIntroItemRuntimeReferences(bool logError)
     {
         introItemObject = FindSpawnedIntroItemObject();
 
         if (introItemObject == null)
         {
-            Debug.LogError($"{nameof(IntroController)}: 런타임에 생성된 [아이템] 메리를 찾지 못했습니다.", this);
+            if (logError)
+                Debug.LogError($"{nameof(IntroController)}: 런타임에 생성된 [아이템] Merry를 찾지 못했습니다. introItemData.id={(introItemData != null ? introItemData.id : "null")}", this);
             return false;
         }
 
@@ -202,7 +267,8 @@ public class IntroController : MonoBehaviour
 
         if (introItemImage == null)
         {
-            Debug.LogError($"{nameof(IntroController)}: [아이템] 메리의 Image를 찾지 못했습니다.", introItemObject);
+            if (logError)
+                Debug.LogError($"{nameof(IntroController)}: [아이템] Merry의 Image를 찾지 못했습니다.", introItemObject);
             return false;
         }
 
@@ -230,14 +296,13 @@ public class IntroController : MonoBehaviour
 
     private void InitializeIntro()
     {
-        if (cutsceneMaryObject != null)
-            cutsceneMaryObject.SetActive(true);
+        SetCutsceneMerryActive(true);
 
         if (introItemObject != null)
             introItemObject.SetActive(false);
 
-        if (realMaryObject != null)
-            realMaryObject.SetActive(false);
+        if (realMerryObject != null)
+            realMerryObject.SetActive(false);
 
         ApplyDefaultSprite();
 
@@ -248,26 +313,66 @@ public class IntroController : MonoBehaviour
     private void PlayFirstTimeline()
     {
         currentPhase = IntroPhase.FirstTimelinePlaying;
-        firstTimelineDirector.Play();
+
+        if (firstTimelineDirector != null)
+        {
+            firstTimelineDirector.time = 0;
+            firstTimelineDirector.Evaluate();
+            firstTimelineDirector.Play();
+        }
     }
 
-    private void OnFirstTimelineStopped(PlayableDirector director)
+    public void BeginFirstDialogueGroup()
     {
-        if (director != firstTimelineDirector)
-            return;
-
         if (currentPhase != IntroPhase.FirstTimelinePlaying)
             return;
 
-        OnFirstTimelineFinished();
+        currentPhase = IntroPhase.FirstDialoguePlaying;
+        dialogueManager.PlayGroup(firstDialogueGroupId);
     }
 
-    private void OnFirstTimelineFinished()
+    public void BeginSecondDialogueGroup()
     {
-        SyncItemMaryPositionFromCutsceneMary();
+        if (currentPhase != IntroPhase.SecondTimelinePlaying)
+            return;
 
-        if (cutsceneMaryObject != null)
-            cutsceneMaryObject.SetActive(false);
+        currentPhase = IntroPhase.SecondDialoguePlaying;
+        dialogueManager.PlayGroup(secondDialogueGroupId);
+    }
+
+    public void OnDialogueGroupCompleted(string groupId)
+    {
+        if (string.IsNullOrWhiteSpace(groupId))
+            return;
+
+        if (groupId == firstDialogueGroupId && currentPhase == IntroPhase.FirstDialoguePlaying)
+        {
+            OnFirstDialogueGroupCompleted();
+            return;
+        }
+
+        if (groupId == secondDialogueGroupId && currentPhase == IntroPhase.SecondDialoguePlaying)
+        {
+            OnSecondDialogueGroupCompleted();
+            return;
+        }
+    }
+
+    private void OnFirstDialogueGroupCompleted()
+    {
+        if (firstTimelineDirector != null && firstTimelineDirector.state == PlayState.Playing)
+        {
+            firstTimelineDirector.Stop();
+        }
+
+        SwitchToItemMerry();
+    }
+
+    private void SwitchToItemMerry()
+    {
+        SyncItemMerryPositionFromCutsceneMerry();
+
+        SetCutsceneMerryActive(false);
 
         if (introItemObject != null)
             introItemObject.SetActive(true);
@@ -276,12 +381,21 @@ public class IntroController : MonoBehaviour
         currentPhase = IntroPhase.WaitingForPlayerAction;
     }
 
-    private void SyncItemMaryPositionFromCutsceneMary()
+    private void SyncItemMerryPositionFromCutsceneMerry()
     {
-        if (cutsceneMaryObject == null || introItemObject == null)
+        Transform source = GetCutsceneMerryAnchorTransform();
+        if (source == null || introItemObject == null)
             return;
 
-        introItemObject.transform.position = cutsceneMaryObject.transform.position;
+        introItemObject.transform.position = source.position;
+    }
+
+    private Transform GetCutsceneMerryAnchorTransform()
+    {
+        if (cutsceneMerryObject != null)
+            return cutsceneMerryObject.transform;
+
+        return null;
     }
 
     private void HandleHoldingState()
@@ -339,12 +453,12 @@ public class IntroController : MonoBehaviour
     {
         currentPhase = IntroPhase.SuccessTransition;
 
-        DeactivateItemMary();
-        ActivateCutsceneMary();
+        DeactivateItemMerry();
+        ActivateCutsceneMerry();
         PlaySecondTimeline();
     }
 
-    private void DeactivateItemMary()
+    private void DeactivateItemMerry()
     {
         if (introItemObject != null)
         {
@@ -352,76 +466,139 @@ public class IntroController : MonoBehaviour
         }
     }
 
-    private void ActivateCutsceneMary()
+    private void ActivateCutsceneMerry()
     {
-        if (cutsceneMaryObject != null)
+        SetCutsceneMerryActive(true);
+    }
+
+    private void SetCutsceneMerryActive(bool active)
+    {
+        if (cutsceneMerryObject != null)
         {
-            cutsceneMaryObject.SetActive(true);
+            cutsceneMerryObject.SetActive(active);
         }
     }
 
     private void PlaySecondTimeline()
     {
         currentPhase = IntroPhase.SecondTimelinePlaying;
-        secondTimelineDirector.Play();
+
+        if (secondTimelineDirector != null)
+        {
+            secondTimelineDirector.time = 0;
+            secondTimelineDirector.Evaluate();
+            secondTimelineDirector.Play();
+        }
     }
 
-    private void OnSecondTimelineStopped(PlayableDirector director)
+    private void OnSecondDialogueGroupCompleted()
     {
-        if (director != secondTimelineDirector)
-            return;
+        if (secondTimelineDirector != null && secondTimelineDirector.state == PlayState.Playing)
+        {
+            secondTimelineDirector.Stop();
+        }
 
-        if (currentPhase != IntroPhase.SecondTimelinePlaying)
-            return;
-
-        OnSecondTimelineFinished();
+        FinalizeIntro();
     }
 
-    /// <summary>
-    /// 2차 타임라인 종료 후 처리.
-    /// 
-    /// 최종 흐름:
-    /// 1. 진짜 메리 켜기
-    /// 2. 연출용 메리 삭제
-    /// 3. Hierarchy에 생성된 아이템 메리 프리팹 삭제
-    /// 4. 인트로 종료
-    /// </summary>
-    private void OnSecondTimelineFinished()
+    public void ApplyCutsceneMerryState(string npcState)
     {
-        ActivateRealMary();
-        DestroyCutsceneMary();
-        DestroyItemMary();
+        if (string.IsNullOrWhiteSpace(npcState))
+            return;
+
+        if (cutsceneMerryImage == null)
+            return;
+
+        if (merryStateDictionary.TryGetValue(npcState, out Sprite sprite) && sprite != null)
+        {
+            cutsceneMerryImage.sprite = sprite;
+        }
+    }
+
+    public void HandleDialogueEvent(string eventKey)
+    {
+        if (string.IsNullOrWhiteSpace(eventKey))
+            return;
+
+        if (invokedEventKeys.Contains(eventKey))
+            return;
+
+        invokedEventKeys.Add(eventKey);
+
+        if (dialogueEventDictionary.TryGetValue(eventKey, out UnityEvent unityEvent) && unityEvent != null)
+        {
+            unityEvent.Invoke();
+        }
+        else
+        {
+            Debug.Log($"[{nameof(IntroController)}] 등록되지 않은 eventKey: {eventKey}", this);
+        }
+    }
+
+    private void BuildMerryStateDictionary()
+    {
+        merryStateDictionary.Clear();
+
+        foreach (var item in merryStateSprites)
+        {
+            if (string.IsNullOrWhiteSpace(item.stateName))
+                continue;
+
+            merryStateDictionary[item.stateName] = item.sprite;
+        }
+    }
+
+    private void BuildDialogueEventDictionary()
+    {
+        dialogueEventDictionary.Clear();
+
+        foreach (var item in dialogueEventBindings)
+        {
+            if (string.IsNullOrWhiteSpace(item.eventKey))
+                continue;
+
+            dialogueEventDictionary[item.eventKey] = item.onEvent;
+        }
+    }
+
+    private void FinalizeIntro()
+    {
+        ActivateRealMerry();
+        DestroyCutsceneMerry();
+        DestroyItemMerry();
 
         currentPhase = IntroPhase.Completed;
         FinishIntro();
     }
 
-    private void ActivateRealMary()
+    private void ActivateRealMerry()
     {
-        if (realMaryObject != null)
+        if (realMerryObject != null)
         {
-            realMaryObject.SetActive(true);
+            realMerryObject.SetActive(true);
         }
     }
 
-    private void DestroyCutsceneMary()
+    private void DestroyCutsceneMerry()
     {
-        if (cutsceneMaryContainer != null)
+        if (cutsceneMerryContainer != null)
         {
-            Destroy(cutsceneMaryContainer);
-            cutsceneMaryContainer = null;
+            Destroy(cutsceneMerryContainer);
+            cutsceneMerryContainer = null;
+            cutsceneMerryObject = null;
+            cutsceneMerryImage = null;
+            return;
+        }
+
+        if (cutsceneMerryObject != null)
+        {
+            Destroy(cutsceneMerryObject);
+            cutsceneMerryObject = null;
+            cutsceneMerryImage = null;
         }
     }
 
-    /// <summary>
-    /// Hierarchy에 생성된 [아이템] 메리 프리팹을 삭제한다.
-    /// 
-    /// 주의:
-    /// ItemManager 내부 딕셔너리에는 키가 남아 있을 수 있지만,
-    /// 현재 구조에서는 인트로 이후 이 아이템을 다시 사용할 계획이 없으므로
-    /// 일단 GameObject 제거만 해도 흐름상 문제는 크지 않다.
-    /// </summary>
-    private void DestroyItemMary()
+    private void DestroyItemMerry()
     {
         if (introItemObject != null)
         {
@@ -433,6 +610,105 @@ public class IntroController : MonoBehaviour
 
     private void FinishIntro()
     {
-        Debug.Log($"{nameof(IntroController)}: 인트로 연출이 완료되었습니다.", this);
+        Debug.Log($"{nameof(IntroController)}: 인트로 연출 완료", this);
+    }
+
+    private void HandleSkipInput()
+    {
+        if (!enableSkip)
+            return;
+
+        if (Keyboard.current == null)
+            return;
+
+        if (Keyboard.current.xKey.wasPressedThisFrame)
+        {
+            SkipWholeIntro();
+            return;
+        }
+
+        if (Keyboard.current.zKey.wasPressedThisFrame)
+        {
+            SkipToItemReadyState();
+        }
+    }
+
+    private void SkipToItemReadyState()
+    {
+        if (currentPhase != IntroPhase.Ready &&
+            currentPhase != IntroPhase.FirstTimelinePlaying &&
+            currentPhase != IntroPhase.FirstDialoguePlaying)
+        {
+            return;
+        }
+
+        CancelBootRoutineIfNeeded();
+        dialogueManager?.StopCurrentGroup();
+
+        ForceDirectorToEnd(firstTimelineDirector);
+        InvokeAllEventKeysInGroup(firstDialogueGroupId);
+
+        SwitchToItemMerry();
+    }
+
+    private void SkipWholeIntro()
+    {
+        if (currentPhase == IntroPhase.Completed)
+            return;
+
+        CancelBootRoutineIfNeeded();
+        dialogueManager?.StopCurrentGroup();
+
+        ForceDirectorToEnd(firstTimelineDirector);
+        ForceDirectorToEnd(secondTimelineDirector);
+
+        InvokeAllEventKeysInGroup(firstDialogueGroupId);
+        InvokeAllEventKeysInGroup(secondDialogueGroupId);
+
+        FinalizeIntro();
+    }
+
+    private void CancelBootRoutineIfNeeded()
+    {
+        if (introBootRoutine != null)
+        {
+            StopCoroutine(introBootRoutine);
+            introBootRoutine = null;
+        }
+
+        isBootRoutineRunning = false;
+    }
+
+    private void InvokeAllEventKeysInGroup(string groupId)
+    {
+        if (dialogueManager == null)
+            return;
+
+        List<DialogueData> lines = dialogueManager.GetGroupLines(groupId);
+        if (lines == null || lines.Count == 0)
+            return;
+
+        for (int i = 0; i < lines.Count; i++)
+        {
+            string eventKey = lines[i].EventKey;
+            if (!string.IsNullOrWhiteSpace(eventKey))
+            {
+                HandleDialogueEvent(eventKey);
+            }
+        }
+    }
+
+    private void ForceDirectorToEnd(PlayableDirector director)
+    {
+        if (director == null || director.playableAsset == null)
+            return;
+
+        double duration = director.duration;
+        if (duration <= 0d)
+            return;
+
+        director.time = duration;
+        director.Evaluate();
+        director.Pause();
     }
 }
