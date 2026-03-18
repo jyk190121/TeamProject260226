@@ -27,12 +27,15 @@ public class ItemManager : MonoBehaviour
         if (currentChapter <= 0 || currentStage <= 0) return;
 
         SaveData savedData = SaveManager.Instance.Load();
+        bool isContinue = (GameSceneManager.Instance != null) && GameSceneManager.Instance.GetContinue();
 
         foreach (Item item in itemData)
         {
             if (item.chapterIndex == currentChapter && item.stageIndex == currentStage)
             {
                 if (spawnedItems.ContainsKey(item.id)) continue;
+
+                if (isContinue && item.id.Equals("IntroMerry")) continue;
 
                 var savedInfo = savedData.itemPositions?.Find(x => x.itemId == item.id);
 
@@ -179,6 +182,15 @@ public class ItemManager : MonoBehaviour
     public void ChangeItemPos(string itemId, Vector2 newPos)
     {
         SaveData data = SaveManager.Instance.Load();
+
+        if (StageManager.Instance != null)
+        {
+            data.lastUnlockedChapter = StageManager.Instance.CurrentChapter();
+            data.UnlockedStage = StageManager.Instance.CurrentStage();
+        }
+        data.isGameStarted = true;
+
+
         if (data.itemPositions == null) data.itemPositions = new List<ItemSaveInfo>();
         data.itemPositions.Clear();
 
@@ -191,7 +203,18 @@ public class ItemManager : MonoBehaviour
             {
                 RectTransform rt = obj.GetComponent<RectTransform>();
                 Vector2 savePos = (rt != null) ? rt.anchoredPosition : (Vector2)obj.transform.position;
-                data.itemPositions.Add(new ItemSaveInfo { itemId = id, savedPos = savePos, savedColor = so.color });
+
+                // ⭐️ [최소 변경 5] 기존에 있던 건 덮어쓰고, 없는 건 새로 추가
+                var existingInfo = data.itemPositions.Find(x => x.itemId == id);
+                if (existingInfo != null)
+                {
+                    existingInfo.savedPos = savePos;
+                    existingInfo.savedColor = so.color;
+                }
+                else
+                {
+                    data.itemPositions.Add(new ItemSaveInfo { itemId = id, savedPos = savePos, savedColor = so.color });
+                }
             }
         }
         SaveManager.Instance.Save(data);

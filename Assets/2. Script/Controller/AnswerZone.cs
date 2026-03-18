@@ -83,12 +83,29 @@ public class AnswerZone : MonoBehaviour
 
         if (clearType == ClearType.Page)
         {
+            // 1. 스테이지 번호 증가 (예: 1-1 -> 1-2)
             StageManager.Instance.ClearStage();
-            if (ItemManager.Instance != null) ItemManager.Instance.SpawnItem(StageManager.Instance.CurrentChapter(), StageManager.Instance.CurrentStage());
+
+            if (ItemManager.Instance != null)
+            {
+                // 2. 새 스테이지의 아이템 및 배경 스폰
+                ItemManager.Instance.SpawnItem(StageManager.Instance.CurrentChapter(), StageManager.Instance.CurrentStage());
+
+                // 3. ⭐️ 이어하기를 위해 현재 챕터/스테이지, 아이템 위치 등을 즉시 저장!
+              
+                ItemManager.Instance.ChangeItemPos("StageClear", Vector2.zero);
+            }
         }
         else if (clearType == ClearType.Chapter)
         {
+            // 1. 챕터 번호 증가 및 스테이지 1로 초기화
             StageManager.Instance.ClearChapter();
+
+            if (ItemManager.Instance != null)
+            {
+                // 2. ⭐️ 챕터가 넘어갔을 때도 확실하게 저장!
+                ItemManager.Instance.ChangeItemPos("ChapterClear", Vector2.zero);
+            }
         }
     }
 }
