@@ -9203,11 +9203,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc1e96df94a5aa243a9c42a97738f83c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IntroController
-  enableDebugLog: 1
-  cutsceneMaryObject: {fileID: 7763148358949315664}
-  cutsceneMaryContainer: {fileID: 1607069603}
-  cutsceneMaryImage: {fileID: 5569495106620619019}
-  realMaryObject: {fileID: 1642316979}
+  enableSkip: 1
+  cutsceneMerryObject: {fileID: 7763148358949315664}
+  cutsceneMerryContainer: {fileID: 1607069603}
+  cutsceneMerryImage: {fileID: 5569495106620619019}
+  realMerryObject: {fileID: 1642316979}
   introItemData: {fileID: 11400000, guid: f133803242742064ab2d38dd1cd9f171, type: 2}
   defaultSprite: {fileID: 1414023517719057630, guid: 504a29e8e2c31a6439280f0f484dca64, type: 3}
   heldSprite: {fileID: -5519487946963870569, guid: cfa15265bb81cfa489439fca6c625ddd, type: 3}
@@ -9218,7 +9218,7 @@ MonoBehaviour:
   dialogueManager: {fileID: 504686725}
   firstDialogueGroupId: DGRP_GAME_START_1
   secondDialogueGroupId: DGRP_GAME_START_2
-  maryStateSprites:
+  merryStateSprites:
   - stateName: STANDING
     sprite: {fileID: 1414023517719057630, guid: 504a29e8e2c31a6439280f0f484dca64, type: 3}
   - stateName: HOLD_TABLET

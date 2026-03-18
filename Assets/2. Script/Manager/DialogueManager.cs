@@ -71,8 +71,6 @@ public class DialogueManager : MonoBehaviour
     {
         string csvText = rawText.Replace("\r\n", "\n");
         string[] lines = csvText.Split('\n');
-
-        // 따옴표 안의 쉼표는 분리하지 않도록 처리
         string pattern = @",(?=(?:[^""]*""[^""]*"")*[^""]*$)";
 
         for (int i = 1; i < lines.Length; i++)
@@ -81,11 +79,8 @@ public class DialogueManager : MonoBehaviour
                 continue;
 
             string[] fields = Regex.Split(lines[i], pattern);
-
-            // 시트 컬럼 전체를 받도록 최소 길이 보정
             fields = NormalizeFields(fields, 11);
 
-            // 설명용 주석 행은 건너뜀
             if (fields[0].Trim().StartsWith("#"))
                 continue;
 
@@ -103,7 +98,6 @@ public class DialogueManager : MonoBehaviour
             data.EventKey = CleanField(fields[9]);
             data.Remark = CleanField(fields[10]);
 
-            // 그룹/시퀀스/텍스트가 전부 비어 있으면 무의미한 행으로 보고 제외
             if (string.IsNullOrWhiteSpace(data.DialogueGroupId) &&
                 data.Sequence == 0 &&
                 string.IsNullOrWhiteSpace(data.Text))
@@ -135,6 +129,14 @@ public class DialogueManager : MonoBehaviour
                groupCache.TryGetValue(groupId, out var lines) &&
                lines != null &&
                lines.Count > 0;
+    }
+
+    public List<DialogueData> GetGroupLines(string groupId)
+    {
+        if (!HasGroup(groupId))
+            return new List<DialogueData>();
+
+        return new List<DialogueData>(groupCache[groupId]);
     }
 
     public void PlayGroup(string groupId)
@@ -181,10 +183,7 @@ public class DialogueManager : MonoBehaviour
         {
             DialogueData line = lines[i];
 
-            // 현재 줄 시작 시 NPC 상태 적용
-            introController?.ApplyCutsceneMaryState(line.NpcState);
-
-            // 말풍선 출력
+            introController?.ApplyCutsceneMerryState(line.NpcState);
             ShowBubble(line.Text);
 
             float wait = Mathf.Max(0f, line.AutoAdvanceSec);
@@ -194,7 +193,6 @@ public class DialogueManager : MonoBehaviour
             else
                 yield return null;
 
-            // 현재 줄 종료 후 eventKey 처리
             introController?.HandleDialogueEvent(line.EventKey);
         }
 
