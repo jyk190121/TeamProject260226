@@ -8278,13 +8278,14 @@ GameObject:
   - component: {fileID: 1449123106}
   - component: {fileID: 1449123108}
   - component: {fileID: 1449123107}
+  - component: {fileID: 1449123109}
   m_Layer: 5
   m_Name: Pnl_Main
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1449123106
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8347,6 +8348,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1449123105}
   m_CullTransparentMesh: 1
+--- !u!114 &1449123109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449123105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a6e0a042f4b99045a92390134dc6180, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MainStoryIntroController
+  baseBackgroundImage: {fileID: 2097423487}
+  fadeBackgroundImage: {fileID: 2104951967}
+  delayBeforeFade: 3
+  fadeDuration: 2
+  playOnStart: 1
+  disableBaseAfterComplete: 1
 --- !u!1 &1455205113
 GameObject:
   m_ObjectHideFlags: 0
@@ -12364,7 +12383,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2117576258
 RectTransform:
   m_ObjectHideFlags: 0

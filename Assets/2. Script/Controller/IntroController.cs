@@ -126,15 +126,6 @@ public class IntroController : MonoBehaviour
         if (dialogueManager == null)
             dialogueManager = FindAnyObjectByType<DialogueManager>();
 
-        LogDebug($"toolBarController: {(toolBarController != null ? toolBarController.name : "null")}");
-        LogDebug($"itemManager: {(itemManager != null ? itemManager.name : "null")}");
-        LogDebug($"dialogueManager: {(dialogueManager != null ? dialogueManager.name : "null")}");
-        LogDebug($"cutsceneMaryObject: {(cutsceneMaryObject != null ? cutsceneMaryObject.name : "null")}");
-        LogDebug($"cutsceneMaryContainer: {(cutsceneMaryContainer != null ? cutsceneMaryContainer.name : "null")}");
-        LogDebug($"realMaryObject: {(realMaryObject != null ? realMaryObject.name : "null")}");
-        LogDebug($"introItemData: {(introItemData != null ? introItemData.name : "null")}");
-        LogDebug($"firstTimelineDirector: {(firstTimelineDirector != null ? firstTimelineDirector.name : "null")}");
-        LogDebug($"secondTimelineDirector: {(secondTimelineDirector != null ? secondTimelineDirector.name : "null")}");
 
         PlayIntro();
 
