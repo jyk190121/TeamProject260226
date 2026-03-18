@@ -2452,6 +2452,31 @@ MonoBehaviour:
   bubbleText: {fileID: 2013817746}
   npcImage: {fileID: 1642316982}
   npcStateSprites: []
+  narrationClips:
+  - key: Main1-1
+    clip: {fileID: 8300000, guid: 6e610896be1f81e4f93ff445203a97f0, type: 3}
+  - key: Main1-2
+    clip: {fileID: 8300000, guid: 412385279b58d164c87ab9f35325da1b, type: 3}
+  - key: Main1-3
+    clip: {fileID: 8300000, guid: 147b181a2d10d9a41af15785535742fc, type: 3}
+  - key: Sub1-1
+    clip: {fileID: 8300000, guid: 40de86420daeafb43bc53fba681242e5, type: 3}
+  - key: Sub1-2
+    clip: {fileID: 8300000, guid: 2550078abd049264d9a489b0dfce362d, type: 3}
+  - key: Sub1-3
+    clip: {fileID: 8300000, guid: d223228191b5ddc4584a145960b9ef7c, type: 3}
+  - key: Sub2-1
+    clip: {fileID: 0}
+  - key: Sub2-2
+    clip: {fileID: 0}
+  - key: Sub2-3
+    clip: {fileID: 0}
+  - key: Main1-3
+    clip: {fileID: 0}
+  - key: Main1-3
+    clip: {fileID: 0}
+  - key: Main1-3
+    clip: {fileID: 0}
 --- !u!4 &504686723
 Transform:
   m_ObjectHideFlags: 0
