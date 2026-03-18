@@ -155,8 +155,6 @@ public class StartController : MonoBehaviour
         
         dataProcessAction?.Invoke();
 
-        yield return new WaitForSeconds(2f);
-
         GameSceneManager.Instance.LoadScene("GameScene_Test2");
         CursorManager.Instance.ChangeCursor(CursorState.Normal);
         MouseClickManager.Instance.SetClickEnable(true);
@@ -194,6 +192,8 @@ public class StartController : MonoBehaviour
         //print("게임 이어하기 로직 실행");
         SaveData data = SaveManager.Instance.Load();
         print($"이어하기 로직 실행: 메인 {data.lastUnlockedChapter}장");
+
+        StartCoroutine(CameraZoomStart());
 
         // 로드된 데이터를 GameScene에 전달하는 로직 필요
         GameSceneManager.Instance.LoadScene("GameScene_Test2");
