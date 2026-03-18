@@ -108,10 +108,14 @@ public class IntroController : MonoBehaviour
         if (dialogueManager == null)
             dialogueManager = FindAnyObjectByType<DialogueManager>();
 
-        if (realMerryObject != null)
+        if (realMerryObject != null && !GameSceneManager.Instance.GetContinue())
+        {
             realMerryObject.SetActive(false);
+        }
+        else cutsceneMerryContainer.SetActive(false);
 
-        if(!GameSceneManager.Instance.GetContinue())
+
+        if (!GameSceneManager.Instance.GetContinue())
             PlayIntro();
     }
 
