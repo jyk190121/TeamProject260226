@@ -7,6 +7,7 @@ public class GameSceneManager : MonoBehaviour
     public static GameSceneManager Instance { get; private set; }
     public float LoadingProgress { get; private set; }          // 로딩 진행률을 외부(UI)에서 읽을 수 있도록 공개
     bool isContinue;                                            // 이어하기 여부
+
     private void Awake()
     {
         // 싱글톤 핵심 로직 수정
