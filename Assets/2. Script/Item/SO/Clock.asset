@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Clock
   m_EditorClassIdentifier: Assembly-CSharp::Item
   id: 107
-  locationID: Sub
+  locationID: Zoom_Desk
   chapterIndex: 1
   stageIndex: 2
-  isHiddenInitially: 1
+  isHiddenInitially: 0
   oriPos: {x: -250.9, y: 100.7}
   originColor: 0
   type: 0

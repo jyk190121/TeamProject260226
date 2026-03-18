@@ -203,6 +203,10 @@ public class ItemManager : MonoBehaviour
         ObjectVisibilityController[] storyObjects = Object.FindObjectsByType<ObjectVisibilityController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var obj in storyObjects)
         {
+
+
+            if (obj.isSolved) continue;
+
             bool shouldBeActive = false;
 
             if (obj.locationID == _currentLocation)
@@ -220,5 +224,8 @@ public class ItemManager : MonoBehaviour
             }
             obj.gameObject.SetActive(shouldBeActive);
         }
+
+
+
     }
 }
