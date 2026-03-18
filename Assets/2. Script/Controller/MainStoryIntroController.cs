@@ -98,6 +98,8 @@ public class MainStoryIntroController : MonoBehaviour
     {
         isPlaying = true;
 
+        MouseClickManager.Instance.SetClickEnable(false);
+
         SoundManager.Instance.PlaySfx(SfxId.Beach);
 
         if (delayBeforeFade > 0f)
@@ -138,6 +140,8 @@ public class MainStoryIntroController : MonoBehaviour
 
         isPlaying = false;
         isCompleted = true;
+
+        MouseClickManager.Instance.SetClickEnable(true);
 
         Debug.Log($"{nameof(MainStoryIntroController)}: 메인 스테이지 배경 연출 완료", this);
     }
