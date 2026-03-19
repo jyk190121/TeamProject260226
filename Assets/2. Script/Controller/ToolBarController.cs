@@ -266,53 +266,57 @@ public class ToolBarController : MonoBehaviour
         if (IsMouseOverStorage(mousePos))
         {
             _currentMovingItem.transform.localScale = _originalScale;
+
+            bool isFirstPickup = (data.currentState == ItemState.Field);
+
             itemManager.UpdateItemStateAndPosition(id, ItemState.Storage, _currentMovingItem.transform.position);
             SoundManager.Instance.PlaySfx(SfxId.HandDrop);
 
-            
+
             if (id == "107")
             {
-                Debug.Log("107번 시계 획득! 배경 상태를 영구 고정합니다.");
-
-                // [수정 핵심] 씬에 있는 모든 '오브젝트 등장 조정기'를 가져옵니다 (비활성화된 것 포함)
-                ObjectVisibilityController[] allControllers = Object.FindObjectsByType<ObjectVisibilityController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-
-                foreach (var ctrl in allControllers)
+                if (isFirstPickup)
                 {
-                    // 1. 시계 있는 배경 (YesClock) -> 끄고 잠금
-                    if (ctrl.gameObject.name == "YesClock")
+                    Debug.Log("107번 시계 획득! 배경 상태를 영구 고정합니다.");
+
+                    // [수정 핵심] 씬에 있는 모든 '오브젝트 등장 조정기'를 가져옵니다 (비활성화된 것 포함)
+                    ObjectVisibilityController[] allControllers = Object.FindObjectsByType<ObjectVisibilityController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+                    foreach (var ctrl in allControllers)
                     {
-                        ctrl.isSolved = true;
-                        ctrl.gameObject.SetActive(false);
+                        // 1. 시계 있는 배경 (YesClock) -> 끄고 잠금
+                        if (ctrl.gameObject.name == "YesClock")
+                        {
+                            ctrl.isSolved = true;
+                            ctrl.gameObject.SetActive(false);
+                        }
+
+                        // 3. 문 (Stage1_Door) -> 끄고 잠금 (호박 문제 해결 연동)
+                        else if (ctrl.gameObject.name == "Stage1_Door")
+                        {
+                            ctrl.isSolved = true;
+                            ctrl.gameObject.SetActive(false);
+                        }
                     }
-                   
-                    // 3. 문 (Stage1_Door) -> 끄고 잠금 (호박 문제 해결 연동)
-                    else if (ctrl.gameObject.name == "Stage1_Door")
+
+                    // 3. 확대 패널 끄기 (기존 유지)
+                    ZoomOutTrigger zoomTrigger = Object.FindFirstObjectByType<ZoomOutTrigger>();
+                    if (zoomTrigger != null && zoomTrigger.myPanel != null)
+                        zoomTrigger.myPanel.SetActive(false);
+
+                    UpdateMagnifierCursor(false);
+
+                    // 4. 서재로 정식 복귀 (기존 유지)
+                    StoryConversionController conversionCtrl = Object.FindFirstObjectByType<StoryConversionController>();
+                    if (conversionCtrl != null)
                     {
-                        ctrl.isSolved = true;
-                        ctrl.gameObject.SetActive(false);
+                        conversionCtrl.ExitStory();
                     }
+
+                    // 5. 위치 보정 (기존 유지)
+                    itemManager.UpdateStageVisibility("Study");
                 }
-
-                // 3. 확대 패널 끄기 (기존 유지)
-                ZoomOutTrigger zoomTrigger = Object.FindFirstObjectByType<ZoomOutTrigger>();
-                if (zoomTrigger != null && zoomTrigger.myPanel != null)
-                    zoomTrigger.myPanel.SetActive(false);
-
-                UpdateMagnifierCursor(false);
-
-                // 4. 서재로 정식 복귀 (기존 유지)
-                StoryConversionController conversionCtrl = Object.FindFirstObjectByType<StoryConversionController>();
-                if (conversionCtrl != null)
-                {
-                    conversionCtrl.ExitStory();
-                }
-
-                // 5. 위치 보정 (기존 유지)
-                itemManager.UpdateStageVisibility("Study");
             }
-            // ==========================================
-            // ==========================================
         }
         else
         {

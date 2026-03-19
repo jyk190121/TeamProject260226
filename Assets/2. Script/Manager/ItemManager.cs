@@ -271,4 +271,22 @@ public class ItemManager : MonoBehaviour
 
 
     }
+    // 씬에 있는 모든 줌 패널을 안전하게 닫아주는 공용 함수
+    public void CloseAllZoomPanels()
+    {
+        ZoomOutTrigger[] allZoomOuts = Object.FindObjectsByType<ZoomOutTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var trigger in allZoomOuts)
+        {
+            if (trigger.myPanel != null && trigger.myPanel.activeSelf)
+            {
+                trigger.myPanel.SetActive(false);
+            }
+        }
+
+        // 툴바 내부의 줌 상태도 false로 초기화
+        ToolBarController tool = Object.FindFirstObjectByType<ToolBarController>();
+        if (tool != null) tool.UpdateMagnifierCursor(false);
+
+        Debug.Log("<color=cyan>[UI 클린업]</color> 모든 확대 패널을 닫았습니다.");
+    }
 }
