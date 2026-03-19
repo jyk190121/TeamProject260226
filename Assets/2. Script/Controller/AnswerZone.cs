@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Text;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -37,34 +38,20 @@ public class AnswerZone : MonoBehaviour
 
     [HideInInspector] public bool isSolved = false;
 
-    // [추가] NPC 참조 (Inspector에서 연결하거나 Find)
-    private NPCController npc;
-
     private void OnEnable()
     {
         narrationManager = FindAnyObjectByType<NarrationManager>();
-        npc = FindAnyObjectByType<NPCController>();
     }
 
     public bool CheckMatch(Item data, GameObject itemObj)
     {
         if (data == null || isSolved) return false;
 
-        // 조건 불일치 시 메시지
-        if (StageManager.Instance != null)
-        {
-            if (StageManager.Instance.CurrentChapter() != requiredChapter ||
-               (!isMainZone && StageManager.Instance.CurrentStage() != requiredPage))
-            {
-                FailMatch("여기가 아닌 것 같아.");
-                return false;
-            }
-        }
-
         if (StageManager.Instance != null)
         {
             if (StageManager.Instance.CurrentChapter() != requiredChapter) return false;
             if (!isMainZone && StageManager.Instance.CurrentStage() != requiredPage) return false;
+
         }
 
         string baseId = data.id.Split('_')[0];
@@ -77,18 +64,7 @@ public class AnswerZone : MonoBehaviour
             }
         }
 
-        // 여기까지 도달했다면 '틀린 아이템'을 넣은 것임
-        FailMatch("그건 어울리지 않는 것 같아.");
         return false;
-    }
-
-    void FailMatch(string hintMessage)
-    {
-        if (npc != null)
-        {
-            npc.ShowHint(hintMessage);
-        }
-        Debug.Log($"<color=red>오답!</color> : {hintMessage}");
     }
 
     private void Success(GameObject itemObj)

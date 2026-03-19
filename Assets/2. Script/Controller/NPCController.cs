@@ -22,12 +22,27 @@ public class NPCController : MonoBehaviour
 
     [Header("State Settings")]
     [SerializeField] private NPCState startState = NPCState.Idle;
-    [SerializeField] private float hintStateDuration = 1.0f;
+    [SerializeField] private float hintStateDuration = 1.3f;
 
 
     [Header("UI - Bubble")]
     [SerializeField] private GameObject speechBubble;
     [SerializeField] private TextMeshProUGUI hintText;
+
+    [Header("랜덤 대사 설정")]
+    public string[] wrongLocationHints = {
+        "여기가 아닌 것 같아.",
+        "다른 곳에 써야 할 것 같은데?",
+        "음... 위치가 여기가 맞나?",
+        "거기 말고 다른 곳을 찾아보자."
+    };
+
+    public string[] wrongItemHints = {
+        "그건 어디에 쓰는 걸까?",
+        "음... 잘 모르겠어.",
+        "아무 반응이 없는 것 같아.",
+        "다른 아이템을 써보는 건 어때?"
+    };
 
     private Sprite[] spriteTable;
     private NPCState currentState;
@@ -142,5 +157,15 @@ public class NPCController : MonoBehaviour
         // 말풍선 끄기 및 상태 복구
         if (speechBubble != null) speechBubble.SetActive(false);
         ResetToIdle();
+    }
+
+    // 랜덤 대사를 출력하는 공용 함수
+    public void ShowRandomHint(string[] hintList)
+    {
+        if (hintList == null || hintList.Length == 0) return;
+
+        // 리스트 중 무작위 하나 선택
+        int randomIndex = Random.Range(0, hintList.Length);
+        ShowHint(hintList[randomIndex]);
     }
 }

@@ -233,7 +233,7 @@ public class StoryConversionController : MonoBehaviour
 
         if (Keyboard.current[Key.F1].wasPressedThisFrame)
         {
-            ApplyCheatState(1);
+            ApplyCheatState(1); 
         }
         else if (Keyboard.current[Key.F2].wasPressedThisFrame)
         {
