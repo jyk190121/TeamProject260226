@@ -1146,7 +1146,7 @@ GameObject:
   - component: {fileID: 210039604}
   - component: {fileID: 210039606}
   - component: {fileID: 210039605}
-  m_Layer: 8
+  m_Layer: 6
   m_Name: Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1222,7 +1222,7 @@ GameObject:
   - component: {fileID: 240898256}
   - component: {fileID: 240898258}
   - component: {fileID: 240898257}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2096,7 +2096,7 @@ GameObject:
   - component: {fileID: 381493129}
   - component: {fileID: 381493128}
   - component: {fileID: 381493127}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Btn_Glasses
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2585,7 +2585,7 @@ GameObject:
   - component: {fileID: 480442911}
   - component: {fileID: 480442910}
   - component: {fileID: 480442909}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: ToolBarImg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3574,7 +3574,7 @@ GameObject:
   - component: {fileID: 662271975}
   - component: {fileID: 662271974}
   - component: {fileID: 662271973}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Btn_Spoid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3693,7 +3693,7 @@ GameObject:
   - component: {fileID: 678959623}
   - component: {fileID: 678959625}
   - component: {fileID: 678959624}
-  m_Layer: 8
+  m_Layer: 6
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3888,7 +3888,7 @@ GameObject:
   - component: {fileID: 754582306}
   - component: {fileID: 754582308}
   - component: {fileID: 754582307}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: sign
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4221,7 +4221,7 @@ GameObject:
   - component: {fileID: 831820451}
   - component: {fileID: 831820450}
   - component: {fileID: 831820449}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Btn_Exit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4768,7 +4768,7 @@ GameObject:
   - component: {fileID: 931720894}
   - component: {fileID: 931720896}
   - component: {fileID: 931720895}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Img_NPCBackground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5377,7 +5377,7 @@ GameObject:
   - component: {fileID: 1057241078}
   - component: {fileID: 1057241077}
   - component: {fileID: 1057241080}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: "Pnl_\uACF5\uD1B5"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6226,10 +6226,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1033180024}
     m_Modifications:
-    - target: {fileID: 1396242670280329292, guid: f7dba262982a58045b0c9780ff3b39a1, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 400
-      objectReference: {fileID: 0}
     - target: {fileID: 5459140978688170202, guid: f7dba262982a58045b0c9780ff3b39a1, type: 3}
       propertyPath: m_Name
       value: Btn_SubBook_Readed
@@ -6412,7 +6408,7 @@ GameObject:
   - component: {fileID: 1185968693}
   - component: {fileID: 1185968695}
   - component: {fileID: 1185968694}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Img_Line
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8046,7 +8042,7 @@ GameObject:
   - component: {fileID: 1403325117}
   - component: {fileID: 1403325119}
   - component: {fileID: 1403325118}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Img_Block
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8787,7 +8783,7 @@ GameObject:
   - component: {fileID: 1551005247}
   - component: {fileID: 1551005246}
   - component: {fileID: 1551005245}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Btn_Paint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9107,7 +9103,7 @@ GameObject:
   - component: {fileID: 1622496779}
   - component: {fileID: 1622496778}
   - component: {fileID: 1622496777}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Btn_Setting
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9380,7 +9376,7 @@ GameObject:
   - component: {fileID: 1642316983}
   - component: {fileID: 1642316982}
   - component: {fileID: 1642316981}
-  m_Layer: 8
+  m_Layer: 6
   m_Name: Img_NPC
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9475,7 +9471,7 @@ GameObject:
   - component: {fileID: 1646100718}
   - component: {fileID: 1646100717}
   - component: {fileID: 1646100716}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Btn_Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10564,7 +10560,7 @@ MonoBehaviour:
   chapterPrefabs:
   - {fileID: 5459140978688170202, guid: 4e44a6cae4cadaa41bf0ef92051a2326, type: 3}
   - {fileID: 5459140978688170202, guid: 62499b31820b76a4a8a5bb14f2e4af55, type: 3}
-  storyReadPrefab: {fileID: 5459140978688170202, guid: f7dba262982a58045b0c9780ff3b39a1, type: 3}
+  storyReadPrefab: {fileID: 5459140978688170202, guid: 372325464fc47964da8518e518d39e72, type: 3}
   contentParent: {fileID: 1033180024}
   progressTxt: {fileID: 1663450281}
   progressImg: {fileID: 30118637}
@@ -11730,7 +11726,7 @@ GameObject:
   - component: {fileID: 2013817745}
   - component: {fileID: 2013817747}
   - component: {fileID: 2013817746}
-  m_Layer: 8
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12062,7 +12058,7 @@ GameObject:
   - component: {fileID: 2075722591}
   - component: {fileID: 2075722593}
   - component: {fileID: 2075722592}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
