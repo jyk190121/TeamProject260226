@@ -16,8 +16,11 @@ public class ZoomOutTrigger : MonoBehaviour
         {
             // 1. 확대 패널을 끕니다.
             myPanel.SetActive(false);
-            controller.UpdateMagnifierCursor(false);
-
+            if (controller != null)
+            {
+                controller.SetMagnifierIcon(false);
+                controller.UpdateMagnifierCursor(false);
+            }
             // 2. [핵심] 매니저에게 "원래 방 조명 다시 켜!" 라고 지시합니다.
             if (ItemManager.Instance != null)
                 ItemManager.Instance.UpdateStageVisibility(returnLocationID);

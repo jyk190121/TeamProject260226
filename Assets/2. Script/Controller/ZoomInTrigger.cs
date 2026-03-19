@@ -29,6 +29,8 @@ public class ZoomInTrigger : MonoBehaviour
             targetZoomPanel.transform.SetAsLastSibling();
             controller.UpdateMagnifierCursor(true);
 
+            controller.SetMagnifierIcon(true);
+
             if (ItemManager.Instance != null)
                 ItemManager.Instance.UpdateStageVisibility(zoomLocationID);
         }

@@ -68,6 +68,13 @@ public class AnswerZone : MonoBehaviour
     {
         isSolved = true;
 
+        string itemId = itemObj.name.Replace("(Clone)", "").Trim();
+        if (ItemManager.Instance != null)
+        {
+            Item data = ItemManager.Instance.GetItemDataById(itemId);
+            if (data != null) data.currentState = ItemState.Used;
+        }
+
         // 아이템 처리 로직
         if (destroyItemOnSuccess)
         {
