@@ -157,7 +157,7 @@ public class StartController : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
-        GameSceneManager.Instance.LoadScene("GameScene_Test2");
+        GameSceneManager.Instance.LoadScene("GameScene_KJW4");
         CursorManager.Instance.ChangeCursor(CursorState.Normal);
         MouseClickManager.Instance.SetClickEnable(true);
     }
@@ -203,7 +203,7 @@ public class StartController : MonoBehaviour
         yield return StartCoroutine(CameraZoomStart());
 
         // 로드된 데이터를 GameScene에 전달하는 로직 필요
-        GameSceneManager.Instance.LoadScene("GameScene_Test2");
+        GameSceneManager.Instance.LoadScene("GameScene_KJW4");
     }
 
     private void OnClickSetting()

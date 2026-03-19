@@ -115,6 +115,11 @@ public class StoryConversionController : MonoBehaviour
         {
             CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
         }
+
+        if (toolBar != null)
+        {
+            toolBar.EnableStoryMode();
+        }
     }
 
     // 메인 or 서브 스토리에서 나가기 버튼 선택 시 (서재가 Default)
@@ -122,6 +127,11 @@ public class StoryConversionController : MonoBehaviour
     {
         stagePanel.SetActive(false);
         blockImg.SetActive(true);
+
+        if (toolBar != null)
+        {
+            toolBar.EnableStudyMode();
+        }
 
         //현재 위치 인식(Library)
         if (ItemManager.Instance != null)

@@ -31,21 +31,27 @@ public class ItemManager : MonoBehaviour
 
         foreach (Item item in itemData)
         {
-            if (item.chapterIndex == currentChapter && item.stageIndex == currentStage)
+            if (spawnedItems.ContainsKey(item.id)) continue;
+            if (isContinue && item.id.Equals("IntroMerry")) continue;
+
+            var savedInfo = savedData.itemPositions?.Find(x => x.itemId == item.id);
+
+            //  1. 이 아이템이 내 가방(Storage)에 있거나 이미 사용(Used)했는가?
+            bool isOwned = (savedInfo != null && (savedInfo.savedState == ItemState.Storage || savedInfo.savedState == ItemState.Used));
+
+            //  2. 이 아이템이 현재 스테이지 바닥에 원래 떨어져 있어야 하는가?
+            bool isCurrentStageItem = (item.chapterIndex == currentChapter && item.stageIndex == currentStage);
+
+            // 가방에 있거나, 현재 스테이지 아이템일 때만 스폰 진행
+            if (isOwned || isCurrentStageItem)
             {
-                if (spawnedItems.ContainsKey(item.id)) continue;
-
-                if (isContinue && item.id.Equals("IntroMerry")) continue;
-
-                var savedInfo = savedData.itemPositions?.Find(x => x.itemId == item.id);
-
-                // [핵심 방어막] 숨겨진 아이템이고 획득한 기록도 없다면 스폰 무시
                 if (item.isHiddenInitially && savedInfo == null) continue;
 
                 Vector2 spawnPos = (savedInfo != null) ? savedInfo.savedPos : item.oriPos;
                 int spawnColor = (savedInfo != null) ? savedInfo.savedColor : item.originColor;
 
-                item.currentState = ItemState.Field;
+                //  3. 세이브 파일에 상태가 있으면 그대로 복구, 없으면 Field(바닥)로 설정
+                item.currentState = (savedInfo != null) ? savedInfo.savedState : ItemState.Field;
                 item.color = spawnColor;
 
                 CreateItemObject(item, spawnPos, spawnColor);
@@ -72,6 +78,7 @@ public class ItemManager : MonoBehaviour
 
             if (data == null || obj == null) continue;
 
+            // 1. [기믹] 다른 아이템 획득 시 숨겨지는 처리
             if (!string.IsNullOrEmpty(data.targetItemToHideMe))
             {
                 Item linkedItem = GetItemDataById(data.targetItemToHideMe);
@@ -82,19 +89,28 @@ public class ItemManager : MonoBehaviour
                 }
             }
 
-            if (data.currentState == ItemState.Storage || data.currentState == ItemState.Used)
+            // 2. [가시성 핵심 로직] 상태에 따른 출력
+            if (data.currentState == ItemState.Storage)
             {
+                // 보관함(Storage)에 있는 아이템은 맵 이동과 무관하게 항상 활성화
                 obj.SetActive(true);
             }
             else
             {
+                // 바닥(Field)에 있거나 사용 완료(Used)된 아이템은 '원래 위치'일 때만 활성화
                 bool isMyStage = (data.locationID == _currentLocation) &&
                                  (data.chapterIndex == currentChap) &&
                                  (data.stageIndex == currentStage);
+
+                // 💡 만약, "사용한(Used) 아이템은 원래 맵에 돌아가도 아예 안 보여야 한다"는 
+                // 기획이라면 아래 주석(//)을 해제하세요. (원래 맵에 그대로 박혀 있어야 한다면 이대로 두시면 됩니다.)
+                // if (data.currentState == ItemState.Used) isMyStage = false;
+
                 obj.SetActive(isMyStage);
             }
         }
 
+        // 3. 문, 줌 패널 등 인터랙션 구역 업데이트
         if (StageManager.Instance != null)
         {
             UpdateInteractZones(currentChap, currentStage);
@@ -190,30 +206,42 @@ public class ItemManager : MonoBehaviour
         }
         data.isGameStarted = true;
 
-
         if (data.itemPositions == null) data.itemPositions = new List<ItemSaveInfo>();
-        data.itemPositions.Clear();
+
+        // ⭐️ [버그 수정] data.itemPositions.Clear(); 삭제
+        // 이걸 지우지 않으면 과거 스테이지 바닥에 두고 온 아이템이 세이브에서 영구 삭제됩니다.
 
         foreach (var entry in spawnedItems)
         {
             string id = entry.Key;
             GameObject obj = entry.Value;
             Item so = itemData.Find(x => x.id == id);
+
             if (so != null && obj != null)
             {
                 RectTransform rt = obj.GetComponent<RectTransform>();
                 Vector2 savePos = (rt != null) ? rt.anchoredPosition : (Vector2)obj.transform.position;
 
-                // ⭐️ [최소 변경 5] 기존에 있던 건 덮어쓰고, 없는 건 새로 추가
                 var existingInfo = data.itemPositions.Find(x => x.itemId == id);
                 if (existingInfo != null)
                 {
                     existingInfo.savedPos = savePos;
                     existingInfo.savedColor = so.color;
+
+                    // ⭐️ [핵심 1] 덮어쓸 때 현재 상태(가방인지 바닥인지)를 세이브 파일에 확실히 적어줍니다.
+                    existingInfo.savedState = so.currentState;
                 }
                 else
                 {
-                    data.itemPositions.Add(new ItemSaveInfo { itemId = id, savedPos = savePos, savedColor = so.color });
+                    data.itemPositions.Add(new ItemSaveInfo
+                    {
+                        itemId = id,
+                        savedPos = savePos,
+                        savedColor = so.color,
+
+                        // ⭐️ [핵심 2] 처음 저장할 때도 상태를 확실히 적어줍니다.
+                        savedState = so.currentState
+                    });
                 }
             }
         }
