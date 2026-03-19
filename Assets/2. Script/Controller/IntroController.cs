@@ -108,8 +108,12 @@ public class IntroController : MonoBehaviour
         if (dialogueManager == null)
             dialogueManager = FindAnyObjectByType<DialogueManager>();
 
-        if (realMerryObject != null)
+        if (realMerryObject != null && !GameSceneManager.Instance.GetContinue())
+        {
             realMerryObject.SetActive(false);
+        }
+        else cutsceneMerryContainer.SetActive(false);
+
 
         if (!GameSceneManager.Instance.GetContinue())
             PlayIntro();
@@ -296,9 +300,6 @@ public class IntroController : MonoBehaviour
 
     private void InitializeIntro()
     {
-        // 인트로 시작 시 클릭 차단 (Ready ~ FirstDialoguePlaying 구간)
-        MouseClickManager.Instance?.SetClickEnable(false);
-
         SetCutsceneMerryActive(true);
 
         if (introItemObject != null)
@@ -373,6 +374,8 @@ public class IntroController : MonoBehaviour
 
     private void SwitchToItemMerry()
     {
+        MouseClickManager.Instance.SetClickEnable(true);
+
         SyncItemMerryPositionFromCutsceneMerry();
 
         SetCutsceneMerryActive(false);
@@ -381,10 +384,6 @@ public class IntroController : MonoBehaviour
             introItemObject.SetActive(true);
 
         ApplyDefaultSprite();
-
-        // WaitingForPlayerAction 진입 시 클릭 허용
-        MouseClickManager.Instance?.SetClickEnable(true);
-
         currentPhase = IntroPhase.WaitingForPlayerAction;
     }
 
@@ -460,9 +459,6 @@ public class IntroController : MonoBehaviour
     {
         currentPhase = IntroPhase.SuccessTransition;
 
-        // 아이템 보관 성공 후 SecondTimeline 구간 클릭 차단
-        MouseClickManager.Instance?.SetClickEnable(false);
-
         DeactivateItemMerry();
         ActivateCutsceneMerry();
         PlaySecondTimeline();
@@ -491,6 +487,7 @@ public class IntroController : MonoBehaviour
 
     private void PlaySecondTimeline()
     {
+        MouseClickManager.Instance.SetClickEnable(false);
         currentPhase = IntroPhase.SecondTimelinePlaying;
 
         if (secondTimelineDirector != null)
@@ -506,6 +503,7 @@ public class IntroController : MonoBehaviour
         if (secondTimelineDirector != null && secondTimelineDirector.state == PlayState.Playing)
         {
             secondTimelineDirector.Stop();
+            MouseClickManager.Instance.SetClickEnable(true);
         }
 
         FinalizeIntro();
@@ -578,10 +576,6 @@ public class IntroController : MonoBehaviour
         DestroyItemMerry();
 
         currentPhase = IntroPhase.Completed;
-
-        // 인트로 완전 종료 시 클릭 허용
-        MouseClickManager.Instance?.SetClickEnable(true);
-
         FinishIntro();
     }
 
@@ -662,7 +656,7 @@ public class IntroController : MonoBehaviour
         ForceDirectorToEnd(firstTimelineDirector);
         InvokeAllEventKeysInGroup(firstDialogueGroupId);
 
-        SwitchToItemMerry(); // 내부에서 SetClickEnable(true) 호출됨
+        SwitchToItemMerry();
     }
 
     private void SkipWholeIntro()
@@ -679,7 +673,7 @@ public class IntroController : MonoBehaviour
         InvokeAllEventKeysInGroup(firstDialogueGroupId);
         InvokeAllEventKeysInGroup(secondDialogueGroupId);
 
-        FinalizeIntro(); // 내부에서 SetClickEnable(true) 호출됨
+        FinalizeIntro();
     }
 
     private void CancelBootRoutineIfNeeded()

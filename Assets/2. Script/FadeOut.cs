@@ -16,6 +16,7 @@ public class FadeOut : MonoBehaviour
         {
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
         }
+        MouseClickManager.Instance.SetClickEnable(false);
     }
 
     // 로딩이 시작될 때 이 함수를 호출하세요.
@@ -32,7 +33,6 @@ public class FadeOut : MonoBehaviour
 
     private IEnumerator FadeOutAndDestroy()
     {
-        MouseClickManager.Instance.SetClickEnable(false);
         float elapsedTime = 0f;
         float startAlpha = canvasGroup.alpha;
 
@@ -45,8 +45,6 @@ public class FadeOut : MonoBehaviour
         }
 
         canvasGroup.alpha = 0f;
-
-        MouseClickManager.Instance.SetClickEnable(true);
 
         // 알파값이 0이 되면 오브젝트 파괴
         Destroy(gameObject);
