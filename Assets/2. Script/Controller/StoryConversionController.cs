@@ -98,7 +98,11 @@ public class StoryConversionController : MonoBehaviour
         EnterStory();
 
         if ((StageManager.Instance.CurrentStage() & StageManager.Instance.CurrentChapter()) == 1)
+        {
+            print("서브스토리 1-1 나레이션 재생");
             narrationManager.StartNarration("1", 1, "Sub");
+        }
+           
 
         //현재 위치 인식(Sub)
         if (ItemManager.Instance != null)

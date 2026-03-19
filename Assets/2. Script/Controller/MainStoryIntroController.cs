@@ -44,6 +44,7 @@ public class MainStoryIntroController : MonoBehaviour
 
         if (playOnStart && StageManager.Instance.CurrentChapter() == 1)
         {
+            print("메인스토리 1-1 연출+나레이션 재생");
             PlayIntro();
         }
     }
