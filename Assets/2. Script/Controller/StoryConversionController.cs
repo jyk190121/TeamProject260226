@@ -97,7 +97,7 @@ public class StoryConversionController : MonoBehaviour
         blockImg.SetActive(false);
         EnterStory();
 
-        if (StageManager.Instance.CurrentStage() == 1)
+        if ((StageManager.Instance.CurrentStage() & StageManager.Instance.CurrentChapter()) == 1)
             narrationManager.StartNarration("1", 1, "Sub");
 
         //현재 위치 인식(Sub)

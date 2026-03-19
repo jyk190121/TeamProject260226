@@ -42,7 +42,7 @@ public class MainStoryIntroController : MonoBehaviour
         InitializeState();
        
 
-        if (playOnStart)
+        if (playOnStart && StageManager.Instance.CurrentChapter() == 1)
         {
             PlayIntro();
         }
