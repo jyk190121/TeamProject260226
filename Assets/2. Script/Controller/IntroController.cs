@@ -672,6 +672,7 @@ public class IntroController : MonoBehaviour
 
         InvokeAllEventKeysInGroup(firstDialogueGroupId);
         InvokeAllEventKeysInGroup(secondDialogueGroupId);
+        MouseClickManager.Instance.SetClickEnable(true);
 
         FinalizeIntro();
     }

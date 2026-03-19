@@ -25,6 +25,7 @@ public class FadeOut : MonoBehaviour
         if(GameSceneManager.Instance.GetContinue())
         {
             Destroy(gameObject);
+            MouseClickManager.Instance.SetClickEnable(true);
             return;
         }
 
