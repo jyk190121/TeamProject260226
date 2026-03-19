@@ -122,4 +122,35 @@ public class StageManager : MonoBehaviour
     {
         return currentChapterIndex;
     }
+
+    public void RestartAtStage(int chapter, int stage)
+    {
+        // 1. 세이브 데이터 불러오기 및 특정 스테이지로 초기화
+        SaveData data = SaveManager.Instance.Load();
+
+        data.lastUnlockedChapter = chapter;
+        data.UnlockedStage = stage;
+        data.itemPositions.Clear();         // 저장된 아이템 위치 삭제 (초기 위치로)
+        data.playedNarrations.Clear();      // 필요 시 나레이션 기록도 초기화
+        data.isIntroCompleted = true;       // 1-2라면 1-1 인트로는 완료된 상태로 간주
+        data.isGameStarted = true;
+
+        // 2. 초기화된 데이터 저장
+        SaveManager.Instance.Save(data);
+
+        // 3. 서재 상태로 강제 전환 (StoryConversionController 활용)
+        // 화면상의 StagePanel을 끄고 서재 레이아웃으로 변경
+        StoryConversionController storyUI = FindAnyObjectByType<StoryConversionController>();
+        if (storyUI != null)
+        {
+            storyUI.ExitStory(); // 이 함수가 stagePanel.SetActive(false)와 Library 설정을 처리함
+        }
+
+        // 4. 아이템 스폰 및 챕터 설정 적용
+        StartStage(chapter, stage);
+
+        // 5. 씬 재로드 (선택 사항)
+        // 모든 상태를 완벽히 깨끗하게 만들고 싶다면 현재 씬을 다시 로드하는 것이 가장 확실합니다.
+        // UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
 }

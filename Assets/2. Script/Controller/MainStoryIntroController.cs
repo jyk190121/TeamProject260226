@@ -40,14 +40,50 @@ public class MainStoryIntroController : MonoBehaviour
     private void Start()
     {
         //InitializeState();
-       
+        // 저장된 데이터 가져오기
+        if (SaveManager.Instance != null)
+        {
+            SaveData data = SaveManager.Instance.Load();
+            isCompleted = data.isIntroCompleted;
+        }
 
         if (playOnStart && StageManager.Instance.CurrentChapter() == 1)
         {
-            print("메인스토리 1-1 연출+나레이션 재생");
-            InitializeState();
-            PlayIntro();
+            if (!isCompleted)
+            {
+                print("메인스토리 1-1 인트로 연출 시작");
+                InitializeState();
+                PlayIntro();
+            }
+            else
+            {
+                print("이미 완료된 인트로입니다. 연출을 건너뜁니다.");
+                SkipToFinalState(); // 연출 없이 결과 화면만 보여줌
+            }
         }
+
+        //if (playOnStart && StageManager.Instance.CurrentChapter() == 1 && !isCompleted)
+        //{
+        //    print("메인스토리 1-1 연출+나레이션 재생");
+        //    InitializeState();
+        //    PlayIntro();
+        //}
+    }
+
+    // 이미 완료된 경우, 연출 과정 없이 최종 배경 상태로 고정한다.
+    private void SkipToFinalState()
+    {
+        if (baseBackgroundImage != null)
+            baseBackgroundImage.gameObject.SetActive(false);
+
+        if (fadeBackgroundImage != null)
+        {
+            fadeBackgroundImage.gameObject.SetActive(true);
+            SetImageAlpha(fadeBackgroundImage, 1f);
+        }
+
+        isCompleted = true;
+        isPlaying = false;
     }
 
     /// <summary>
@@ -146,6 +182,14 @@ public class MainStoryIntroController : MonoBehaviour
 
         isPlaying = false;
         isCompleted = true;
+
+        // 인트로 끝난 상태 저장
+        if (SaveManager.Instance != null)
+        {
+            SaveData data = SaveManager.Instance.Load();
+            data.isIntroCompleted = true;
+            SaveManager.Instance.Save(data);
+        }
 
         MouseClickManager.Instance.SetClickEnable(true);
 

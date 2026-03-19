@@ -87,6 +87,24 @@ public class NarrationManager : MonoBehaviour
         StartCoroutine(DownloadAllData());
     }
 
+    void Start()
+    {
+        LoadPlayedHistory();
+    }
+
+    // [추가] SaveManager로부터 데이터 가져오기
+    private void LoadPlayedHistory()
+    {
+        if (SaveManager.Instance == null) return;
+
+        SaveData data = SaveManager.Instance.Load();
+        if (data.playedNarrations != null)
+        {
+            _playedSet = new HashSet<string>(data.playedNarrations);
+            Debug.Log($"[NarrationManager] {_playedSet.Count}개의 나레이션 이력을 로드했습니다.");
+        }
+    }
+
     // ==========================================
     // [추가] C키 스킵 처리
     // 나레이션 재생 중에만 동작합니다.
@@ -324,7 +342,27 @@ public class NarrationManager : MonoBehaviour
     //   MarkPlayed  → PlayerPrefs.SetInt(key, 1)
     //   IsPlayed    → PlayerPrefs.GetInt(key, 0) == 1
     // ==========================================
-    private void MarkPlayed(string key) => _playedSet.Add(key);
+    //private void MarkPlayed(string key) => _playedSet.Add(key);
+    // [수정] 이력 저장 시 SaveManager와 연동
+    private void MarkPlayed(string key)
+    {
+        if (_playedSet.Contains(key)) return;
+
+        _playedSet.Add(key);
+
+        // [추가] 실시간으로 파일에 저장
+        if (SaveManager.Instance != null)
+        {
+            SaveData data = SaveManager.Instance.Load();
+            // 중복 방지를 확인하며 리스트에 추가
+            if (!data.playedNarrations.Contains(key))
+            {
+                data.playedNarrations.Add(key);
+                SaveManager.Instance.Save(data);
+                Debug.Log($"[NarrationManager] 새 이력 저장: {key}");
+            }
+        }
+    }
     private bool IsPlayed(string key) => _playedSet.Contains(key);
 
     // ==========================================
