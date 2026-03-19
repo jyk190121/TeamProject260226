@@ -4911,7 +4911,7 @@ MonoBehaviour:
   requiredChapter: 1
   requiredPage: 1
   clearType: 0
-  narrationManager: {fileID: 0}
+  narrationManager: {fileID: 504686726}
   keepDroppedPosition: 0
   destroyItemOnSuccess: 0
   onCorrect:
@@ -6473,7 +6473,7 @@ MonoBehaviour:
   requiredChapter: 1
   requiredPage: 2
   clearType: 2
-  narrationManager: {fileID: 0}
+  narrationManager: {fileID: 504686726}
   keepDroppedPosition: 0
   destroyItemOnSuccess: 0
   onCorrect:
@@ -10238,7 +10238,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1703893710
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12356,7 +12356,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2107953257
 MonoBehaviour:
   m_ObjectHideFlags: 0

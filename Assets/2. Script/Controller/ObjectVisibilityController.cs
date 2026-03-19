@@ -22,8 +22,17 @@ public class ObjectVisibilityController : MonoBehaviour
 
     [Header("상태 잠금")]
     [Tooltip("체크되면 ItemManager가 이 오브젝트의 활성화 상태를 강제로 바꾸지 못합니다.")]
-    public bool isSolved = false; 
+    public bool isSolved = false;
 
+    //리셋
+    public void ResetState()
+    {
+        isSolved = false; // 잠금 해제
+
+        if (gameObject.name == "NoClock") gameObject.SetActive(true);
+        else if (gameObject.name == "YesClock") gameObject.SetActive(false);
+        else if (gameObject.name == "Stage1_Door") gameObject.SetActive(true);
+    }
 }
 
 [AddComponentMenu("스토리 연출/기믹 진행도 카운터")]
