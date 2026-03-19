@@ -11,7 +11,10 @@ public class SaveData
     public int UnlockedStage = 1;                                                   // 플레이중인 스테이지 (서브)
     public List<ItemSaveInfo> itemPositions = new List<ItemSaveInfo>();
     public List<int> generatedSubStories = new List<int>();                         // 서브 스토리 리스트
-    
+
+    public List<string> playedNarrations = new List<string>();                      // 나레이션 재생 여부
+    public bool isIntroCompleted = false;                                           // 인트로 연출 완료 여부
+
     // 볼륨 데이터 (기본값 1)
     public float volMaster = 1.0f;
     public float volBgm = 1.0f;
