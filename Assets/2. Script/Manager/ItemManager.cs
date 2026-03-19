@@ -230,6 +230,14 @@ public class ItemManager : MonoBehaviour
 
     private void UpdateInteractZones(int chapter, int stage)
     {
+        //상태 확인 후 문 생성 조건 확인.
+        Item pumpkin = GetItemDataById("105");
+        bool isPumpkinUsed = (pumpkin != null && pumpkin.currentState == ItemState.Used);
+
+        Item clock = GetItemDataById("107");
+        bool hasClock = (clock != null && (clock.currentState == ItemState.Storage || clock.currentState == ItemState.Used));
+
+
         AnswerZone[] answerZones = Object.FindObjectsByType<AnswerZone>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var zone in answerZones)
         {
@@ -246,7 +254,20 @@ public class ItemManager : MonoBehaviour
         ObjectVisibilityController[] storyObjects = Object.FindObjectsByType<ObjectVisibilityController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var obj in storyObjects)
         {
+            if ((isPumpkinUsed || hasClock) && obj.gameObject.name == "Stage1_Door")
+            {
+                obj.isSolved = true;
+                obj.gameObject.SetActive(false);
+                continue;
+            }
 
+            // 시계를 가졌다면 시계가 있던 배경(YesClock)은 무조건 비활성화
+            if (hasClock && obj.gameObject.name == "YesClock")
+            {
+                obj.isSolved = true;
+                obj.gameObject.SetActive(false);
+                continue;
+            }
 
             if (obj.isSolved) continue;
 
