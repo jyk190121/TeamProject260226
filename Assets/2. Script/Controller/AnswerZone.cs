@@ -20,6 +20,9 @@ public class AnswerZone : MonoBehaviour
     [Header("클리어 설정")]
     public ClearType clearType = ClearType.Page;
 
+    [Header("Narration")]
+    [SerializeField] private NarrationManager narrationManager;
+
     // ==========================================
     // [추가됨] 정답 제출 후 아이템을 어떻게 할지 에디터에서 선택!
     // ==========================================
@@ -33,6 +36,11 @@ public class AnswerZone : MonoBehaviour
     public UnityEvent onCorrect;
 
     [HideInInspector] public bool isSolved = false;
+
+    private void OnEnable()
+    {
+        narrationManager = FindAnyObjectByType<NarrationManager>();
+    }
 
     public bool CheckMatch(Item data, GameObject itemObj)
     {
@@ -92,8 +100,10 @@ public class AnswerZone : MonoBehaviour
                 ItemManager.Instance.SpawnItem(StageManager.Instance.CurrentChapter(), StageManager.Instance.CurrentStage());
 
                 // 3. ⭐️ 이어하기를 위해 현재 챕터/스테이지, 아이템 위치 등을 즉시 저장!
-              
                 ItemManager.Instance.ChangeItemPos("StageClear", Vector2.zero);
+
+                // 4. 나레이션 재생
+                narrationManager.StartNarration("1", StageManager.Instance.CurrentStage(), "Sub");
             }
         }
         else if (clearType == ClearType.Chapter)

@@ -4,6 +4,9 @@ using UnityEngine.UI;
 
 public class MainStoryIntroController : MonoBehaviour
 {
+    [Header("Narration Manager")]
+    [SerializeField] private NarrationManager narrationManager;
+
     [Header("배경 이미지")]
     [SerializeField] private Image baseBackgroundImage;
     // 처음부터 보이는 배경 A
@@ -37,6 +40,7 @@ public class MainStoryIntroController : MonoBehaviour
     private void Start()
     {
         InitializeState();
+       
 
         if (playOnStart)
         {
@@ -98,6 +102,8 @@ public class MainStoryIntroController : MonoBehaviour
     {
         isPlaying = true;
 
+        MouseClickManager.Instance.SetClickEnable(false);
+
         SoundManager.Instance.PlaySfx(SfxId.Beach);
 
         if (delayBeforeFade > 0f)
@@ -138,6 +144,10 @@ public class MainStoryIntroController : MonoBehaviour
 
         isPlaying = false;
         isCompleted = true;
+
+        MouseClickManager.Instance.SetClickEnable(true);
+
+        narrationManager?.StartNarration("1", 1, "Main");
 
         Debug.Log($"{nameof(MainStoryIntroController)}: 메인 스테이지 배경 연출 완료", this);
     }

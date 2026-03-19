@@ -19,6 +19,13 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
 
+    // ==========================================
+    // [추가] 나레이션 전용 AudioSource
+    // sfxSource와 완전히 분리하여 서로 간섭 없이 재생
+    // Inspector에서 별도 AudioSource 컴포넌트를 할당해주세요
+    // ==========================================
+    [SerializeField] private AudioSource narrationSource;
+
     [Header("Exposed Parameter Names")]
     [SerializeField] private string masterParam = "MasterVol";
     [SerializeField] private string bgmParam = "BGMVol";
@@ -46,6 +53,11 @@ public class SoundManager : MonoBehaviour
     public string MasterKey => KEY_MASTER;
     public string BgmKey => KEY_BGM;
     public string SfxKey => KEY_SFX;
+
+    // ==========================================
+    // [추가] 나레이션 재생 중 여부를 외부에서 확인할 수 있는 프로퍼티
+    // ==========================================
+    public bool IsNarrationPlaying => narrationSource != null && narrationSource.isPlaying;
 
     private Dictionary<BgmId, SoundLibrary.BgmEntry> bgmMap;
     private Dictionary<SfxId, SoundLibrary.SfxEntry> sfxMap;
@@ -344,6 +356,55 @@ public class SoundManager : MonoBehaviour
         sfxSource.volume = Mathf.Clamp01(entry.volume) * Mathf.Clamp01(volumeScale);
         sfxSource.pitch = 1f;
         sfxSource.Play();
+    }
+
+    #endregion
+
+    // ==========================================
+    // [추가] 나레이션 전용 재생 메서드
+    // sfxSource와 완전히 분리된 narrationSource를 사용하여
+    // 나레이션 재생 중 다른 SFX가 끊기거나 간섭받지 않는다
+    // ==========================================
+    #region Narration
+
+    /// <summary>
+    /// 나레이션 클립을 재생한다.
+    /// narrationSource가 없으면 경고 후 무시한다.
+    /// </summary>
+    public void PlayNarrationClip(AudioClip clip, float volumeScale = 1f)
+    {
+        if (narrationSource == null)
+        {
+            Debug.LogWarning("[SoundManager] narrationSource가 할당되지 않았습니다. Inspector에서 AudioSource를 연결해주세요.");
+            return;
+        }
+
+        if (clip == null)
+        {
+            Debug.LogWarning("[SoundManager] 재생하려는 나레이션 클립이 null입니다.");
+            return;
+        }
+
+        if (narrationSource.isPlaying)
+            narrationSource.Stop();
+
+        narrationSource.clip = clip;
+        narrationSource.loop = false;
+        narrationSource.volume = Mathf.Clamp01(volumeScale);
+        narrationSource.pitch = 1f;
+        narrationSource.Play();
+    }
+
+    /// <summary>
+    /// 현재 재생 중인 나레이션을 즉시 정지한다.
+    /// 스킵 처리 시 NarrationManager에서 호출한다.
+    /// </summary>
+    public void StopNarration()
+    {
+        if (narrationSource == null) return;
+
+        narrationSource.Stop();
+        narrationSource.clip = null;
     }
 
     #endregion
