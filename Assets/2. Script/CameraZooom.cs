@@ -33,7 +33,6 @@ public class CameraZoom : MonoBehaviour
     public IEnumerator PlayStartSequence()
     {
         Canvas.gameObject.SetActive(false);
-        print("여기 타고있나");
         if (mainCam != null) mainCam.Priority = 0;
         zoomCam.Priority = 20;
 
@@ -51,6 +50,6 @@ public class CameraZoom : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSeconds(0.5f);
+        //yield return new WaitForSeconds(0.5f);
     }
 }
