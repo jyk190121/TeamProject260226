@@ -23,6 +23,8 @@ public class StoryConversionController : MonoBehaviour
     public ToolBarController toolBar;
     public StoryController storyController;
 
+    [SerializeField] private NarrationManager narrationManager;
+
     // 메인스토리를 진입한지 체크
     bool enterStory = false;
 
@@ -94,6 +96,9 @@ public class StoryConversionController : MonoBehaviour
         subStoryPanel.SetActive(true);
         blockImg.SetActive(false);
         EnterStory();
+
+        if (StageManager.Instance.CurrentStage() == 1)
+            narrationManager.StartNarration("1", 1, "Sub");
 
         //현재 위치 인식(Sub)
         if (ItemManager.Instance != null)
