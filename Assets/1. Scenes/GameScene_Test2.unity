@@ -2205,7 +2205,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 754582306}
   m_Father: {fileID: 480442908}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2883,6 +2884,7 @@ MonoBehaviour:
   bubbleText: {fileID: 2013817746}
   npcImage: {fileID: 1642316982}
   npcStateSprites: []
+  narrationClips: []
 --- !u!4 &504686723
 Transform:
   m_ObjectHideFlags: 0
@@ -3960,6 +3962,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 722678776}
   m_CullTransparentMesh: 1
+--- !u!1 &754582305
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 754582306}
+  - component: {fileID: 754582308}
+  - component: {fileID: 754582307}
+  m_Layer: 5
+  m_Name: sign
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &754582306
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754582305}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 381493126}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -6.5, y: 6}
+  m_SizeDelta: {x: 33, y: 33}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &754582307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754582305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 1ed8536e5b0977b429c910b0c526a1d9, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &754582308
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754582305}
+  m_CullTransparentMesh: 1
 --- !u!1 &780602769
 GameObject:
   m_ObjectHideFlags: 0
@@ -4999,6 +5076,7 @@ MonoBehaviour:
   - {fileID: 1594105821}
   toolBar: {fileID: 1952577429}
   storyController: {fileID: 1777644968}
+  narrationManager: {fileID: 0}
 --- !u!1 &1006386136
 GameObject:
   m_ObjectHideFlags: 0
@@ -6887,6 +6965,7 @@ MonoBehaviour:
   requiredChapter: 1
   requiredPage: 1
   clearType: 1
+  narrationManager: {fileID: 0}
   keepDroppedPosition: 0
   destroyItemOnSuccess: 0
   onCorrect:
@@ -8116,6 +8195,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a6e0a042f4b99045a92390134dc6180, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainStoryIntroController
+  narrationManager: {fileID: 0}
   baseBackgroundImage: {fileID: 2097423487}
   fadeBackgroundImage: {fileID: 2104951967}
   delayBeforeFade: 3
@@ -10056,8 +10136,8 @@ RectTransform:
   - {fileID: 370803562}
   - {fileID: 897060936}
   - {fileID: 1307608675}
-  - {fileID: 1748989235}
   - {fileID: 1148472470}
+  - {fileID: 1748989235}
   m_Father: {fileID: 1655490827}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
@@ -10160,6 +10240,7 @@ MonoBehaviour:
   requiredChapter: 1
   requiredPage: 2
   clearType: 2
+  narrationManager: {fileID: 0}
   keepDroppedPosition: 0
   destroyItemOnSuccess: 0
   onCorrect:
@@ -10913,6 +10994,7 @@ MonoBehaviour:
   requiredChapter: 1
   requiredPage: 1
   clearType: 0
+  narrationManager: {fileID: 0}
   keepDroppedPosition: 0
   destroyItemOnSuccess: 0
   onCorrect:
@@ -11324,6 +11406,9 @@ MonoBehaviour:
   - {fileID: 1551005245}
   - {fileID: 381493127}
   bucketColorPreview: {fileID: 1551005246}
+  magnifierBtnImage: {fileID: 754582307}
+  plusSprite: {fileID: 21300000, guid: 1ed8536e5b0977b429c910b0c526a1d9, type: 3}
+  minusSprite: {fileID: 21300000, guid: 716bca6f6f73bca45809a0ed042597c8, type: 3}
 --- !u!1 &1953106922
 GameObject:
   m_ObjectHideFlags: 0

@@ -20,6 +20,11 @@ public class ToolBarController : MonoBehaviour
     public Button[] toolBtns = new Button[5];
     public Image bucketColorPreview;
 
+    [Header("돋보기 아이콘 설정")]
+    public Image magnifierBtnImage; // 툴바의 돋보기 버튼 Image 컴포넌트
+    public Sprite plusSprite;       // + 모양 스프라이트
+    public Sprite minusSprite;      // - 모양 스프라이트
+
     // 내부 상태 관리
     GameObject _currentMovingItem;
     bool _isHoldingItem = false;
@@ -226,21 +231,27 @@ public class ToolBarController : MonoBehaviour
     // ---------------------------------------------------
     private void TryPickUpItem(Vector2 mousePos)
     {
-        Item data = GetItemAtMouse(mousePos, out GameObject rootObject);
-
-        if (data != null && data.type == ItemType.A && rootObject != null)
+        Item data = null;
+        
+        if(!MouseClickManager.Instance.IsClickBlocked)
         {
-            _currentMovingItem = rootObject;
-            _isHoldingItem = true;
-            _currentMovingItem.transform.SetAsLastSibling();
+            data = GetItemAtMouse(mousePos, out GameObject rootObject);
 
-            _originalPos = _currentMovingItem.transform.position;
-            _originalScale = _currentMovingItem.transform.localScale;
-            _currentMovingItem.transform.localScale = _originalScale * pickupScaleMultiplier;
+            if (data != null && data.type == ItemType.A && rootObject != null)
+            {
+                _currentMovingItem = rootObject;
+                _isHoldingItem = true;
+                _currentMovingItem.transform.SetAsLastSibling();
 
-            //SetUIRaycastTarget(_currentMovingItem, false);
-            Debug.Log($"<color=green>[PickUp]</color> {data.id} 잡기 성공!");
+                _originalPos = _currentMovingItem.transform.position;
+                _originalScale = _currentMovingItem.transform.localScale;
+                _currentMovingItem.transform.localScale = _originalScale * pickupScaleMultiplier;
+
+                //SetUIRaycastTarget(_currentMovingItem, false);
+                Debug.Log($"<color=green>[PickUp]</color> {data.id} 잡기 성공!");
+            }
         }
+
     }
 
     private void TryPlaceItem(Vector2 mousePos)
@@ -304,6 +315,7 @@ public class ToolBarController : MonoBehaviour
                     if (zoomTrigger != null && zoomTrigger.myPanel != null)
                         zoomTrigger.myPanel.SetActive(false);
 
+                    SetMagnifierIcon(false);
                     UpdateMagnifierCursor(false);
 
                     // 4. 서재로 정식 복귀 (기존 유지)
@@ -430,7 +442,13 @@ public class ToolBarController : MonoBehaviour
             CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
         }
     }
+    public void SetMagnifierIcon(bool isZoomed)
+    {
+        if (magnifierBtnImage == null || plusSprite == null || minusSprite == null) return;
 
+        // true면 -(확대됨), false면 +(평상시)
+        magnifierBtnImage.sprite = isZoomed ? minusSprite : plusSprite;
+    }
 
 
     private void HandleNumericInput() { if (Keyboard.current == null) return; for (int i = 0; i < 5; i++) if (Keyboard.current[Key.Digit1 + i].wasPressedThisFrame) SelectTool(i); }

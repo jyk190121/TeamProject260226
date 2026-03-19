@@ -306,7 +306,11 @@ public class ItemManager : MonoBehaviour
 
         // 툴바 내부의 줌 상태도 false로 초기화
         ToolBarController tool = Object.FindFirstObjectByType<ToolBarController>();
-        if (tool != null) tool.UpdateMagnifierCursor(false);
+        if (tool != null)
+        {
+            tool.SetMagnifierIcon(false); // 여기서 강제로 +로 바꿈
+            tool.UpdateMagnifierCursor(false);
+        }
 
         Debug.Log("<color=cyan>[UI 클린업]</color> 모든 확대 패널을 닫았습니다.");
     }
