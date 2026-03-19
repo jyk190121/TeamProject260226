@@ -4286,35 +4286,35 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1396242670280329292, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1396242670280329292, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1396242670280329292, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 1396242670280329292, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -200
       objectReference: {fileID: 0}
     - target: {fileID: 4892460002462439891, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4892460002462439891, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4892460002462439891, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 4892460002462439891, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -508.3333
       objectReference: {fileID: 0}
     - target: {fileID: 5459140978688170202, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_Name
@@ -4402,19 +4402,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9008727687693418116, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9008727687693418116, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9008727687693418116, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 9008727687693418116, guid: b8ae6167412644e47a831f07c293f5a9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -441.66666
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8287,6 +8287,7 @@ MonoBehaviour:
   OpenExitBtn: {fileID: 831820449}
   exitYesBtn: {fileID: 97470699}
   exitNoBtn: {fileID: 2141822502}
+  loadingCanvas: {fileID: 0}
 --- !u!4 &1542445683
 Transform:
   m_ObjectHideFlags: 0
@@ -11452,9 +11453,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc1e96df94a5aa243a9c42a97738f83c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IntroController
-  cutsceneMaryObject: {fileID: 1842070514}
-  cutsceneMaryContainer: {fileID: 2009566003}
-  realMaryObject: {fileID: 1642316979}
+  enableSkip: 1
+  cutsceneMerryObject: {fileID: 0}
+  cutsceneMerryContainer: {fileID: 0}
+  cutsceneMerryImage: {fileID: 0}
+  realMerryObject: {fileID: 0}
   introItemData: {fileID: 11400000, guid: f133803242742064ab2d38dd1cd9f171, type: 2}
   defaultSprite: {fileID: 1414023517719057630, guid: 504a29e8e2c31a6439280f0f484dca64, type: 3}
   heldSprite: {fileID: -5519487946963870569, guid: cfa15265bb81cfa489439fca6c625ddd, type: 3}
@@ -11462,6 +11465,11 @@ MonoBehaviour:
   secondTimelineDirector: {fileID: 886091406}
   itemManager: {fileID: 2116207130}
   toolBarController: {fileID: 1952577429}
+  dialogueManager: {fileID: 0}
+  firstDialogueGroupId: DGRP_GAME_START_1
+  secondDialogueGroupId: DGRP_GAME_START_2
+  merryStateSprites: []
+  dialogueEventBindings: []
 --- !u!114 &2009566006
 MonoBehaviour:
   m_ObjectHideFlags: 0
