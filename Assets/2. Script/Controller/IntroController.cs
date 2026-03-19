@@ -374,6 +374,8 @@ public class IntroController : MonoBehaviour
 
     private void SwitchToItemMerry()
     {
+        MouseClickManager.Instance.SetClickEnable(true);
+
         SyncItemMerryPositionFromCutsceneMerry();
 
         SetCutsceneMerryActive(false);
@@ -485,6 +487,7 @@ public class IntroController : MonoBehaviour
 
     private void PlaySecondTimeline()
     {
+        MouseClickManager.Instance.SetClickEnable(false);
         currentPhase = IntroPhase.SecondTimelinePlaying;
 
         if (secondTimelineDirector != null)
@@ -500,6 +503,7 @@ public class IntroController : MonoBehaviour
         if (secondTimelineDirector != null && secondTimelineDirector.state == PlayState.Playing)
         {
             secondTimelineDirector.Stop();
+            MouseClickManager.Instance.SetClickEnable(true);
         }
 
         FinalizeIntro();
