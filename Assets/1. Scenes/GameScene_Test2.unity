@@ -1541,6 +1541,8 @@ MonoBehaviour:
   talkSprite: {fileID: 3287250390388466293, guid: 349fc74bea131834da56cf74e39142e0, type: 3}
   startState: 0
   hintStateDuration: 1
+  speechBubble: {fileID: 0}
+  hintText: {fileID: 0}
 --- !u!222 &337455989
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4625,11 +4627,11 @@ RectTransform:
   - {fileID: 931720894}
   - {fileID: 480442908}
   - {fileID: 1185968693}
-  - {fileID: 1642316980}
   - {fileID: 1403325117}
   - {fileID: 1622496776}
   - {fileID: 831820447}
   - {fileID: 1395557403}
+  - {fileID: 1642316980}
   m_Father: {fileID: 1655490827}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
@@ -9604,6 +9606,8 @@ MonoBehaviour:
   talkSprite: {fileID: 3287250390388466293, guid: 349fc74bea131834da56cf74e39142e0, type: 3}
   startState: 0
   hintStateDuration: 1
+  speechBubble: {fileID: 678959622}
+  hintText: {fileID: 2013817746}
 --- !u!114 &1642316982
 MonoBehaviour:
   m_ObjectHideFlags: 0

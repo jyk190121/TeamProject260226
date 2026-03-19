@@ -39,6 +39,15 @@ public class StoryConversionController : MonoBehaviour
 
     void Update()
     {
+        HandleCheatKeys();
+
+        // 최적화: 클릭이 차단된 상태라면 레이캐스트를 아예 쏘지 않음
+        if (MouseClickManager.Instance != null && MouseClickManager.Instance.IsClickBlocked)
+        {
+            UpdateLoadingCursor();
+            return;
+        }
+
         // stagePanel이 꺼져있을 때 (= 서재 상태일 때)만 레이캐스트 작동
         if (stagePanel != null && !stagePanel.activeSelf)
         {
@@ -186,12 +195,13 @@ public class StoryConversionController : MonoBehaviour
                     if(hoveredObj.layer == itemStorgeLayerIndex)
                     {
                         targetState= CursorState.HandOpen;
+                        if (Mouse.current.leftButton.isPressed) targetState = CursorState.HandClosed;
                     }
                     else if(hoveredObj.layer == itemLayerIndex)
                     {
                         targetState = CursorState.HandHalf;
+                        if (Mouse.current.leftButton.isPressed) targetState = CursorState.HandClosed;
                     }
-                    if (Mouse.current.leftButton.isPressed) targetState = CursorState.HandClosed;
                 }
 
                 else if (space.Equals("story"))
@@ -209,5 +219,41 @@ public class StoryConversionController : MonoBehaviour
             CursorManager.Instance.ChangeCursor(targetState);
         }
 
+    }
+
+    void UpdateLoadingCursor()
+    {
+        if (CursorManager.Instance.GetCurrentState() != CursorState.Loading)
+            CursorManager.Instance.ChangeCursor(CursorState.Loading);
+    }
+
+    private void HandleCheatKeys()
+    {
+        if (Keyboard.current == null) return;
+
+        if (Keyboard.current[Key.F1].wasPressedThisFrame)
+        {
+            ApplyCheatState(1);
+        }
+        else if (Keyboard.current[Key.F2].wasPressedThisFrame)
+        {
+            ApplyCheatState(2);
+        }
+    }
+
+    private void ApplyCheatState(int chapter)
+    {
+        // 치트 입력 시 메인 2장이 열려있다면 1장으로 강제 강등
+        if (StageManager.Instance != null)
+        {
+            // StageManager.Instance.SetMaxUnlockedChapter(1); 
+        }
+
+        if (storyController != null)
+        {
+            storyController.SyncToChapter(chapter);
+        }
+
+        ExitStory();
     }
 }

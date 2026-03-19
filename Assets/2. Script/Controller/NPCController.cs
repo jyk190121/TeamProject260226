@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,6 +23,11 @@ public class NPCController : MonoBehaviour
     [Header("State Settings")]
     [SerializeField] private NPCState startState = NPCState.Idle;
     [SerializeField] private float hintStateDuration = 1.0f;
+
+
+    [Header("UI - Bubble")]
+    [SerializeField] private GameObject speechBubble;
+    [SerializeField] private TextMeshProUGUI hintText;
 
     private Sprite[] spriteTable;
     private NPCState currentState;
@@ -106,6 +112,35 @@ public class NPCController : MonoBehaviour
     private IEnumerator ReturnToIdleRoutine()
     {
         yield return hintWait;
+        ResetToIdle();
+    }
+
+
+
+    // NPC가 힌트 대사를 출력하고 힌트 표정으로 바꿉니다.
+    public void ShowHint(string message)
+    {
+        // 이미 Talk(중요 대화) 중이라면 힌트를 표시하지 않음
+        if (currentState == NPCState.Talk) return;
+
+        // 1. 상태 및 스프라이트 변경
+        SetState(NPCState.Hint);
+
+        // 2. 말풍선 켜기 및 텍스트 설정
+        if (speechBubble != null) speechBubble.SetActive(true);
+        if (hintText != null) hintText.text = message;
+
+        // 3. ReturnToIdleRoutine이 이미 실행 중이면 멈추고 새로 시작 (시간 초기화)
+        StopReturnCoroutine();
+        returnCoroutine = StartCoroutine(ReturnToIdleWithBubble());
+    }
+
+    private IEnumerator ReturnToIdleWithBubble()
+    {
+        yield return hintWait; // 지정된 시간(hintStateDuration)만큼 대기
+
+        // 말풍선 끄기 및 상태 복구
+        if (speechBubble != null) speechBubble.SetActive(false);
         ResetToIdle();
     }
 }
