@@ -159,9 +159,6 @@ public class NarrationManager : MonoBehaviour
     }
 
     // ==========================================
-    // [수정] StartNarration
-    //
-    // 기존 대비 추가된 기능:
     //   1. 재생 이력 체크 → 이미 재생된 경우 무시
     //   2. 데이터 미적재 시 경고
     //   3. 클릭 차단 (MouseClickManager)
@@ -237,9 +234,21 @@ public class NarrationManager : MonoBehaviour
                 Debug.LogWarning($"[NarrationManager] 클립을 찾을 수 없습니다: {clipKey}");
             }
 
-            // 4. Delay 대기 (마지막 항목은 대기 없이 바로 종료)
+            // 4. Delay 대기
+            // 마지막 항목: Delay 대신 클립 재생이 끝날 때까지 대기
+            // → FinishNarration()의 StopNarration()이 클립을 끊지 않도록 방지
             if (line != lines.Last())
+            {
                 yield return new WaitForSeconds(line.Delay);
+            }
+            else
+            {
+                // 클립이 있으면 재생 완료까지 대기, 없으면 Delay만큼 대기
+                if (clipDictionary.TryGetValue(MakeClipKey(line.DialogueType, line.Stage, line.Sequence), out AudioClip lastClip) && lastClip != null)
+                    yield return new WaitForSeconds(lastClip.length);
+                else
+                    yield return new WaitForSeconds(line.Delay);
+            }
         }
 
         // 5. 재생 완료 처리
