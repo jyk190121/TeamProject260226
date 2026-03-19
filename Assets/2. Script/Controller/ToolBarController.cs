@@ -25,6 +25,8 @@ public class ToolBarController : MonoBehaviour
     public Sprite plusSprite;       // + 모양 스프라이트
     public Sprite minusSprite;      // - 모양 스프라이트
 
+    private bool _isStudyMode = true;
+
     // 내부 상태 관리
     GameObject _currentMovingItem;
     bool _isHoldingItem = false;
@@ -72,7 +74,20 @@ public class ToolBarController : MonoBehaviour
 
         if (_selectedToolIndex == 2 && isRightDown) ClearBucket();
     }
+    
+    public void EnableStudyMode()
+    {
+        _isStudyMode = true;
 
+        // 서재로 오면 무조건 손(0번) 도구로 강제 변경
+        SelectTool(0);
+        Debug.Log("<color=cyan>[Toolbar]</color> 서재 모드 활성화: 손 도구 고정 및 다른 도구 잠금");
+    }
+    public void EnableStoryMode()
+    {
+        _isStudyMode = false;
+        Debug.Log("<color=cyan>[Toolbar]</color> 스토리 모드 활성화: 모든 도구 사용 가능");
+    }
 
     private void ExecuteToolAction(Vector2 mousePos)
     {
@@ -370,6 +385,12 @@ public class ToolBarController : MonoBehaviour
             return; // 여기서 함수를 종료해버림
         }
 
+        if (_isStudyMode && index != 0)
+        {
+            Debug.Log("<color=yellow>[알림]</color> 서재에서는 다른 도구를 사용할 수 없습니다.");
+            return;
+        }
+
         // 2. 정상적인 도구 변경 로직
         if (index < 0 || index >= toolBtns.Length || toolBtns[index] == null) return;
 
@@ -451,5 +472,16 @@ public class ToolBarController : MonoBehaviour
     }
 
 
-    private void HandleNumericInput() { if (Keyboard.current == null) return; for (int i = 0; i < 5; i++) if (Keyboard.current[Key.Digit1 + i].wasPressedThisFrame) SelectTool(i); }
+    private void HandleNumericInput()
+    {
+        if (Keyboard.current == null) return;
+
+        // ⭐️ 서재 모드면 숫자 단축키 자체를 먹통으로 만듦
+        if (_isStudyMode) return;
+
+        for (int i = 0; i < 5; i++)
+            if (Keyboard.current[Key.Digit1 + i].wasPressedThisFrame) SelectTool(i);
+    }
+
+
 }

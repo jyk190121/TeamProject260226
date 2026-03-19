@@ -27,6 +27,7 @@ public class ItemSaveInfo
     public string itemId;
     public Vector2 savedPos;
     public int savedColor;
+    public ItemState savedState;
 }
 
 public class SaveManager : MonoBehaviour
