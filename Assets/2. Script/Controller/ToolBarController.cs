@@ -170,11 +170,30 @@ public class ToolBarController : MonoBehaviour
         }
     }
 
-    public void UpdateMagnifierCursor(bool isZoomed)
+    //public void UpdateMagnifierCursor(bool isZoomed)
+    //{
+    //    _isZoomActive = isZoomed;
+    //    // 나중에 여기서 커서 이미지를 교체하면 됩니다.
+    //}
+    //public void SetMagnifierIcon(bool isZoomed)
+    //{
+    //    if (magnifierBtnImage == null || plusSprite == null || minusSprite == null) return;
+
+    //    // true면 -(확대됨), false면 +(평상시)
+    //    magnifierBtnImage.sprite = isZoomed ? minusSprite : plusSprite;
+    //}
+
+    public void SetZoomState(bool isZoomed)
     {
         _isZoomActive = isZoomed;
-        // 나중에 여기서 커서 이미지를 교체하면 됩니다.
+
+        if (magnifierBtnImage != null && plusSprite != null && minusSprite != null)
+        {
+            // true면 - (확대됨), false면 + (평상시)
+            magnifierBtnImage.sprite = isZoomed ? minusSprite : plusSprite;
+        }
     }
+
 
     private T GetUIComponentAtMouse<T>(Vector2 mousePos) where T : Component
     {
@@ -346,8 +365,7 @@ public class ToolBarController : MonoBehaviour
                     if (zoomTrigger != null && zoomTrigger.myPanel != null)
                         zoomTrigger.myPanel.SetActive(false);
 
-                    SetMagnifierIcon(false);
-                    UpdateMagnifierCursor(false);
+                    SetZoomState(false);
 
                     // 4. 서재로 정식 복귀 (기존 유지)
                     StoryConversionController conversionCtrl = Object.FindFirstObjectByType<StoryConversionController>();
@@ -479,13 +497,7 @@ public class ToolBarController : MonoBehaviour
             CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
         }
     }
-    public void SetMagnifierIcon(bool isZoomed)
-    {
-        if (magnifierBtnImage == null || plusSprite == null || minusSprite == null) return;
-
-        // true면 -(확대됨), false면 +(평상시)
-        magnifierBtnImage.sprite = isZoomed ? minusSprite : plusSprite;
-    }
+   
 
 
     private void HandleNumericInput()
