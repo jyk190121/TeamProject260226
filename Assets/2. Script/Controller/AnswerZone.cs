@@ -1,5 +1,6 @@
 using System;
 using System.Buffers.Text;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -23,6 +24,8 @@ public class AnswerZone : MonoBehaviour
 
     [Header("Narration")]
     [SerializeField] private NarrationManager narrationManager;
+
+    public float duration = 0f;
 
     // ==========================================
     // [추가됨] 정답 제출 후 아이템을 어떻게 할지 에디터에서 선택!
@@ -66,6 +69,7 @@ public class AnswerZone : MonoBehaviour
 
         return false;
     }
+
 
     private void Success(GameObject itemObj)
     {

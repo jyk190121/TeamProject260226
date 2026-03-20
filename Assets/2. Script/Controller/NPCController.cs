@@ -127,6 +127,7 @@ public class NPCController : MonoBehaviour
     private IEnumerator ReturnToIdleRoutine()
     {
         yield return hintWait;
+        if (speechBubble != null) speechBubble.SetActive(false);
         ResetToIdle();
     }
 
@@ -147,16 +148,7 @@ public class NPCController : MonoBehaviour
 
         // 3. ReturnToIdleRoutine이 이미 실행 중이면 멈추고 새로 시작 (시간 초기화)
         StopReturnCoroutine();
-        returnCoroutine = StartCoroutine(ReturnToIdleWithBubble());
-    }
-
-    private IEnumerator ReturnToIdleWithBubble()
-    {
-        yield return hintWait; // 지정된 시간(hintStateDuration)만큼 대기
-
-        // 말풍선 끄기 및 상태 복구
-        if (speechBubble != null) speechBubble.SetActive(false);
-        ResetToIdle();
+        returnCoroutine = StartCoroutine(ReturnToIdleRoutine());
     }
 
     // 랜덤 대사를 출력하는 공용 함수
