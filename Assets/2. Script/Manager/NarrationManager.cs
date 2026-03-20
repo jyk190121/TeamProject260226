@@ -6,7 +6,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Networking;
+using UnityEngine.Playables;
 using UnityEngine.UI;
+using UnityEngine.Timeline;  // TimelineAsset 등 타임라인 관련 클래스
 
 public class NarrationManager : MonoBehaviour
 {
@@ -25,6 +27,11 @@ public class NarrationManager : MonoBehaviour
     public Image npcImage;
     public List<NPCStateSprite> npcStateSprites = new List<NPCStateSprite>();
     private Dictionary<string, Sprite> stateDictionary = new Dictionary<string, Sprite>();
+
+    [Header("Specific Timeline Settings")]
+    [SerializeField] private List<TimelineMapping> specialTimelines = new List<TimelineMapping>();
+    private Dictionary<string, PlayableAsset> timelineDictionary = new Dictionary<string, PlayableAsset>();
+    public PlayableDirector director; // 타임라인 재생기
 
     [System.Serializable]
     public struct NPCStateSprite { public string stateName; public Sprite sprite; }
@@ -50,6 +57,13 @@ public class NarrationManager : MonoBehaviour
         public AudioClip clip;
     }
 
+    [System.Serializable]
+    public struct TimelineMapping
+    {
+        public string key;
+        public PlayableAsset timeline;
+    }
+
     // ==========================================
     // [추가] 재생 이력 관리
     //
@@ -71,8 +85,10 @@ public class NarrationManager : MonoBehaviour
     void Awake()
     {
         stateDictionary.Clear();
-        foreach (var item in npcStateSprites)
-            stateDictionary[item.stateName] = item.sprite;
+        foreach (var item in npcStateSprites) stateDictionary[item.stateName] = item.sprite;
+
+        timelineDictionary.Clear();
+        foreach (var item in specialTimelines) timelineDictionary[item.key] = item.timeline;
 
         // [추가] 클립 딕셔너리 초기화
         clipDictionary.Clear();
@@ -229,46 +245,103 @@ public class NarrationManager : MonoBehaviour
         _isPlaying = true;
         MouseClickManager.Instance?.SetClickEnable(false);
 
+        bool isTimelineStarted = false;
+
         foreach (var line in lines)
         {
+            string clipKey = MakeClipKey(line.DialogueType, line.Stage, line.Sequence);
+            bool isSub2 = line.DialogueType.Equals("Sub", System.StringComparison.OrdinalIgnoreCase) && line.Stage == 2;
+            Debug.Log($"[검사] 키: {clipKey}, 이 대사가 Sub2인가? {isSub2}, 딕셔너리에 타임라인 에셋이 있는가? {timelineDictionary.ContainsKey(clipKey)}");
+
             // 1. NPC 표정 업데이트
-            if (npcImage != null && stateDictionary.ContainsKey(line.NpcState))
-                npcImage.sprite = stateDictionary[line.NpcState];
+            if (npcImage != null && stateDictionary.ContainsKey(line.NpcState)) npcImage.sprite = stateDictionary[line.NpcState];
+
+            if (isSub2)
+            {
+                // [방식 A] Sub2 타임라인 연출 (텍스트는 타임라인에 포함하거나 별도 표시)
+                // 타임라인이 아직 시작 안 됐다면 여기서 한 번만 실행 (Key는 "Sub2"로 찾음)
+                if (!isTimelineStarted && timelineDictionary.TryGetValue("Sub2", out PlayableAsset asset))
+                {
+                    director.playableAsset = asset;
+                    director.Play();
+                    isTimelineStarted = true;
+                    Debug.Log("<color=green>통합 타임라인 Sub2 시작</color>");
+                }
+
+                // 타임라인은 배경에서 돌고 있고, 텍스트만 순차적으로 업데이트
+                //UpdateUI(line);
+                if (bottomText != null) bottomText.text = "";
+
+                // 사운드와 대기 시간 처리
+                yield return StartCoroutine(PlayNormalNarration(line, clipKey));
+
+            }
+            else
+            {
+                // [방식 B] 기존 나레이션 방식 (Sub2가 아니거나 타임라인 에셋이 없는 경우)
+                UpdateUI(line);
+                yield return StartCoroutine(PlayNormalNarration(line, MakeClipKey(line.DialogueType, line.Stage, line.Sequence)));
+            }
+
+
 
             // 2. UI 텍스트 업데이트
-            UpdateUI(line);
+            //UpdateUI(line);
 
-            // 3. 나레이션 클립 재생
-            // 클립 키: "{DialogueType}{Stage}-{Sequence}"  예) "Main1-1", "Sub2-3"
-            string clipKey = MakeClipKey(line.DialogueType, line.Stage, line.Sequence);
-            if (clipDictionary.TryGetValue(clipKey, out AudioClip clip))
-            {
-                SoundManager.Instance?.PlayNarrationClip(clip);
-            }
-            else
-            {
-                Debug.LogWarning($"[NarrationManager] 클립을 찾을 수 없습니다: {clipKey}");
-            }
+            //// 3. 나레이션 클립 재생
+            //// 클립 키: "{DialogueType}{Stage}-{Sequence}"  예) "Main1-1", "Sub2-3"
+            //string clipKey = MakeClipKey(line.DialogueType, line.Stage, line.Sequence);
+            //if (clipDictionary.TryGetValue(clipKey, out AudioClip clip))
+            //{
+            //    SoundManager.Instance?.PlayNarrationClip(clip);
+            //}
+            //else
+            //{
+            //    Debug.LogWarning($"[NarrationManager] 클립을 찾을 수 없습니다: {clipKey}");
+            //}
 
-            // 4. Delay 대기
-            // 마지막 항목: Delay 대신 클립 재생이 끝날 때까지 대기
-            // → FinishNarration()의 StopNarration()이 클립을 끊지 않도록 방지
-            if (line != lines.Last())
-            {
-                yield return new WaitForSeconds(line.Delay);
-            }
-            else
-            {
-                // 클립이 있으면 재생 완료까지 대기, 없으면 Delay만큼 대기
-                if (clipDictionary.TryGetValue(MakeClipKey(line.DialogueType, line.Stage, line.Sequence), out AudioClip lastClip) && lastClip != null)
-                    yield return new WaitForSeconds(lastClip.length);
-                else
-                    yield return new WaitForSeconds(line.Delay);
-            }
+            //// 4. Delay 대기
+            //// 마지막 항목: Delay 대신 클립 재생이 끝날 때까지 대기
+            //// → FinishNarration()의 StopNarration()이 클립을 끊지 않도록 방지
+            //if (line != lines.Last())
+            //{
+            //    yield return new WaitForSeconds(line.Delay);
+            //}
+            //else
+            //{
+            //    // 클립이 있으면 재생 완료까지 대기, 없으면 Delay만큼 대기
+            //    if (clipDictionary.TryGetValue(MakeClipKey(line.DialogueType, line.Stage, line.Sequence), out AudioClip lastClip) && lastClip != null)
+            //        yield return new WaitForSeconds(lastClip.length);
+            //    else
+            //        yield return new WaitForSeconds(line.Delay);
+            //}
+            
         }
 
+        if (isTimelineStarted && director != null)
+        {
+            while (director.state == PlayState.Playing)
+            {
+                yield return null;
+            }
+        }
         // 5. 재생 완료 처리
         FinishNarration();
+    }
+
+    IEnumerator PlayNormalNarration(NarrationData line, string clipKey)
+    {
+        // 사운드 재생
+        if (clipDictionary.TryGetValue(clipKey, out AudioClip clip))
+        {
+            SoundManager.Instance?.PlayNarrationClip(clip);
+            // 사운드 길이나 Delay 중 긴 시간만큼 대기
+            yield return new WaitForSeconds(Mathf.Max(line.Delay, clip.length));
+        }
+        else
+        {
+            yield return new WaitForSeconds(line.Delay);
+        }
     }
 
     // ==========================================
@@ -278,11 +351,10 @@ public class NarrationManager : MonoBehaviour
     private void FinishNarration()
     {
         // 이력 저장
-        if (_currentPlayKey != null)
-            MarkPlayed(_currentPlayKey);
+        if (_currentPlayKey != null) MarkPlayed(_currentPlayKey);
 
         // UI 정리
-        if (bottomPanel != null) bottomPanel.SetActive(false);
+        //if (bottomPanel != null) bottomPanel.SetActive(false);
 
         // 사운드 정리
         SoundManager.Instance?.StopNarration();
@@ -305,6 +377,19 @@ public class NarrationManager : MonoBehaviour
     // ==========================================
     private void SkipNarration()
     {
+        //if (_currentRoutine != null)
+        //{
+        //    StopCoroutine(_currentRoutine);
+        //    _currentRoutine = null;
+        //}
+
+        if (director != null && director.state == PlayState.Playing)
+        {
+            director.time = director.duration;
+            director.Evaluate();
+            director.Stop();
+        }
+
         if (_currentRoutine != null)
         {
             StopCoroutine(_currentRoutine);
