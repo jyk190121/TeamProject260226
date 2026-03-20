@@ -19,9 +19,7 @@ public class NarrationManager : MonoBehaviour
 
     [Header("UI Reference")]
     public GameObject bottomPanel;
-    public GameObject bubblePanel;
     public TextMeshProUGUI bottomText;
-    public TextMeshProUGUI bubbleText;
 
     [Header("NPC Visuals")]
     public Image npcImage;
@@ -285,7 +283,6 @@ public class NarrationManager : MonoBehaviour
 
         // UI 정리
         if (bottomPanel != null) bottomPanel.SetActive(false);
-        if (bubblePanel != null) bubblePanel.SetActive(false);
 
         // 사운드 정리
         SoundManager.Instance?.StopNarration();
@@ -321,18 +318,13 @@ public class NarrationManager : MonoBehaviour
     void UpdateUI(NarrationData line)
     {
         if (bottomPanel != null) bottomPanel.SetActive(false);
-        if (bubblePanel != null) bubblePanel.SetActive(false);
 
         if (line.DialogueType.Equals("Main") || line.DialogueType.Equals("Sub"))
         {
             if (bottomPanel != null) bottomPanel.SetActive(true);
             if (bottomText != null) bottomText.text = line.Text;
         }
-        else
-        {
-            if (bubblePanel != null) bubblePanel.SetActive(true);
-            if (bubbleText != null) bubbleText.text = line.Text;
-        }
+      
     }
 
     // ==========================================

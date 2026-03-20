@@ -1541,6 +1541,8 @@ MonoBehaviour:
   talkSprite: {fileID: 3287250390388466293, guid: 349fc74bea131834da56cf74e39142e0, type: 3}
   startState: 0
   hintStateDuration: 1
+  speechBubble: {fileID: 0}
+  hintText: {fileID: 0}
 --- !u!222 &337455989
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4625,11 +4627,11 @@ RectTransform:
   - {fileID: 931720894}
   - {fileID: 480442908}
   - {fileID: 1185968693}
-  - {fileID: 1642316980}
   - {fileID: 1403325117}
   - {fileID: 1622496776}
   - {fileID: 831820447}
   - {fileID: 1395557403}
+  - {fileID: 1642316980}
   m_Father: {fileID: 1655490827}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
@@ -4911,7 +4913,7 @@ MonoBehaviour:
   requiredChapter: 1
   requiredPage: 1
   clearType: 0
-  narrationManager: {fileID: 0}
+  narrationManager: {fileID: 504686726}
   keepDroppedPosition: 0
   destroyItemOnSuccess: 0
   onCorrect:
@@ -6473,7 +6475,7 @@ MonoBehaviour:
   requiredChapter: 1
   requiredPage: 2
   clearType: 2
-  narrationManager: {fileID: 0}
+  narrationManager: {fileID: 504686726}
   keepDroppedPosition: 0
   destroyItemOnSuccess: 0
   onCorrect:
@@ -9604,6 +9606,8 @@ MonoBehaviour:
   talkSprite: {fileID: 3287250390388466293, guid: 349fc74bea131834da56cf74e39142e0, type: 3}
   startState: 0
   hintStateDuration: 1
+  speechBubble: {fileID: 678959622}
+  hintText: {fileID: 2013817746}
 --- !u!114 &1642316982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10238,7 +10242,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1703893710
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12356,7 +12360,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2107953257
 MonoBehaviour:
   m_ObjectHideFlags: 0

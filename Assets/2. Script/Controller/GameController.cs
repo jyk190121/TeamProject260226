@@ -24,7 +24,7 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetKeyDown(Key.F1))
         {
-            if (StageManager.Instance != null)
+            if (StageManager.Instance != null && StageManager.Instance.CurrentChapter() == 1)
             {
                 StageManager.Instance.RestartAtStage(1, 1);
                 print("스테이지 1-1 데이터 초기화 및 서재에서 재시작");
@@ -32,7 +32,7 @@ public class GameController : MonoBehaviour
         }
         if (Input.GetKeyDown(Key.F2))
         {
-            if (StageManager.Instance != null)
+            if (StageManager.Instance != null && StageManager.Instance.CurrentChapter() == 1)
             {
                 StageManager.Instance.RestartAtStage(1, 2);
                 print("스테이지 1-2 데이터 초기화 및 서재에서 재시작");

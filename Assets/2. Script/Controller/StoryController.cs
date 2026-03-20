@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class StoryController : MonoBehaviour
@@ -40,7 +41,7 @@ public class StoryController : MonoBehaviour
         // 게임 시작 시 저장된 데이터로부터 이미 생성된 서브 스토리들 복구
         LoadExistingSubStories();
     }
-    private void HandleStageCleared()
+    void HandleStageCleared()
     {
         int currentChapter = StageManager.Instance.CurrentChapter();
         SaveData data = SaveManager.Instance.Load();
@@ -55,6 +56,38 @@ public class StoryController : MonoBehaviour
         print("<color=yellow>새로운 스테이지 클리어 감지: 서브 스토리 예약</color>");
         SetPendingSubStory(true);
     }
+
+    public void ForceGenerateSubStory(int chapterIndex)
+    {
+        if (IsAlreadyGenerated(chapterIndex)) return;
+
+        ExecuteGeneration(chapterIndex);
+    }
+
+    // 공통 실행 로직
+    private void ExecuteGeneration(int chapter)
+    {
+        _isPendingSubStory = false;
+
+        // 1. 데이터 저장
+        SaveData data = SaveManager.Instance.Load();
+        if (!data.generatedSubStories.Contains(chapter))
+        {
+            data.generatedSubStories.Add(chapter);
+            SaveManager.Instance.Save(data);
+        }
+
+        // 2. 연출 실행
+        StopAllCoroutines();
+        StartCoroutine(SubStorySequence(chapter));
+    }
+
+    private bool IsAlreadyGenerated(int chapter)
+    {
+        SaveData data = SaveManager.Instance.Load();
+        return data.generatedSubStories != null && data.generatedSubStories.Contains(chapter);
+    }
+
 
     void LoadExistingSubStories()
     {
@@ -102,26 +135,34 @@ public class StoryController : MonoBehaviour
         if (!_isPendingSubStory) return;
 
         int currentChapter = StageManager.Instance.CurrentChapter();
-        SaveData data = SaveManager.Instance.Load();
-
-        if (data.generatedSubStories.Contains(currentChapter))
+        if (IsAlreadyGenerated(currentChapter))
         {
-            print($"{currentChapter}장은 이미 생성되어 있어 생성을 취소합니다.");
             _isPendingSubStory = false;
             return;
         }
 
-        // [추가] 새 스토리를 만들기 전에, 기존에 New 상태였던 UI들을 모두 Read로 교체
-        StartCoroutine(SubStorySequence(currentChapter));
+        ExecuteGeneration(currentChapter);
 
-        //// UI 생성 (애니메이션 포함)
-        //StartCoroutine(StartSequence());
+        //SaveData data = SaveManager.Instance.Load();
 
-        // 데이터 기록 및 저장
-        data.generatedSubStories.Add(currentChapter);
-        SaveManager.Instance.Save(data);
+        //if (data.generatedSubStories.Contains(currentChapter))
+        //{
+        //    print($"{currentChapter}장은 이미 생성되어 있어 생성을 취소합니다.");
+        //    _isPendingSubStory = false;
+        //    return;
+        //}
 
-        _isPendingSubStory = false;
+        //// [추가] 새 스토리를 만들기 전에, 기존에 New 상태였던 UI들을 모두 Read로 교체
+        //StartCoroutine(SubStorySequence(currentChapter));
+
+        ////// UI 생성 (애니메이션 포함)
+        ////StartCoroutine(StartSequence());
+
+        //// 데이터 기록 및 저장
+        //data.generatedSubStories.Add(currentChapter);
+        //SaveManager.Instance.Save(data);
+
+        //_isPendingSubStory = false;
     }
     //void RefreshAllToReadState()
     //{
@@ -484,4 +525,72 @@ public class StoryController : MonoBehaviour
 
         Debug.Log($"[정확한 카운트] 실제 책 개수: {validCount} -> {progress * 100}%");
     }
+
+    public void SyncToChapter(int targetChapter)
+    {
+        SaveData data = SaveManager.Instance.Load();
+
+        // 1. 데이터 업데이트
+        data.UnlockedStage = targetChapter;
+
+        // 만약 1장 상태로 되돌리는 치트라면, 데이터 리스트에서 2장(인덱스 2) 이후 기록 삭제
+        if (targetChapter == 1)
+        {
+            // 1장까지만 남기고 이후 기록 제거 (Ex: [1, 2] -> [1])
+            data.generatedSubStories.RemoveAll(ch => ch > 1);
+        }
+
+        SaveManager.Instance.Save(data);
+
+        // 2. 물리적 객체 정리: 2장 이상의 프리팹만 골라서 삭제
+        RemoveBooksAboveChapter(targetChapter);
+
+        // 3. UI 갱신 (남아있는 1권 등의 상태 업데이트)
+        UpdateProgressUI();
+    }
+
+    private void RemoveBooksAboveChapter(int limitChapter)
+    {
+        List<GameObject> toDestroy = new List<GameObject>();
+
+        foreach (Transform child in contentParent)
+        {
+            if (child.name == "Spacer") continue;
+
+            // [핵심 체크] 
+            // 1. 기존 프리팹(0권)은 보통 chapterPrefabs에 없거나 이름이 다를 것이므로 통과.
+            // 2. 챕터 프리팹들 중 limitChapter보다 높은 숫자의 프리팹을 찾습니다.
+
+            for (int i = 0; i < chapterPrefabs.Count; i++)
+            {
+                int chapterNum = i + 1; // 인덱스 0 = 1장, 인덱스 1 = 2장...
+
+                // 만약 현재 자식이 '제한 챕터'보다 높은 장의 프리팹이라면
+                if (chapterNum > limitChapter && child.name.Contains(chapterPrefabs[i].name))
+                {
+                    toDestroy.Add(child.gameObject);
+                    break;
+                }
+            }
+
+            // 추가로 '읽음(Read)' 상태가 된 2장 이상의 객체도 지워야 한다면:
+            // (이름 규칙이 "2장의 기록" 처럼 숫자를 포함한다면 아래와 같이 체크 가능)
+            Text txt = child.GetComponentInChildren<Text>();
+            if (txt != null && txt.text.Contains("2장의 기록") && limitChapter < 2)
+            {
+                if (!toDestroy.Contains(child.gameObject)) toDestroy.Add(child.gameObject);
+            }
+        }
+
+        // 대상 삭제
+        foreach (GameObject obj in toDestroy)
+        {
+            obj.transform.SetParent(null); // 즉시 부모 관계 해제 (UI 레이아웃 갱신용)
+            Destroy(obj);
+        }
+
+        // 레이아웃 즉시 재계산
+        LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
+    }
+   
 }

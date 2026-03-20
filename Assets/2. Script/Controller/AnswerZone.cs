@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Text;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -50,6 +51,7 @@ public class AnswerZone : MonoBehaviour
         {
             if (StageManager.Instance.CurrentChapter() != requiredChapter) return false;
             if (!isMainZone && StageManager.Instance.CurrentStage() != requiredPage) return false;
+
         }
 
         string baseId = data.id.Split('_')[0];
@@ -61,6 +63,7 @@ public class AnswerZone : MonoBehaviour
                 return true;
             }
         }
+
         return false;
     }
 
@@ -124,5 +127,22 @@ public class AnswerZone : MonoBehaviour
                 ItemManager.Instance.ChangeItemPos("ChapterClear", Vector2.zero);
             }
         }
+    }
+
+    public void ResetZone()
+    {
+        isSolved = false;
+
+        // 만약 Success에서 이 정답존의 자식으로 아이템을 넣었다면 정리
+        foreach (Transform child in transform)
+        {
+            // 생성된 아이템(Clone)이 자식으로 있다면 파괴 (ItemManager에서 관리하지만 확실히 하기 위해)
+            if (child.name.Contains("(Clone)"))
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        Debug.Log($"{gameObject.name} 정답존 리셋 완료");
     }
 }

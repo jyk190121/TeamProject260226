@@ -88,16 +88,30 @@ public class StageManager : MonoBehaviour
         // 기존 존재하는 아이템 파괴
         ItemManager.Instance.ClearAllItems();
 
+        //정답 존 리셋
+        AnswerZone[] zones = FindObjectsByType<AnswerZone>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (var zone in zones)
+        {
+            zone.ResetZone();
+        }
+
+        ObjectVisibilityController[] controllers = FindObjectsByType<ObjectVisibilityController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var ctrl in controllers)
+        {
+            ctrl.ResetState();
+        }
+
         ItemManager.Instance.SpawnItem(currentChapterIndex, currentStage);
 
         print($"{currentChapterIndex} 시작됨");
     }
 
-    void StartChapter(int main)
-    {
-        OnChapterStarted?.Invoke(main);
-        print($"{currentChapterIndex}장의 {currentStage}스테이지 시작됨");
-    }
+    //void StartChapter(int main)
+    //{
+    //    OnChapterStarted?.Invoke(main);
+    //    print($"{currentChapterIndex}장의 {currentStage}스테이지 시작됨");
+    //}
 
     // 스테이지 리셋
     public void ResetGame()
@@ -146,11 +160,18 @@ public class StageManager : MonoBehaviour
             storyUI.ExitStory(); // 이 함수가 stagePanel.SetActive(false)와 Library 설정을 처리함
         }
 
+        if (ItemManager.Instance != null && ItemManager.Instance.itemData != null)
+        {
+            foreach (var item in ItemManager.Instance.itemData)
+            {
+                item.currentState = ItemState.Field;
+                // 만약 초기 위치 정보도 SO에 저장된다면 리셋
+                item.changePos = item.oriPos;
+            }
+        }
+
         // 4. 아이템 스폰 및 챕터 설정 적용
         StartStage(chapter, stage);
 
-        // 5. 씬 재로드 (선택 사항)
-        // 모든 상태를 완벽히 깨끗하게 만들고 싶다면 현재 씬을 다시 로드하는 것이 가장 확실합니다.
-        // UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
 }

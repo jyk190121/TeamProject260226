@@ -278,6 +278,7 @@ public class ToolBarController : MonoBehaviour
         AnswerZone zone = GetUIComponentAtMouse<AnswerZone>(mousePos);
         string id = _currentMovingItem.name.Replace("(Clone)", "").Trim();
         Item data = itemManager.GetItemDataById(id);
+        NPCController npc = FindAnyObjectByType<NPCController>();
 
         if (zone != null)
         {
@@ -287,7 +288,22 @@ public class ToolBarController : MonoBehaviour
                 _isHoldingItem = false;
                 return;
             }
+            else
+            {
+                if (!IsMouseOverStorage(mousePos) && npc != null)
+                {
+                    if (IsThisItemForAnotherPage(data))
+                    {
+                        npc.ShowRandomHint(npc.wrongLocationHints);
+                    }
+                    else
+                    {
+                        npc.ShowRandomHint(npc.wrongItemHints);
+                    }
+                }
+            }
         }
+      
 
         if (IsMouseOverStorage(mousePos))
         {
@@ -483,5 +499,29 @@ public class ToolBarController : MonoBehaviour
             if (Keyboard.current[Key.Digit1 + i].wasPressedThisFrame) SelectTool(i);
     }
 
+    private bool IsThisItemForAnotherPage(Item itemData)
+    {
+        if (itemData == null) return false;
 
+        // 씬 내의 모든 AnswerZone을 검색 (비활성화된 것 포함)
+        AnswerZone[] allZones = Object.FindObjectsByType<AnswerZone>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (var z in allZones)
+        {
+            // 1. 아이템 ID가 일치하는 정답존을 찾음
+            if (int.TryParse(itemData.id.Split('_')[0], out int itemIdInt))
+            {
+                if (z.targetID == itemIdInt)
+                {
+                    // 2. 찾았는데, 그 정답존이 현재 페이지/챕터와 맞지 않아서 비활성화된 상태라면?
+                    // (이미 ItemManager에서 활성/비활성을 관리하므로 activeSelf로 판단 가능)
+                    if (!z.gameObject.activeInHierarchy)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
