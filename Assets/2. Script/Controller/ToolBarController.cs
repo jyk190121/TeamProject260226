@@ -11,9 +11,8 @@ public class ToolBarController : MonoBehaviour
     public ItemManager itemManager;
 
     [Header("설정")]
-    // 이제 아이템 잡을 때 레이어 이름에 의존하지 않으므로 더 안전합니다.
     public string storageLayerName = "ItemStorge"; // 보관함(그림판) 구역 레이어명
-    public float pickupScaleMultiplier = 1.15f;
+    public float pickupScaleMultiplier = 1.15f;    // 손으로 잡을 때 커지는 크기.
     public Vector2 hotSpot = Vector2.zero;
 
     [Header("도구 버튼")]
@@ -21,9 +20,9 @@ public class ToolBarController : MonoBehaviour
     public Image bucketColorPreview;
 
     [Header("돋보기 아이콘 설정")]
-    public Image magnifierBtnImage; // 툴바의 돋보기 버튼 Image 컴포넌트
-    public Sprite plusSprite;       // + 모양 스프라이트
-    public Sprite minusSprite;      // - 모양 스프라이트
+    public Image magnifierBtnImage;
+    public Sprite plusSprite;
+    public Sprite minusSprite;
 
     private bool _isStudyMode = true;
 
@@ -33,7 +32,6 @@ public class ToolBarController : MonoBehaviour
     int _selectedToolIndex = 0;
     int _currentHeldColor = 0;
     bool _isZoomActive = false;
-
 
     Vector2 _originalPos;
     Vector3 _originalScale;
@@ -61,7 +59,6 @@ public class ToolBarController : MonoBehaviour
         bool isRightDown = Mouse.current.rightButton.wasPressedThisFrame;
         Vector2 mousePos = Mouse.current.position.ReadValue();
 
-
         if (_isHoldingItem && _currentMovingItem != null)
         {
             if (Mouse.current.leftButton.isPressed) MoveItemWithMouse(mousePos);
@@ -74,7 +71,7 @@ public class ToolBarController : MonoBehaviour
 
         if (_selectedToolIndex == 2 && isRightDown) ClearBucket();
     }
-    
+
     public void EnableStudyMode()
     {
         _isStudyMode = true;
@@ -83,6 +80,7 @@ public class ToolBarController : MonoBehaviour
         SelectTool(0);
         Debug.Log("<color=cyan>[Toolbar]</color> 서재 모드 활성화: 손 도구 고정 및 다른 도구 잠금");
     }
+
     public void EnableStoryMode()
     {
         _isStudyMode = false;
@@ -96,26 +94,26 @@ public class ToolBarController : MonoBehaviour
 
         switch (_selectedToolIndex)
         {
-            case 0: TryPickUpItem(mousePos);
-                //Sound
+            case 0:
+                TryPickUpItem(mousePos);
                 SoundManager.Instance.PlaySfx(SfxId.HandUp);
                 break;
+
             case 1: // 스포이트
                 if (targetData != null)
                 {
                     if (_currentHeldColor == 0) _currentHeldColor = targetData.color;
                     else _currentHeldColor = ColorManager.MixColor(_currentHeldColor, targetData.color);
-                    UpdateBucketUI();
 
-                    //Sound
+                    UpdateBucketUI();
                     SoundManager.Instance.PlaySfx(SfxId.Spoid);
                     Debug.Log($"<color=cyan>[Spoid]</color> 조색됨: {_currentHeldColor}");
                 }
                 break;
+
             case 2: // 페인트 통
                 if (targetData != null && inStorage)
                 {
-                    //페인트 통이 비어있는 경우 (흰색)
                     if (_currentHeldColor == 0)
                     {
                         Debug.Log("<color=white>통이 비어있어 색을 칠할 수 없습니다!</color>");
@@ -128,41 +126,25 @@ public class ToolBarController : MonoBehaviour
                         return;
                     }
 
-
                     itemManager.UpdateItemColor(targetData.id, _currentHeldColor);
-
-                    //Sound
                     SoundManager.Instance.PlaySfx(SfxId.Paint);
                     Debug.Log($"<color=yellow>[Paint]</color> {targetData.id}에 색상 적용");
                 }
                 break;
-            //case 3: // 지우개
-            //    if (targetData != null && inStorage)
-            //    {
-            //        itemManager.UpdateItemColor(targetData.id, 0);
-            //        Debug.Log($"<color=white>[Eraser]</color> {targetData.id} 색상 초기화(0)");
-            //    }
-            //    break;
 
-            case 3: // [추가] 돋보기 (확대/축소)
-                    // 1. 진입(ZoomIn)이 있는지 먼저 체크
+            case 3: // 돋보기 (확대/축소)
                 ZoomInTrigger zoomIn = GetUIComponentAtMouse<ZoomInTrigger>(mousePos);
                 if (zoomIn != null)
                 {
                     zoomIn.Execute(this);
-
-                    //Sound
                     SoundManager.Instance.PlaySfx(SfxId.ZoomIn);
                     break;
                 }
 
-                // 2. 퇴장(ZoomOut)이 있는지 체크
                 ZoomOutTrigger zoomOut = GetUIComponentAtMouse<ZoomOutTrigger>(mousePos);
                 if (zoomOut != null)
                 {
                     zoomOut.Execute(this);
-
-                    //Sound
                     SoundManager.Instance.PlaySfx(SfxId.ZoomOut);
                     break;
                 }
@@ -170,30 +152,16 @@ public class ToolBarController : MonoBehaviour
         }
     }
 
-    //public void UpdateMagnifierCursor(bool isZoomed)
-    //{
-    //    _isZoomActive = isZoomed;
-    //    // 나중에 여기서 커서 이미지를 교체하면 됩니다.
-    //}
-    //public void SetMagnifierIcon(bool isZoomed)
-    //{
-    //    if (magnifierBtnImage == null || plusSprite == null || minusSprite == null) return;
-
-    //    // true면 -(확대됨), false면 +(평상시)
-    //    magnifierBtnImage.sprite = isZoomed ? minusSprite : plusSprite;
-    //}
-
+    // 💡 [유지] 돋보기 커서 상태와 UI 아이콘 변경을 통합한 함수
     public void SetZoomState(bool isZoomed)
     {
         _isZoomActive = isZoomed;
 
         if (magnifierBtnImage != null && plusSprite != null && minusSprite != null)
         {
-            // true면 - (확대됨), false면 + (평상시)
             magnifierBtnImage.sprite = isZoomed ? minusSprite : plusSprite;
         }
     }
-
 
     private T GetUIComponentAtMouse<T>(Vector2 mousePos) where T : Component
     {
@@ -206,13 +174,11 @@ public class ToolBarController : MonoBehaviour
         return null;
     }
 
-    private void ClearBucket() 
+    private void ClearBucket()
     {
         _currentHeldColor = 0;
-
-        //Sound
-        SoundManager.Instance.PlaySfx(SfxId.EmptyPaint); 
-        UpdateBucketUI(); 
+        SoundManager.Instance.PlaySfx(SfxId.EmptyPaint);
+        UpdateBucketUI();
     }
 
     private void UpdateBucketUI() { if (bucketColorPreview != null) bucketColorPreview.color = ColorManager.GetColor(_currentHeldColor); }
@@ -261,13 +227,13 @@ public class ToolBarController : MonoBehaviour
     }
 
     // ---------------------------------------------------
-    // [기능] 드래그 앤 드롭 (무조건 잡히고, 무조건 따라옴)
+    // [기능] 드래그 앤 드롭
     // ---------------------------------------------------
     private void TryPickUpItem(Vector2 mousePos)
     {
         Item data = null;
-        
-        if(!MouseClickManager.Instance.IsClickBlocked)
+
+        if (!MouseClickManager.Instance.IsClickBlocked)
         {
             data = GetItemAtMouse(mousePos, out GameObject rootObject);
 
@@ -281,11 +247,9 @@ public class ToolBarController : MonoBehaviour
                 _originalScale = _currentMovingItem.transform.localScale;
                 _currentMovingItem.transform.localScale = _originalScale * pickupScaleMultiplier;
 
-                //SetUIRaycastTarget(_currentMovingItem, false);
                 Debug.Log($"<color=green>[PickUp]</color> {data.id} 잡기 성공!");
             }
         }
-
     }
 
     private void TryPlaceItem(Vector2 mousePos)
@@ -322,62 +286,15 @@ public class ToolBarController : MonoBehaviour
                 }
             }
         }
-      
 
         if (IsMouseOverStorage(mousePos))
         {
             _currentMovingItem.transform.localScale = _originalScale;
 
-            bool isFirstPickup = (data.currentState == ItemState.Field);
-
+            // 💡 [클린업] 이 자리에 있던 거대한 107번 기믹 코드가 흔적도 없이 사라졌습니다!
+            // 툴바는 오직 상태 변경 통보만 담당합니다.
             itemManager.UpdateItemStateAndPosition(id, ItemState.Storage, _currentMovingItem.transform.position);
             SoundManager.Instance.PlaySfx(SfxId.HandDrop);
-
-
-            if (id == "107")
-            {
-                if (isFirstPickup)
-                {
-                    Debug.Log("107번 시계 획득! 배경 상태를 영구 고정합니다.");
-
-                    // [수정 핵심] 씬에 있는 모든 '오브젝트 등장 조정기'를 가져옵니다 (비활성화된 것 포함)
-                    ObjectVisibilityController[] allControllers = Object.FindObjectsByType<ObjectVisibilityController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-
-                    foreach (var ctrl in allControllers)
-                    {
-                        // 1. 시계 있는 배경 (YesClock) -> 끄고 잠금
-                        if (ctrl.gameObject.name == "YesClock")
-                        {
-                            ctrl.isSolved = true;
-                            ctrl.gameObject.SetActive(false);
-                        }
-
-                        // 3. 문 (Stage1_Door) -> 끄고 잠금 (호박 문제 해결 연동)
-                        else if (ctrl.gameObject.name == "Stage1_Door")
-                        {
-                            ctrl.isSolved = true;
-                            ctrl.gameObject.SetActive(false);
-                        }
-                    }
-
-                    // 3. 확대 패널 끄기 (기존 유지)
-                    ZoomOutTrigger zoomTrigger = Object.FindFirstObjectByType<ZoomOutTrigger>();
-                    if (zoomTrigger != null && zoomTrigger.myPanel != null)
-                        zoomTrigger.myPanel.SetActive(false);
-
-                    SetZoomState(false);
-
-                    // 4. 서재로 정식 복귀 (기존 유지)
-                    StoryConversionController conversionCtrl = Object.FindFirstObjectByType<StoryConversionController>();
-                    if (conversionCtrl != null)
-                    {
-                        conversionCtrl.ExitStory();
-                    }
-
-                    // 5. 위치 보정 (기존 유지)
-                    itemManager.UpdateStageVisibility("Study");
-                }
-            }
         }
         else
         {
@@ -388,6 +305,7 @@ public class ToolBarController : MonoBehaviour
         _currentMovingItem = null;
         _isHoldingItem = false;
     }
+
     private void MoveItemWithMouse(Vector2 mousePos)
     {
         if (_currentMovingItem == null) return;
@@ -407,16 +325,30 @@ public class ToolBarController : MonoBehaviour
         }
     }
 
-    private List<RaycastResult> GetUIElementsAtMouse(Vector2 mousePos) { PointerEventData pd = new PointerEventData(EventSystem.current) { position = mousePos }; List<RaycastResult> rs = new List<RaycastResult>(); EventSystem.current.RaycastAll(pd, rs); return rs; }
-    private void SetUIRaycastTarget(GameObject obj, bool s) { Graphic[] gs = obj.GetComponentsInChildren<Graphic>(true); foreach (Graphic g in gs) g.raycastTarget = s; }
+    private List<RaycastResult> GetUIElementsAtMouse(Vector2 mousePos)
+    {
+        PointerEventData pd = new PointerEventData(EventSystem.current) { position = mousePos };
+        List<RaycastResult> rs = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pd, rs);
+        return rs;
+    }
+
+    private void SetUIRaycastTarget(GameObject obj, bool isTarget)
+    {
+        Graphic[] allGraphicComponents = obj.GetComponentsInChildren<Graphic>(true);
+        foreach (Graphic graphicComponent in allGraphicComponents)
+        {
+            graphicComponent.raycastTarget = isTarget;
+        }
+    }
 
     public void SelectTool(int index)
     {
-        // 1. [핵심 추가] 아이템을 잡고 이동 중일 때는 도구 전환 입력을 완전히 무시합니다.
+        // 1. [핵심] 아이템을 잡고 이동 중일 때는 도구 전환 입력을 완전히 무시합니다.
         if (_isHoldingItem)
         {
             Debug.Log("<color=red>[경고]</color> 아이템을 들고 있는 중에는 도구를 변경할 수 없습니다!");
-            return; // 여기서 함수를 종료해버림
+            return;
         }
 
         if (_isStudyMode && index != 0)
@@ -451,7 +383,6 @@ public class ToolBarController : MonoBehaviour
                 CursorManager.Instance.ChangeCursor(CursorState.Glasses);
                 break;
         }
-
     }
 
     public CursorState GetCurrentToolCursorState()
@@ -459,23 +390,23 @@ public class ToolBarController : MonoBehaviour
         switch (_selectedToolIndex)
         {
             case 0:
-                {// 1. 클릭(드래그) 중이면 무조건 쥔 손
-                    if (Mouse.current.leftButton.isPressed) return CursorState.HandClosed;
+                // 1. 클릭(드래그) 중이면 무조건 쥔 손
+                if (Mouse.current.leftButton.isPressed) return CursorState.HandClosed;
 
-                    // 2. 마우스 아래 아이템이 A타입이면 반 쥔 손
-                    // (주의: 여기서 마우스 위치는 Input.mousePosition 혹은 Mouse.current 사용)
-                    Item hoverItem = GetItemAtMouse(Mouse.current.position.ReadValue(), out _);
-                    if (hoverItem != null && hoverItem.type == ItemType.A) return CursorState.HandHalf;
+                // 2. 마우스 아래 아이템이 A타입이면 반 쥔 손
+                Item hoverItem = GetItemAtMouse(Mouse.current.position.ReadValue(), out _);
+                if (hoverItem != null && hoverItem.type == ItemType.A) return CursorState.HandHalf;
 
-                    // 3. 그 외에는 펴진 손
-                    return CursorState.HandOpen;
-                }
+                // 3. 그 외에는 펴진 손
+                return CursorState.HandOpen;
+
             case 1: return CursorState.Spoid;
             case 2: return CursorState.Paint;
             case 3: return CursorState.Glasses;
             default: return CursorState.Normal;
         }
     }
+
     private void UpdateHandCursorState(Vector2 mousePos)
     {
         // 1. 클릭 중 -> 완전히 쥔 손
@@ -497,8 +428,6 @@ public class ToolBarController : MonoBehaviour
             CursorManager.Instance.ChangeCursor(CursorState.HandOpen);
         }
     }
-   
-
 
     private void HandleNumericInput()
     {
@@ -526,7 +455,6 @@ public class ToolBarController : MonoBehaviour
                 if (z.targetID == itemIdInt)
                 {
                     // 2. 찾았는데, 그 정답존이 현재 페이지/챕터와 맞지 않아서 비활성화된 상태라면?
-                    // (이미 ItemManager에서 활성/비활성을 관리하므로 activeSelf로 판단 가능)
                     if (!z.gameObject.activeInHierarchy)
                     {
                         return true;

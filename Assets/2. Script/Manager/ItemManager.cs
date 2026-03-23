@@ -102,10 +102,6 @@ public class ItemManager : MonoBehaviour
                                  (data.chapterIndex == currentChap) &&
                                  (data.stageIndex == currentStage);
 
-                // 💡 만약, "사용한(Used) 아이템은 원래 맵에 돌아가도 아예 안 보여야 한다"는 
-                // 기획이라면 아래 주석(//)을 해제하세요. (원래 맵에 그대로 박혀 있어야 한다면 이대로 두시면 됩니다.)
-                // if (data.currentState == ItemState.Used) isMyStage = false;
-
                 obj.SetActive(isMyStage);
             }
         }
@@ -146,7 +142,6 @@ public class ItemManager : MonoBehaviour
 
         GameObject frontObj = GameObject.Find("Front");
 
-
         if (data.id.Equals("105"))
         {
             if (frontObj != null)
@@ -158,7 +153,7 @@ public class ItemManager : MonoBehaviour
                 print("Front 오브젝트를 찾을 수 없습니다.");
             }
         }
-        if(GameSceneManager.Instance.GetContinue() && data.id.Equals("IntroMerry"))
+        if (GameSceneManager.Instance.GetContinue() && data.id.Equals("IntroMerry"))
         {
             Destroy(data.prefab);
         }
@@ -180,7 +175,23 @@ public class ItemManager : MonoBehaviour
     public void UpdateItemStateAndPosition(string itemId, ItemState newState, Vector2 newPos)
     {
         Item data = GetItemDataById(itemId);
-        if (data != null) { data.currentState = newState; data.changePos = newPos; ChangeItemPos(itemId, newPos); UpdateStageVisibility(_currentLocation); }
+        if (data != null)
+        {
+            // 💡 [핵심 보완] 상태를 덮어쓰기 전에 과거 상태(oldState)를 기억합니다.
+            ItemState oldState = data.currentState;
+
+            data.currentState = newState;
+            data.changePos = newPos;
+
+            // 1. 세이브 데이터 갱신 및 위치 저장
+            ChangeItemPos(itemId, newPos);
+
+            // 2. 아이템 가시성 갱신
+            UpdateStageVisibility(_currentLocation);
+
+            // 3. 💡 [기믹 호출] 과거 상태와 현재 상태를 비교할 수 있도록 같이 넘겨줍니다.
+            HandleItemGimmicks(itemId, newState, oldState);
+        }
     }
 
     public void UpdateItemColor(string itemId, int newColorIndex)
@@ -208,9 +219,6 @@ public class ItemManager : MonoBehaviour
 
         if (data.itemPositions == null) data.itemPositions = new List<ItemSaveInfo>();
 
-        // ⭐️ [버그 수정] data.itemPositions.Clear(); 삭제
-        // 이걸 지우지 않으면 과거 스테이지 바닥에 두고 온 아이템이 세이브에서 영구 삭제됩니다.
-
         foreach (var entry in spawnedItems)
         {
             string id = entry.Key;
@@ -227,8 +235,6 @@ public class ItemManager : MonoBehaviour
                 {
                     existingInfo.savedPos = savePos;
                     existingInfo.savedColor = so.color;
-
-                    // ⭐️ [핵심 1] 덮어쓸 때 현재 상태(가방인지 바닥인지)를 세이브 파일에 확실히 적어줍니다.
                     existingInfo.savedState = so.currentState;
                 }
                 else
@@ -238,8 +244,6 @@ public class ItemManager : MonoBehaviour
                         itemId = id,
                         savedPos = savePos,
                         savedColor = so.color,
-
-                        // ⭐️ [핵심 2] 처음 저장할 때도 상태를 확실히 적어줍니다.
                         savedState = so.currentState
                     });
                 }
@@ -258,13 +262,11 @@ public class ItemManager : MonoBehaviour
 
     private void UpdateInteractZones(int chapter, int stage)
     {
-        //상태 확인 후 문 생성 조건 확인.
         Item pumpkin = GetItemDataById("105");
         bool isPumpkinUsed = (pumpkin != null && pumpkin.currentState == ItemState.Used);
 
         Item clock = GetItemDataById("107");
         bool hasClock = (clock != null && (clock.currentState == ItemState.Storage || clock.currentState == ItemState.Used));
-
 
         AnswerZone[] answerZones = Object.FindObjectsByType<AnswerZone>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var zone in answerZones)
@@ -289,7 +291,6 @@ public class ItemManager : MonoBehaviour
                 continue;
             }
 
-            // 시계를 가졌다면 시계가 있던 배경(YesClock)은 무조건 비활성화
             if (hasClock && obj.gameObject.name == "YesClock")
             {
                 obj.isSolved = true;
@@ -316,11 +317,8 @@ public class ItemManager : MonoBehaviour
             }
             obj.gameObject.SetActive(shouldBeActive);
         }
-
-
-
     }
-    // 씬에 있는 모든 줌 패널을 안전하게 닫아주는 공용 함수
+
     public void CloseAllZoomPanels()
     {
         ZoomOutTrigger[] allZoomOuts = Object.FindObjectsByType<ZoomOutTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -332,13 +330,48 @@ public class ItemManager : MonoBehaviour
             }
         }
 
-        // 툴바 내부의 줌 상태도 false로 초기화
         ToolBarController tool = Object.FindFirstObjectByType<ToolBarController>();
         if (tool != null)
         {
+            // 💡 [수정 완료] 통합된 줌 함수 사용
             tool.SetZoomState(false);
         }
 
         Debug.Log("<color=cyan>[UI 클린업]</color> 모든 확대 패널을 닫았습니다.");
+    }
+
+    private void HandleItemGimmicks(string itemId, ItemState newState, ItemState oldState)
+    {
+        // 💡 [핵심 보완] 107번 시계가 '바닥(Field)'에서 '가방(Storage)'으로 처음 들어올 때만 작동!
+        if (itemId == "107" && newState == ItemState.Storage && oldState == ItemState.Field)
+        {
+            Debug.Log("<color=lime>[Gimmick]</color> 107번 시계 초회 획득 기믹 발동!");
+
+            // 1. 배경 및 문 상태 영구 고정 (ObjectVisibilityController 제어)
+            ObjectVisibilityController[] allControllers = Object.FindObjectsByType<ObjectVisibilityController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var ctrl in allControllers)
+            {
+                if (ctrl.gameObject.name == "YesClock" || ctrl.gameObject.name == "Stage1_Door")
+                {
+                    ctrl.isSolved = true;
+                    ctrl.gameObject.SetActive(false);
+                }
+            }
+
+            // 2. 현재 열려있는 모든 확대 패널 닫기
+            CloseAllZoomPanels();
+
+            // 3. 다른 팀원의 영역: 서재로 강제 복귀 (StoryConversionController)
+            StoryConversionController conversionCtrl = Object.FindFirstObjectByType<StoryConversionController>();
+            if (conversionCtrl != null)
+            {
+                conversionCtrl.ExitStory();
+            }
+
+            // 4. 아이템 가시성을 서재(Study) 기준으로 즉시 갱신
+            UpdateStageVisibility("Study");
+        }
+
+        // 💡 나중에 새로운 아이템 기믹이 생기면 여기에 else if로 추가하면 됩니다!
     }
 }
