@@ -4,7 +4,7 @@ using UnityEngine.Events;
 [AddComponentMenu("스토리 연출/오브젝트 등장 조정기")]
 public class ObjectVisibilityController : MonoBehaviour
 {
-    [Header("--- 🎬 오브젝트 등장 조정기 ---")]
+    [Header("--- 오브젝트 등장 조정기 ---")]
     [Header("등장할 화면 위치")]
     [Tooltip("기본화면: Sub, 챕터화면: Main, 특정 확대화면: Zoom_Desk 등")]
     public string locationID = "Sub";
@@ -38,7 +38,7 @@ public class ObjectVisibilityController : MonoBehaviour
 [AddComponentMenu("스토리 연출/기믹 진행도 카운터")]
 public class GimmickCounter : MonoBehaviour
 {
-    [Header("--- 🔢 기믹 진행도 카운터 ---")]
+    [Header("--- 기믹 진행도 카운터 ---")]
     [Header("이 페이지를 넘어가기 위한 목표 클리어 횟수")]
     public int targetCount = 3;
     private int currentCount = 0;
